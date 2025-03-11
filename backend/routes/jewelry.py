@@ -1,0 +1,76 @@
+import os
+import uuid
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile, Form
+from sqlalchemy.orm import Session
+from PIL import Image
+from io import BytesIO
+from schemas.jewelry_upload import JewelryUploadCreate
+from models.jewelry_upload import JewelryUpload
+from models.jewelry_image import JewelryImage
+from utils.database import get_db
+
+app = FastAPI()
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.post("/jewelry-uploads/")
+async def create_upload(
+    user_id: int = Form(...),
+    upload_source: str = Form(...),
+    files: list[UploadFile] = File(...),
+    view_types: list[str] = Form(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        if not files:
+            raise HTTPException(status_code=400, detail="No files uploaded")
+        if len(files) != len(view_types):
+            raise HTTPException(status_code=400, detail="Mismatched files and view types")
+
+        jewelry_name = os.path.splitext(files[0].filename)[0]  
+        db_upload = JewelryUpload(
+            user_id=user_id,
+            jewelry_name=jewelry_name,
+            upload_source=upload_source
+        )
+        db.add(db_upload)
+        db.flush()
+
+        for file, view_type in zip(files, view_types):
+            if view_type not in ['front', 'side', 'angled', 'top']:
+                raise HTTPException(status_code=400, detail=f"Invalid view type: {view_type}")
+            contents = await file.read()
+            try:
+                with Image.open(BytesIO(contents)) as img:
+                    width, height = img.size
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Invalid image file: {str(e)}")
+
+            
+            file_ext = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4()}{file_ext}"
+            file_path = os.path.join(UPLOAD_DIR, unique_filename)
+            
+            with open(file_path, "wb") as buffer:
+                buffer.write(contents)
+
+            
+            db_image = JewelryImage(
+                jewelry_upload_id=db_upload.id,
+                view_type=view_type,
+                image_width=width,
+                image_height=height,
+                file_path=file_path
+            )
+            db.add(db_image)
+
+        db.commit()
+        db.refresh(db_upload)
+        return db_upload
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+

@@ -12,6 +12,8 @@ import { FileUploadContext } from "../context/FileUploadContext";
 
 const AdminUpload = () => {
   const { files, setFiles } = useContext(FileUploadContext);
+  const [viewTypes, setViewTypes] = useState([]);
+  const [uploadSource, setUploadSource] = useState("local");
 
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
@@ -20,6 +22,7 @@ const AdminUpload = () => {
   const handleFileChange = (event) => {
     const newFiles = Array.from(event.target.files);
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setViewTypes(prev => [...prev, ...newFiles.map(() => "front")]);
     setShowAlert(false);
   };
 
@@ -39,14 +42,42 @@ const AdminUpload = () => {
     const updatedFiles = files.filter((_, i) => i !== index);
     setFiles(updatedFiles);
   };
+  // Handle view type change
+  const handleViewTypeChange = (index, value) => {
+    const newTypes = [...viewTypes];
+    newTypes[index] = value;
+    setViewTypes(newTypes);
+  };
 
-  const handleDoneClick = () => {
-    if (files.length === 0) {
-      setShowAlert(true);
-    } else {
+  const handleDoneClick = async () => {
+    if (files.length === 0) return setShowAlert(true);
+
+    const formData = new FormData();
+    const userId = Math.floor(1000 + Math.random() * 9000); // 4-digit random ID
+
+    formData.append("user_id", userId);
+    formData.append("upload_source", uploadSource);
+
+    files.forEach((file, index) => {
+      formData.append("files", file);
+      formData.append("view_types", viewTypes[index]);
+    });
+
+    try {
+      const response = await fetch("http://localhost:8000/api/jewelry-uploads/", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      await response.json();
       navigate("/admin/engraving");
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed. Please check console for details.");
     }
   };
+
 
 
   return (
@@ -117,12 +148,34 @@ const AdminUpload = () => {
                 {files.map((file, index) => (
                   <div key={index} className="flex justify-between items-center bg-blue-100 px-4 py-2 rounded-lg">
                     <span className="text-gray-800 truncate">{file.name}</span>
-                    <button onClick={() => handleRemoveFile(index)} className="text-red-500">
-                      <RiDeleteBin6Line />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={viewTypes[index]}
+                        onChange={(e) => handleViewTypeChange(index, e.target.value)}
+                        className="border rounded p-1 text-sm"
+                      >
+                        <option value="front">Front</option>
+                        <option value="side">Side</option>
+                        <option value="angled">Angled</option>
+                        <option value="top">Top</option>
+                      </select>
+                      <button onClick={() => handleRemoveFile(index)} className="text-red-500">
+                        <RiDeleteBin6Line />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
+              // <div className="w-full max-h-[150px] overflow-y-auto flex flex-col gap-2">
+              //   {files.map((file, index) => (
+              //     <div key={index} className="flex justify-between items-center bg-blue-100 px-4 py-2 rounded-lg">
+              //       <span className="text-gray-800 truncate">{file.name}</span>
+              //       <button onClick={() => handleRemoveFile(index)} className="text-red-500">
+              //         <RiDeleteBin6Line />
+              //       </button>
+              //     </div>
+              //   ))}
+              // </div>
             )}
           </div>
 

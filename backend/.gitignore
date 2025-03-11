@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files
+.env
+.venv/
+*.env
+
+# IDE and editor config files
+.vscode/
+.idea/
+*.swp
+
+# Log files
+*.log
+
+# Python virtual environment
+*.venv/
+venv/
+
+# Ignore uploads (if you want to exclude uploaded files)
+uploads/
+
+# OS generated files
+.DS_Store
+Thumbs.db
