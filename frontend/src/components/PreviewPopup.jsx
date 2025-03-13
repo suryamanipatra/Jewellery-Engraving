@@ -202,4 +202,3 @@ const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewI
 }
 
 export default PreviewPopup
-

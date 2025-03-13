@@ -1,20 +1,20 @@
-import os
-import uuid
-from fastapi import Depends, FastAPI, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, File, UploadFile, Form, HTTPException
 from sqlalchemy.orm import Session
 from PIL import Image
 from io import BytesIO
+import os
+import uuid
 from schemas.jewelry_upload import JewelryUploadCreate
 from models.jewelry_upload import JewelryUpload
 from models.jewelry_image import JewelryImage
 from utils.database import get_db
 
-app = FastAPI()
+router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@app.post("/jewelry-uploads/")
+@router.post("/jewelry-uploads/")
 async def create_upload(
     user_id: int = Form(...),
     upload_source: str = Form(...),
@@ -36,7 +36,7 @@ async def create_upload(
         )
         db.add(db_upload)
         db.flush()
-
+        images = []
         for file, view_type in zip(files, view_types):
             if view_type not in ['front', 'side', 'angled', 'top']:
                 raise HTTPException(status_code=400, detail=f"Invalid view type: {view_type}")
@@ -64,10 +64,13 @@ async def create_upload(
                 file_path=file_path
             )
             db.add(db_image)
-
+            images.append(db_image)
         db.commit()
         db.refresh(db_upload)
-        return db_upload
+        return {
+            "upload": db_upload,
+            "images": images
+        }
 
     except Exception as e:
         db.rollback()

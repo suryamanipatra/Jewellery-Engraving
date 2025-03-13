@@ -13,4 +13,4 @@ class JewelryUpload(Base):
     upload_source = Column(Enum("local", "google_drive"), nullable=False)
     uploaded_at = Column(TIMESTAMP, server_default=func.now())
     
-    images = relationship("JewelryImage", back_populates="upload")
+    images = relationship("JewelryImage", back_populates="upload") 

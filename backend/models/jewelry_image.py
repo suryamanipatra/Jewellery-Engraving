@@ -12,7 +12,9 @@ class JewelryImage(Base):
     view_type = Column(Enum("front", "side", "angled", "top"), nullable=False)
     image_height = Column(Integer, nullable=False)
     image_width = Column(Integer, nullable=False)
-    file_path = Column(String, nullable=False)
+    file_path = Column(String(255), nullable=False)
     uploaded_at = Column(TIMESTAMP, server_default=func.now())
     
     upload = relationship("JewelryUpload", back_populates="images")
+    product = relationship("Product", back_populates="image", uselist=False)
+    engraving_details = relationship("EngravingDetail", back_populates="image")
