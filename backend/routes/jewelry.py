@@ -6,6 +6,8 @@ import os
 import uuid
 from schemas.jewelry_upload import JewelryUploadCreate
 from models.jewelry_upload import JewelryUpload
+from schemas.jewelry_upload import JewelryUpload as JewelryUploadSchema
+from schemas.jewelry_image import JewelryImage as JewelryImageSchema
 from models.jewelry_image import JewelryImage
 from utils.database import get_db
 
@@ -67,9 +69,11 @@ async def create_upload(
             images.append(db_image)
         db.commit()
         db.refresh(db_upload)
+        upload_schema = JewelryUploadSchema.from_orm(db_upload)
+        image_schemas = [JewelryImageSchema.from_orm(img) for img in images]
         return {
-            "upload": db_upload,
-            "images": images
+            "upload": upload_schema.dict(),
+            "images": [img.dict() for img in image_schemas]
         }
 
     except Exception as e:

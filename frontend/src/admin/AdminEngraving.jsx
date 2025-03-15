@@ -16,6 +16,8 @@ import { defaultDesign } from "../constant/engravingConstants";
 
 const AdminEngraving = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const jewelryUploadId = location.state?.jewelryUploadId;
   const { files } = useContext(FileUploadContext);
   const stageRef = useRef(null);
 
@@ -27,7 +29,6 @@ const AdminEngraving = () => {
   const { engravingState, handleInputChange, addEngravingLine } = useEngravingHandling();
   const { konvaState, konvaActions } = useKonvaHandling();
   const { setEngravings } = useContext(FileUploadContext);
-  const location = useLocation();
   const [currentDesign, setCurrentDesign] = useState(() => ({
     ...defaultDesign,
     ...(location.state?.engraving || {}),
@@ -114,6 +115,7 @@ const AdminEngraving = () => {
           setSideBarOpen={setSideBarOpen}
           isProductTypeOpen={isProductTypeOpen}
           setIsProductTypeOpen={setIsProductTypeOpen}
+          jewelryUploadId={jewelryUploadId}
         />
 
         <div className="w-full lg:w-[80%] bg-[#1C4E6D] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">

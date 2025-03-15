@@ -1,4 +1,5 @@
-import React from "react";
+import React,{useState} from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
 import { FaRing } from "react-icons/fa";
 import { GiEarrings, GiNecklace } from "react-icons/gi";
@@ -19,7 +20,35 @@ const Sidebar = ({
   setSelectedLine,
   isProductTypeOpen,
   setIsProductTypeOpen,
+  jewelryUploadId
 }) => {
+  const location = useLocation();
+  const [selectedProductType, setSelectedProductType] = useState("");
+  const handleProductTypeSelect = async (productType) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jewelry_upload_id: jewelryUploadId,
+          product_type: productType.toLowerCase()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to set product type");
+      }
+
+      const result = await response.json();
+      console.log("Product type updated:", result);
+      setSelectedProductType(productType);
+    } catch (error) {
+      console.error("Error setting product type:", error);
+      alert("Error setting product type. Please check console for details.");
+    }
+  };
   const handleLineClick = (line) => {
     setSelectedLine(line);
   };
@@ -57,7 +86,10 @@ const Sidebar = ({
             {["Ring", "Earring", "Necklace"].map((item, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 md:gap-3 cursor-pointer"
+                className={`flex items-center gap-2 md:gap-3 cursor-pointer ${
+                  selectedProductType === item ? "text-blue-500" : ""
+                }`}
+                onClick={() => handleProductTypeSelect(item)}
               >
                 {item === "Ring" ? (
                   <FaRing />

@@ -69,9 +69,15 @@ const AdminUpload = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Upload failed");
-      await response.json();
-      navigate("/admin/engraving");
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${responseData.detail || 'Unknown error'}`);
+      }
+      console.log("uploaded data", responseData);
+      // navigate("/admin/engraving");
+      navigate("/admin/engraving", {
+        state: { jewelryUploadId: responseData.upload.id }
+      });
     } catch (error) {
       console.error("Upload error:", error);
       alert("Upload failed. Please check console for details.");
