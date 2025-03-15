@@ -18,7 +18,6 @@ const AdminUpload = () => {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
 
-  // Handle file selection from input
   const handleFileChange = (event) => {
     const newFiles = Array.from(event.target.files);
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
@@ -26,7 +25,6 @@ const AdminUpload = () => {
     setShowAlert(false);
   };
 
-  // Handle drag and drop
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
@@ -42,7 +40,6 @@ const AdminUpload = () => {
     const updatedFiles = files.filter((_, i) => i !== index);
     setFiles(updatedFiles);
   };
-  // Handle view type change
   const handleViewTypeChange = (index, value) => {
     const newTypes = [...viewTypes];
     newTypes[index] = value;
@@ -53,7 +50,7 @@ const AdminUpload = () => {
     if (files.length === 0) return setShowAlert(true);
 
     const formData = new FormData();
-    const userId = Math.floor(1000 + Math.random() * 9000); // 4-digit random ID
+    const userId = Math.floor(1000 + Math.random() * 9000); 
 
     formData.append("user_id", userId);
     formData.append("upload_source", uploadSource);
@@ -76,7 +73,9 @@ const AdminUpload = () => {
       console.log("uploaded data", responseData);
       // navigate("/admin/engraving");
       navigate("/admin/engraving", {
-        state: { jewelryUploadId: responseData.upload.id }
+        state: { jewelryUploadId: responseData.upload.id,
+                 images: responseData.images
+         }
       });
     } catch (error) {
       console.error("Upload error:", error);

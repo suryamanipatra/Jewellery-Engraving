@@ -10,6 +10,7 @@ import { IoIosArrowDown, IoIosArrowUp, IoMdCloseCircle } from "react-icons/io";
 import { ImCross } from "react-icons/im";
 
 const Sidebar = ({
+  selectedImageId,
   engravingLines,
   engravingData,
   selectedLine,
@@ -24,6 +25,40 @@ const Sidebar = ({
 }) => {
   const location = useLocation();
   const [selectedProductType, setSelectedProductType] = useState("");
+  const handleAddEngravingLine = async () => {
+    try {
+      if (!selectedImageId) {
+        alert("No image selected");
+        return;
+      }
+
+      const detailsRes = await fetch(
+        `http://localhost:8000/api/engraving-details/image/${selectedImageId}`
+      );
+      const details = await detailsRes.json();
+      let engravingDetail = details[details.length - 1];
+      const currentLines = engravingLines.length;
+      const neededLines = currentLines + 1;
+      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+        const newDetailRes = await fetch("http://localhost:8000/api/engraving-details/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            jewelry_image_id: selectedImageId,
+            total_lines: neededLines
+          })
+        });
+        engravingDetail = await newDetailRes.json();
+        console.log("New engraving detail created:", engravingDetail);
+      }
+
+      addEngravingLine(neededLines);
+      
+    } catch (error) {
+      console.error("Error adding line:", error);
+      alert("Failed to add engraving line");
+    }
+  };
   const handleProductTypeSelect = async (productType) => {
     try {
       const response = await fetch("http://localhost:8000/api/products", {
@@ -120,7 +155,7 @@ const Sidebar = ({
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
-        <FiPlusCircle className="cursor-pointer" onClick={addEngravingLine} />
+        <FiPlusCircle className="cursor-pointer" onClick={handleAddEngravingLine} />
       </div>
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
