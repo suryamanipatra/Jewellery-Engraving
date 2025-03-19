@@ -17,7 +17,7 @@ const EngravingStage = forwardRef(({
     if (selectedImage) {
       // console.log("Selected image:", selectedImage);
       const img = new window.Image();
-      
+      img.crossOrigin = "anonymous";
       img.src = selectedImage;
       console.log("image height",img.height)
       console.log("Image width", img.width)
@@ -48,6 +48,7 @@ const EngravingStage = forwardRef(({
         {konvaImage && (
           <Image 
             image={konvaImage}
+            crossOrigin="anonymous"
             width={window.innerWidth < 768 ? 250 : 450}
             height={window.innerWidth < 768 ? 150 : 400}
           />

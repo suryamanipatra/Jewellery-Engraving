@@ -94,7 +94,7 @@ const Sidebar = ({
   return (
     <div
       className={`${sidebarOpen
-          ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-0 overflow-y-auto h-[100vh]"
+          ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-0 h-[100vh]"
           : "hidden"
         } lg:relative lg:block lg:z-0 lg:pt-0 lg:w-[20%] md:w-[40%] sm:w-[40%] transition-all overflow-y-auto duration-300 ease-in-out`}
     >
@@ -132,7 +132,7 @@ const Sidebar = ({
                   value={item}
                   checked={selectedProductType === item}
                   onChange={(e) => handleProductTypeSelect(e.target.value)}
-                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                  className="form-radio h-4 w-4  accent-[#062538]"
                 />
                 {item === "Ring" ? (
                   <FaRing className="text-lg" />
@@ -141,7 +141,7 @@ const Sidebar = ({
                 ) : (
                   <GiNecklace className="text-lg" />
                 )}
-                <span className="text-gray-700">{item}</span>
+                <span className="text-gray-700 color-[#062538]">{item}</span>
               </label>
             ))}
           </div>

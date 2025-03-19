@@ -7,7 +7,7 @@ const EngravingForm = ({ engravingLines, engravingData, handleInputChange }) => 
         <div className="w-full p-2 rounded-2xl flex flex-col justify-between">
             <h2 className="text-lg font-semibold text-white mb-2">Engraving</h2>
     
-            <div className="w-full max-h-[120px] overflow-y-auto p-3 flex flex-col gap-3">
+            <div className="w-full p-3 flex flex-col gap-3">
                 {engravingLines.map((line) => (
                     <div key={line} className="w-full flex items-center gap-3">
                         <label className="text-white text-[16px] font-medium w-16 text-center">
