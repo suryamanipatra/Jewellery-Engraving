@@ -1,41 +1,59 @@
 import { useState } from "react";
 
+
 export const useKonvaHandling = (initialState = {}) => {
   const [konvaState, setKonvaState] = useState({
-    path: initialState.path || null,
-    textColor: initialState.textColor || "#000000",
-    textPosition: initialState.textPosition || { x: 0, y: 0 },
+    paths: initialState.paths || { 1: "M50,150 Q250,50 350,150" },
+    positions: initialState.positions || { 1: { x: 50, y: 150 } },
     rotation: initialState.rotation || 0,
     showPath: initialState.showPath !== undefined ? initialState.showPath : true,
+    scale: 1,
+    imageDimensions: { width: 0, height: 0 },
   });
-  const [path, setPath] = useState("M50,150 Q250,50 450,150");
-  const [textPosition, setTextPosition] = useState({ x: 50, y: 150 });
-  const [textColor, setTextColor] = useState("#000000");
-  const [rotation, setRotation] = useState(0);
-  const [showPath, setShowPath] = useState(true);
-  const [fontSize, setFontSize] = useState(24);
 
-  const handleTextDrag = (e) => {
-    setTextPosition({ x: e.target.x(), y: e.target.y() });
+  const handleTextDrag = (line, e) => {
+    setKonvaState(prev => ({
+      ...prev,
+      positions: {
+        ...prev.positions,
+        [line]: { x: e.target.x(), y: e.target.y() }
+      }
+      
+    }));
+    // console.log("positions",positions)
+    // console.log(`Text Position for Line ${line}:`, { x: e.target.x(), y: e.target.y() });
+  };
+  const addNewLine = (line, path, position) => {
+    setKonvaState(prev => ({
+      ...prev,
+      paths: { ...prev.paths, [line]: path },
+      positions: { ...prev.positions, [line]: position },
+    }));
   };
 
-  const handlePathDrag = (oldX, oldY, newX, newY) => {
-    setPath(path.replace(
-      new RegExp(`${oldX},${oldY}`, "g"),
-      `${newX},${newY}`
-    ));
+  const handlePathDrag = (line, oldX, oldY, newX, newY) => {
+    setKonvaState(prev => ({
+      ...prev,
+      paths: {
+        ...prev.paths,
+        [line]: prev.paths[line].replace(
+          new RegExp(`${oldX},${oldY}`, "g"),
+          `${newX},${newY}`
+        )
+      }
+    }));
+    
   };
 
   return {
-    konvaState: { path, textPosition, textColor, rotation, showPath, fontSize },
+    konvaState,
     konvaActions: {
       handleTextDrag,
       handlePathDrag,
-      setPath,
-      setTextColor,
-      setRotation,
-      setShowPath,
-      setFontSize
+      addNewLine,
+      setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
+      setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),
+      setShowPath: (showPath) => setKonvaState(prev => ({ ...prev, showPath }))
     }
   };
-};
+}; 

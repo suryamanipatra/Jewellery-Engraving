@@ -7,7 +7,7 @@ const ActionButtons = ({ onSave, onDownload, showPath, onTogglePath }) => {
     <div className="flex justify-center gap-4 mt-4">
       <button
         onClick={onSave}
-        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-blue-700 hover:text-white transition"
+        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition"
       >
         <BiSave className="text-xl" /> Save
       </button>
@@ -21,7 +21,7 @@ const ActionButtons = ({ onSave, onDownload, showPath, onTogglePath }) => {
 
       <button
         onClick={onDownload}
-        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-green-700 hover:text-white transition"
+        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition"
       >
         <BiDownload className="text-xl" /> Download
       </button>

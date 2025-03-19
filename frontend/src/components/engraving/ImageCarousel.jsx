@@ -27,7 +27,9 @@ const ImageCarousel = ({
       </button>
 
       <div className="grid grid-cols-2 gap-2 md:gap-4 min-h-[180px] md:min-h-[260px]">
+        {/* {console.log("coursal Images", visibleImages)} */}
         {visibleImages.length > 0 ? (
+
           visibleImages.map((url, index) => (
             <div
               key={index}
@@ -35,6 +37,7 @@ const ImageCarousel = ({
                 }`}
               onClick={() => handleImageSelection(index)}
             >
+
               <img
                 src={url}
                 alt={`Uploaded ${startIndex + index + 1}`}

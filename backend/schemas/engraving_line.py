@@ -11,7 +11,7 @@ class EngravingLineBase(BaseModel):
     font_color: str
     position_x: float
     position_y: float
-    path_coordinates: List[dict]  
+    path_coordinates: str
 
 class EngravingLineCreate(EngravingLineBase):
     pass

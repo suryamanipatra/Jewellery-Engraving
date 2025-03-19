@@ -1,5 +1,6 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useContext, useEffect, useRef, useMemo } from "react";
+import axios from 'axios'
+import { useLocation } from "react-router-dom";
 import { FileUploadContext } from "../context/FileUploadContext";
 import kamaLogo from "../assets/kama-logo.png";
 import Header from "../common/Header";
@@ -14,15 +15,15 @@ import { useEngravingHandling } from "../hooks/useEngravingHandling";
 import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
 
+
 const AdminEngraving = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { jewelryUploadId, images } = location.state || {};
   const { files } = useContext(FileUploadContext);
   const stageRef = useRef(null);
 
-  const { imageURLs, selectedImage, replaceImageAtIndex, handleImageClick, handleNext,handlePrev,startIndex,itemsPerPage } = useImageHandling(files);
-  const { engravingState, handleInputChange, addEngravingLine } = useEngravingHandling();
+  const { imageURLs, selectedImage, handleNext, handlePrev, startIndex, itemsPerPage } = useImageHandling(files);
+  const { engravingState, handleInputChange, addEngravingLine, setSelectedLine,resetEngraving } = useEngravingHandling();
   const { konvaState, konvaActions } = useKonvaHandling();
   const { setEngravings } = useContext(FileUploadContext);
   const [currentDesign, setCurrentDesign] = useState(() => ({
@@ -40,47 +41,127 @@ const AdminEngraving = () => {
   const selectedIndex = imageURLs.indexOf(selectedImage);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const selectedImageId = images?.[selectedImageIndex]?.id;
-  const backendImageURLs = images?.map(img => `http://localhost:8000/${img.file_path}`) || [];
+  const backendImageURLs = useMemo(() => 
+    images?.map(img => `http://localhost:8000/api/uploads/${img.file_path}`) || [], 
+    [images] 
+  );
+  const [modifiedImages, setModifiedImages] = useState([]);
 
 
-  const handleSaveEngravedImage = () => {
-    if (stageRef.current) {
-      const dataURL = stageRef.current.toDataURL();
-      const currentIndex = imageURLs.indexOf(selectedImage);
-      if (currentIndex !== -1) {
-        replaceImageAtIndex(currentIndex, dataURL);
+  // const handleSaveEngravedImage = () => {
+  //   if (stageRef.current) {
+  //     const dataURL = stageRef.current.toDataURL();
+  //     const currentIndex = imageURLs.indexOf(selectedImage);
+  //     if (currentIndex !== -1) {
+  //       replaceImageAtIndex(currentIndex, dataURL);
+  //     }
+  //     setPreviewImage(null); // Clear preview image after save
+  //     handleImageClick(dataURL);
+  //     navigate("/admin");
+  //   }
+  // };
+  // const handleSave = () => {
+  //   const updatedDesign = {
+  //     ...currentDesign,
+  //     engravingLines: engravingState.engravingLines,
+  //     engravingData: engravingState.engravingData,
+  //     textPosition: konvaState.textPosition,
+  //     rotation: konvaState.rotation,
+  //     showPath: konvaState.showPath,
+  //     path: konvaState.path,
+  //     imageUrl: previewImage || selectedImage
+  //   };
+
+  //   setEngravings(prev => {
+  //     if (location.state?.engraving) {
+  //       return prev.map(item => item.id === updatedDesign.id ? updatedDesign : item);
+  //     }
+  //     return [...prev, { ...updatedDesign, id: Date.now() }];
+  //   });
+
+  //   navigate('/admin');
+  // };
+  const handleSave = async () => {
+    try {
+      const engravingRes = await axios.get(
+        `http://localhost:8000/api/engraving-details/image/${selectedImageId}`
+      );
+      console.log("engravingRes",engravingRes.data)
+      const engravingDetails = await engravingRes.data;
+      const engravingDetail = engravingDetails[0];
+  
+      
+      for (const line of engravingState.engravingLines) {
+        const lineData = engravingState.engravingData[line];
+        
+  
+        const payload = {
+          engraving_id: engravingDetail.id,
+          line_number: line,
+          text: lineData.text,
+          font_type: "Arial",
+          font_size: lineData.fontSize,
+          font_color: lineData.color,
+          position_x: konvaState.positions[line]?.x || 0,
+          position_y: konvaState.positions[line]?.y || 0,
+          path_coordinates: konvaState.paths[line]
+        };
+  
+        const response = await axios.post("http://localhost:8000/api/engraving-lines/", payload);
+        console.log("response", response)
+        if (!response) throw new Error("Failed to save line");
       }
-      setPreviewImage(null); // Clear preview image after save
-      handleImageClick(dataURL);
-      navigate("/admin");
+  
+      const updatedDesign = {
+        ...currentDesign,
+        engravingLines: engravingState.engravingLines,
+        engravingData: engravingState.engravingData,
+        imageUrl: previewImage || selectedImage
+      };
+  
+      setEngravings(prev => location.state?.engraving 
+        ? prev.map(item => item.id === updatedDesign.id ? updatedDesign : item)
+        : [...prev, { ...updatedDesign, id: Date.now() }]
+      );
+  
+      // navigate('/admin');
+    } catch (error) {
+      console.error("Save failed:", error);
+      alert("Error saving engraving. Check console for details.");
     }
   };
-  const handleSave = () => {
-    const updatedDesign = {
-      ...currentDesign,
+  useEffect(() => {
+    if (backendImageURLs.length > 0 && !selectedImage) {
+      setModifiedImages([...backendImageURLs]);
+    }
+  }, [backendImageURLs]);
+  useEffect(() => {
+    // Update design properties from engraving and konva states
+    setCurrentDesign(prev => ({
+      ...prev,
       engravingLines: engravingState.engravingLines,
       engravingData: engravingState.engravingData,
-      textColor: konvaState.textColor,
-      textPosition: konvaState.textPosition,
+      positions: konvaState.positions,
+      paths: konvaState.paths,
       rotation: konvaState.rotation,
-      showPath: konvaState.showPath,
-      path: konvaState.path,
-      imageUrl: previewImage || selectedImage
-    };
-
-    setEngravings(prev => {
-      if (location.state?.engraving) {
-        return prev.map(item => item.id === updatedDesign.id ? updatedDesign : item);
-      }
-      return [...prev, { ...updatedDesign, id: Date.now() }];
-    });
-
-    navigate('/admin');
-  };
+      showPath: konvaState.showPath
+    }));
+  }, [
+    engravingState.engravingLines, 
+    engravingState.engravingData,
+    konvaState.positions,
+    konvaState.paths,
+    konvaState.rotation,
+    konvaState.showPath
+  ]);
   const capturePreview = () => {
-    const dataUrl = stageRef.current.toDataURL();
-    replaceImageAtIndex(selectedIndex, dataUrl);
-    setPreviewImage(dataUrl);
+    if (stageRef.current) {
+      const dataUrl = stageRef.current.toDataURL();
+      const updatedImages = [...modifiedImages];
+      updatedImages[selectedImageIndex] = dataUrl;
+      setModifiedImages(updatedImages);
+      setPreviewImage(dataUrl);
+    }
   };
   useEffect(() => {
     return () => setPreviewImage(null);
@@ -94,13 +175,27 @@ const AdminEngraving = () => {
       );
       const details = await res.json();
       console.log("line details", details);
-      if (details.length > 0) {
-        setCurrentEngravingDetail(details[0]);
-      }
+      // if (details.length > 0) {
+      //   setCurrentEngravingDetail(details[0]);
+      // }
     };
 
     fetchEngravingData();
   }, [selectedImageId]);
+
+  const handleAddLine = () => {
+    const newLine = addEngravingLine();
+    konvaActions.addNewLine(
+      newLine,
+      "M50,150 Q250,50 350,150", 
+      { x: 50, y: 150 } 
+    );
+  };
+
+  useEffect(() => {
+    resetEngraving();
+    
+  }, [selectedImageIndex, selectedImageId]); 
 
   return (
     <div className="w-full min-h-screen flex flex-col">
@@ -111,7 +206,7 @@ const AdminEngraving = () => {
         setIsPopupOpen={setIsPopupOpen}
         isPopupOpen={isPopupOpen}
         handleClose={() => setIsPopupOpen(false)}
-        imageURLs={imageURLs}
+        imageURLs={modifiedImages}
         // previewImage={konvaState.previewImage}
         capturePreview={capturePreview}
         previewImage={previewImage}
@@ -125,9 +220,9 @@ const AdminEngraving = () => {
           engravingLines={engravingState.engravingLines}
           engravingData={engravingState.engravingData}
           selectedLine={engravingState.selectedLine}
-          addEngravingLine={addEngravingLine}
+          addEngravingLine={handleAddLine}
           handleInputChange={handleInputChange}
-          setSelectedLine={engravingState.setSelectedLine}
+          setSelectedLine={setSelectedLine}
           sidebarOpen={sidebarOpen}
           setSideBarOpen={setSideBarOpen}
           isProductTypeOpen={isProductTypeOpen}
@@ -135,11 +230,11 @@ const AdminEngraving = () => {
           jewelryUploadId={jewelryUploadId}
         />
 
-        <div className="w-full lg:w-[80%] bg-[#1C4E6D] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
+        <div className="w-full lg:w-[80%] bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
           <div className="flex flex-col lg:flex-row flex-1">
-            <div className="w-full lg:w-[37%] flex flex-col items-center justify-center mb-4 lg:mb-0">
+            <div className="w-full lg:w-[37%] flex flex-col  items-center justify-center mb-4 lg:mb-0">
               <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
+              {/* <p className="text-white text-2xl mt-4">Available Views of the Jewellery</p> */}
               <ImageCarousel
                 imageURLs={backendImageURLs}
                 selectedImage={backendImageURLs[selectedImageIndex]}
@@ -155,13 +250,10 @@ const AdminEngraving = () => {
               <EngravingStage
                 ref={stageRef}
                 selectedImage={backendImageURLs[selectedImageIndex]}
-                path={konvaState.path}
-                text={engravingState.engravingData[engravingState.selectedLine]?.text || ""}
-                fontSize={engravingState.engravingData[engravingState.selectedLine]?.fontSize || 24}
-                textColor={konvaState.textColor}
-                textPosition={konvaState.textPosition}
-                rotation={konvaState.rotation}
-                showPath={konvaState.showPath}
+                engravingLines={engravingState.engravingLines}
+                engravingData={engravingState.engravingData}
+                konvaState={konvaState}
+                
                 onTextDrag={konvaActions.handleTextDrag}
                 onPathDrag={konvaActions.handlePathDrag}
               />
@@ -172,11 +264,13 @@ const AdminEngraving = () => {
             engravingLines={engravingState.engravingLines}
             engravingData={engravingState.engravingData}
             handleInputChange={handleInputChange}
-          />
+          />  
 
           <ActionButtons
             onSave={handleSave}
             onDownload={() => console.log("Download functionality")}
+            showPath={konvaState.showPath}
+            onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
           />
         </div>
       </div>

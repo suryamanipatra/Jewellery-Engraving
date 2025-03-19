@@ -7,9 +7,11 @@ export const useImageHandling = (files) => {
   const [startIndex, setStartIndex] = useState(0);
 
   useEffect(() => {
-    console.log('Files changed:', files);
     if (files.length > 0) {
-      const urls = files.map((file) => URL.createObjectURL(file));
+      const urls = files.map((file) => {
+        console.log("hook file", file);
+        return URL.createObjectURL(file.file); // fixed with return
+      });
       console.log('Generated URLs:', urls);
       setImageURLs(urls);
       setSelectedImage(urls[0]);
@@ -17,20 +19,21 @@ export const useImageHandling = (files) => {
     }
   }, [files]);
 
-  const handleImageClick = (url) => {
-    setSelectedImage(url);
-  };
-  const replaceImageAtIndex = (index, newUrl) => {
-    console.log("new url", newUrl);
-    setImageURLs(prev => {
-      const newUrls = [...prev];
-      if (index >= 0 && index < newUrls.length) {
-        URL.revokeObjectURL(newUrls[index]);
-        newUrls[index] = newUrl;
-      }
-      return newUrls;
-    });
-  };
+
+  // const handleImageClick = (url) => {
+  //   setSelectedImage(url);
+  // };
+  // const replaceImageAtIndex = (index, newUrl) => {
+  //   console.log("new url", newUrl);
+  //   setImageURLs(prev => {
+  //     const newUrls = [...prev];
+  //     if (index >= 0 && index < newUrls.length) {
+  //       URL.revokeObjectURL(newUrls[index]);
+  //       newUrls[index] = newUrl;
+  //     }
+  //     return newUrls;
+  //   });
+  // };
 
   const handleNext = () => {
     if (startIndex + itemsPerPage < imageURLs.length) {
@@ -46,9 +49,9 @@ export const useImageHandling = (files) => {
 
   return {
     imageURLs,
-    replaceImageAtIndex,
+    // replaceImageAtIndex,
     selectedImage,
-    handleImageClick,
+    // handleImageClick,
     handleNext,
     handlePrev,
     startIndex,

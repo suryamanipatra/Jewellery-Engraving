@@ -6,6 +6,8 @@ import { FaGem, FaWeightHanging, FaCubes, FaDollarSign } from "react-icons/fa"
 import { motion, AnimatePresence } from "framer-motion"
 
 const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewImage, textOverlays=[] }) => {
+    console.log("images", previewImage)
+    console.log("selectIndex",selectedIndex)
     const [currentIndex, setCurrentIndex] = useState(() => {
         const maxIndex = images.length - 1;
         return Math.min(selectedIndex, maxIndex);
@@ -55,9 +57,7 @@ const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewI
         currentImage: imagesToShow[currentIndex],
         previewExists: !!previewImage
     });
-    const getRelativePosition = (pos, containerSize, imageSize) => {
-        return (pos / imageSize) * containerSize;
-    };
+    
 
     return (
         <AnimatePresence>
@@ -102,8 +102,8 @@ const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewI
                     {imagesToShow.length > 0 && imagesToShow[currentIndex] && (
 
                         <div className="w-full md:w-3/5 relative bg-white rounded-lg flex items-center justify-center p-2 md:p-4">
-                            {console.log("Imgaes :", imagesToShow)}
-                            {console.log("show :", imagesToShow[currentIndex])}
+                            {console.log("imagesToShow :", imagesToShow)}
+                            {console.log("index :", imagesToShow[currentIndex])}
                                 <img
                                     src={imagesToShow[currentIndex]}
                                     alt="Preview"
@@ -112,7 +112,7 @@ const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewI
                             
                            
                             {/* Render Text Overlays */}
-                            {safeTextOverlays?.map((overlay, index) => {
+                            {/* {safeTextOverlays?.map((overlay, index) => {
                                 const containerWidth = 450; 
                                 const containerHeight = 400;
                                 const imageWidth = konvaImage?.width || 450;
@@ -133,7 +133,7 @@ const PreviewPopup = ({ onClose, images, selectedIndex, productDetails, previewI
                                         {overlay.text}
                                     </span>
                                 );
-                            })}
+                            })} */}
 
                             {images.length > 1 && (
                                 <>

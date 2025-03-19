@@ -16,7 +16,8 @@ class EngravingLine(Base):
     font_color = Column(String(10), nullable=False)
     position_x = Column(Float, nullable=False)
     position_y = Column(Float, nullable=False)
-    path_coordinates = Column(JSON, nullable=False)
+    # path_coordinates = Column(JSON, nullable=False)
+    path_coordinates = Column(String(255), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     
     engraving = relationship("EngravingDetail", back_populates="lines")

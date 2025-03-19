@@ -28,4 +28,4 @@ const Card = ({ imageUrl, name, onEngrave }) => {
     );
   };
 
-export default Card;
+export default Card; 

@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
 import { FaRing } from "react-icons/fa";
@@ -25,6 +25,7 @@ const Sidebar = ({
 }) => {
   const location = useLocation();
   const [selectedProductType, setSelectedProductType] = useState("");
+  
   const handleAddEngravingLine = async () => {
     try {
       if (!selectedImageId) {
@@ -42,7 +43,7 @@ const Sidebar = ({
       if (!engravingDetail || neededLines > engravingDetail.total_lines) {
         const newDetailRes = await fetch("http://localhost:8000/api/engraving-details/", {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             jewelry_image_id: selectedImageId,
             total_lines: neededLines
@@ -53,12 +54,13 @@ const Sidebar = ({
       }
 
       addEngravingLine(neededLines);
-      
+
     } catch (error) {
       console.error("Error adding line:", error);
       alert("Failed to add engraving line");
     }
   };
+
   const handleProductTypeSelect = async (productType) => {
     try {
       const response = await fetch("http://localhost:8000/api/products", {
@@ -84,18 +86,18 @@ const Sidebar = ({
       alert("Error setting product type. Please check console for details.");
     }
   };
+
   const handleLineClick = (line) => {
     setSelectedLine(line);
   };
+
   return (
     <div
-      className={`${
-        sidebarOpen
+      className={`${sidebarOpen
           ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-0 overflow-y-auto h-[100vh]"
           : "hidden"
-      } lg:relative lg:block lg:z-0 lg:pt-0 lg:w-[20%] md:w-[40%] sm:w-[40%] transition-all overflow-y-auto duration-300 ease-in-out`}
+        } lg:relative lg:block lg:z-0 lg:pt-0 lg:w-[20%] md:w-[40%] sm:w-[40%] transition-all overflow-y-auto duration-300 ease-in-out`}
     >
-      {/* Close Icon for Mobile View */}
       {sidebarOpen && (
         <div className="lg:hidden absolute top-2 right-2">
           <ImCross
@@ -105,7 +107,6 @@ const Sidebar = ({
         </div>
       )}
 
-      {/* Product Type Dropdown */}
       <div>
         <div
           className="flex items-center justify-between cursor-pointer py-2 md:py-4"
@@ -119,28 +120,34 @@ const Sidebar = ({
         {isProductTypeOpen && (
           <div className="space-y-2 md:space-y-3 ml-4 md:ml-8">
             {["Ring", "Earring", "Necklace"].map((item, index) => (
-              <div
+              <label
                 key={index}
-                className={`flex items-center gap-2 md:gap-3 cursor-pointer ${
-                  selectedProductType === item ? "text-blue-500" : ""
-                }`}
-                onClick={() => handleProductTypeSelect(item)}
+                htmlFor={`productType-${item}`}
+                className="flex items-center gap-3 cursor-pointer p-1 hover:bg-gray-100 rounded"
               >
+                <input
+                  type="radio"
+                  id={`productType-${item}`}
+                  name="productType"
+                  value={item}
+                  checked={selectedProductType === item}
+                  onChange={(e) => handleProductTypeSelect(e.target.value)}
+                  className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                />
                 {item === "Ring" ? (
-                  <FaRing />
+                  <FaRing className="text-lg" />
                 ) : item === "Earring" ? (
-                  <GiEarrings />
+                  <GiEarrings className="text-lg" />
                 ) : (
-                  <GiNecklace />
+                  <GiNecklace className="text-lg" />
                 )}
-                <span>{item}</span>
-              </div>
+                <span className="text-gray-700">{item}</span>
+              </label>
             ))}
           </div>
         )}
       </div>
 
-      {/* Product Details */}
       <div className="flex items-center gap-2 md:gap-3 py-2">
         <MdOutlineInventory2 /> <span>Product Details</span>
       </div>
@@ -150,7 +157,6 @@ const Sidebar = ({
         className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
       />
 
-      {/* Engraving Lines Section */}
       <div className="flex items-center justify-between cursor-pointer py-2">
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
@@ -160,12 +166,17 @@ const Sidebar = ({
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
         <div className="flex flex-wrap gap-2 md:gap-3">
+        {engravingLines.length === 0 && (
+            <div className="text-gray-500 text-sm">
+              No engraving lines added yet
+            </div>
+          )}
           {engravingLines.map((line) => (
             <div
               key={line}
               className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${
                 selectedLine === line
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[#15405B] text-white"
                   : "border-gray-400"
               }`}
               onClick={() => handleLineClick(line)}
@@ -173,8 +184,10 @@ const Sidebar = ({
               {line}
             </div>
           ))}
-        </div>
-        <div className="flex items-center gap-2">
+        </div> 
+        {selectedLine && (
+          <>
+          <div className="flex items-center gap-2">
           <span className="text-xs md:text-sm w-20">No. of char</span>
           <input
             type="number"
@@ -202,6 +215,18 @@ const Sidebar = ({
             }
           />
         </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs md:text-sm w-20">Font color</span>
+          <input
+            type="color"
+            value={engravingData[selectedLine]?.color || "#000000"}
+            onChange={(e) => handleInputChange(selectedLine, e.target.value, "color")}
+            className="h-9 w-20 cursor-pointer"
+          />
+        </div>
+          </>
+        )}
+        
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import axios from 'axios'
+import useDrivePicker from "react-google-drive-picker";
 import { useNavigate } from "react-router-dom";
 import kamaLogo from "../assets/kama-logo.png";
 import { FaUser, FaGoogleDrive } from "react-icons/fa";
@@ -14,13 +16,51 @@ const AdminUpload = () => {
   const { files, setFiles } = useContext(FileUploadContext);
   const [viewTypes, setViewTypes] = useState([]);
   const [uploadSource, setUploadSource] = useState("local");
-
+  
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
+  const [openPicker, data, setOpenPicker] = useDrivePicker();
+  const [selectedFile, setSelectedFile] = useState([]);
+
+  const handleOpenPicker = () => {
+    setUploadSource("drive"); // Set upload source to Drive
+    openPicker({
+      clientId: "968883434753-aotmfsbdrphnhpveqavni21r5bd6eqdl.apps.googleusercontent.com",
+      developerKey: "AIzaSyC9sU8PWGECPKdMgVjIgHG9hZzL0pe7-r8",
+      viewId: "IMAGES",
+      showUploadView: true,
+      showUploadFolders: true,
+      supportDrives: true,
+      multiselect: true,
+      callbackFunction: (data) => {
+        if (data.action === 'picked') {
+          const driveFiles = data.docs;
+          setFiles(prev => [
+            ...prev,
+            ...driveFiles.map(doc => ({ type: "drive", doc }))
+          ]);
+          setViewTypes(prev => [...prev, ...driveFiles.map(() => "front")]);
+        }
+      }
+    });
+  };
+
+  // useEffect(() => {
+  //   if (data) {
+  //     console.log("drive data", data);
+  //     data.docs.map((i) => console.log(i))
+  //   }
+  // }, [data]);
+
+
 
   const handleFileChange = (event) => {
     const newFiles = Array.from(event.target.files);
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setUploadSource("local"); // Set upload source to local
+    setFiles(prev => [
+      ...prev,
+      ...newFiles.map(file => ({ type: "local", file }))
+    ]);
     setViewTypes(prev => [...prev, ...newFiles.map(() => "front")]);
     setShowAlert(false);
   };
@@ -39,6 +79,8 @@ const AdminUpload = () => {
   const handleRemoveFile = (index) => {
     const updatedFiles = files.filter((_, i) => i !== index);
     setFiles(updatedFiles);
+    const updatedViewTypes = viewTypes.filter((_, i) => i !== index);
+    setViewTypes(updatedViewTypes);
   };
   const handleViewTypeChange = (index, value) => {
     const newTypes = [...viewTypes];
@@ -53,32 +95,34 @@ const AdminUpload = () => {
     const userId = Math.floor(1000 + Math.random() * 9000); 
 
     formData.append("user_id", userId);
+    console.log("upload source", uploadSource);
     formData.append("upload_source", uploadSource);
-
-    files.forEach((file, index) => {
-      formData.append("files", file);
-      formData.append("view_types", viewTypes[index]);
-    });
-
-    try {
-      const response = await fetch("http://localhost:8000/api/jewelry-uploads/", {
-        method: "POST",
-        body: formData,
-      });
-
-      const responseData = await response.json();
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${responseData.detail || 'Unknown error'}`);
+    console.log("upload files", files);
+    files.forEach((item, index) => {
+      console.log("item", item);
+      if (uploadSource === "local" && item.type === "local") {
+        formData.append("files", item.file);
+        formData.append("view_types", viewTypes[index]);
+      } else if (uploadSource === "drive" && item.type === "drive") {
+        formData.append("drive_files", item.doc.id);
+        formData.append("view_types", viewTypes[index]);
       }
-      console.log("uploaded data", responseData);
-      // navigate("/admin/engraving");
+    });
+    console.log("formData", formData);
+    try {
+      const responseData = await axios.post(
+        "http://localhost:8000/api/jewelry-uploads/",
+        formData
+      );
+      console.log("respinseData", responseData)
       navigate("/admin/engraving", {
-        state: { jewelryUploadId: responseData.upload.id,
-                 images: responseData.images
-         }
+        state: { 
+          jewelryUploadId: responseData?.data.upload.id,
+          images: responseData?.data.images
+        }
       });
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Upload error:", error.responseData?.data || error.message);
       alert("Upload failed. Please check console for details.");
     }
   };
@@ -150,9 +194,12 @@ const AdminUpload = () => {
               </>
             ) : (
               <div className="w-full max-h-[150px] overflow-y-auto flex flex-col gap-2">
+                {console.log("files", files)}
                 {files.map((file, index) => (
                   <div key={index} className="flex justify-between items-center bg-blue-100 px-4 py-2 rounded-lg">
-                    <span className="text-gray-800 truncate">{file.name}</span>
+                    {console.log("file", file)}
+                    <span className="text-gray-800 truncate">{file.doc?.name || file.docs?.name || file.file.name || "Unnamed file"}</span>
+                    
                     <div className="flex items-center gap-2">
                       <select
                         value={viewTypes[index]}
@@ -171,23 +218,14 @@ const AdminUpload = () => {
                   </div>
                 ))}
               </div>
-              // <div className="w-full max-h-[150px] overflow-y-auto flex flex-col gap-2">
-              //   {files.map((file, index) => (
-              //     <div key={index} className="flex justify-between items-center bg-blue-100 px-4 py-2 rounded-lg">
-              //       <span className="text-gray-800 truncate">{file.name}</span>
-              //       <button onClick={() => handleRemoveFile(index)} className="text-red-500">
-              //         <RiDeleteBin6Line />
-              //       </button>
-              //     </div>
-              //   ))}
-              // </div>
+              
             )}
           </div>
 
           {/* File Input */}
           <input type="file" multiple onChange={handleFileChange} className="hidden" id="fileUpload" />
           <div className="flex gap-4 justify-center mb-4">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md cursor-pointer" onClick={()=> handleOpenPicker()}>
               <FaGoogleDrive className="text-yellow-600" /> Upload from Drive
             </button>
             <label htmlFor="fileUpload" className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-md cursor-pointer">
@@ -197,9 +235,9 @@ const AdminUpload = () => {
 
           {/* Action Buttons */}
           <div className="flex justify-center gap-6 mt-4">
-            <button className="px-4 py-2 bg-gray-200 rounded-md">Cancel</button>
-            <button className={`px-4 py-2 rounded-md ${files.length === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-[#062538] text-white"}`} onClick={handleDoneClick} disabled={files.length === 0}>
-              Done
+            <button className="px-4 py-2 bg-gray-200 rounded-md cursor-pointer">Cancel</button>
+            <button className={`px-4 py-2 rounded-md ${files.length === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-[#062538] text-white cursor-pointer"}`} onClick={handleDoneClick} disabled={files.length === 0}>
+              Upload
             </button>
           </div>
         </div>

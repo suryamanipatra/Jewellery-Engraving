@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile, Form, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.responses import FileResponse
 from PIL import Image
 from io import BytesIO
 import os
@@ -16,6 +17,15 @@ router = APIRouter()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+@router.get("/uploads/{image_filename}")
+async def get_uploaded_image(image_filename: str):
+    file_path = os.path.join(UPLOAD_DIR, image_filename)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return FileResponse(file_path)
+
 @router.post("/jewelry-uploads/")
 async def create_upload(
     user_id: int = Form(...),
@@ -29,7 +39,7 @@ async def create_upload(
             raise HTTPException(status_code=400, detail="No files uploaded")
         if len(files) != len(view_types):
             raise HTTPException(status_code=400, detail="Mismatched files and view types")
-
+        print(files)
         jewelry_name = os.path.splitext(files[0].filename)[0]  
         db_upload = JewelryUpload(
             user_id=user_id,
@@ -63,7 +73,7 @@ async def create_upload(
                 view_type=view_type,
                 image_width=width,
                 image_height=height,
-                file_path=file_path
+                file_path=unique_filename
             )
             db.add(db_image)
             images.append(db_image)
@@ -71,12 +81,15 @@ async def create_upload(
         db.refresh(db_upload)
         upload_schema = JewelryUploadSchema.from_orm(db_upload)
         image_schemas = [JewelryImageSchema.from_orm(img) for img in images]
+        print(f"Created jewelry upload: {upload_schema.dict()}")
+        print(f"Created images: {[img.dict() for img in image_schemas]}")
         return {
             "upload": upload_schema.dict(),
             "images": [img.dict() for img in image_schemas]
         }
 
     except Exception as e:
+        print(f"Error creating jewelry upload: {e}")
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
