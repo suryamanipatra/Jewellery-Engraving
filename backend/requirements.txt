@@ -7,3 +7,6 @@ cryptography==42.0.4
 pillow==11.1.0
 python-multipart==0.0.9
 starlette==0.36.3
+bcrypt
+passlib[bcrypt]==1.7.4
+pydantic[email] == 25.0.1
