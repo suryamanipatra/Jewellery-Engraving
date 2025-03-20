@@ -5,12 +5,12 @@ const ViewTabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["Wireframe", "Pen Tool"];
 
   return (
-    <div className="flex rounded-lg bg-white p-1 w-full max-w-[62%] shadow-md mb-4">
+    <div className="flex rounded-lg bg-white p-1 w-full lg:w-[90%] max-w-[90%] shadow-md mb-4">
       {tabs.map((tab) => (
         <button
           key={tab}
           onClick={() => setActiveTab(tab)}
-          className={`flex-1 px-4 py-2 text-xs md:text-sm font-medium rounded-md transition-all
+          className={`flex-1 px-4 py-2 text-xs md:text-lg font-medium rounded-md transition-all
                       ${
                         activeTab === tab
                           ? "bg-[#062538] text-white shadow-sm"

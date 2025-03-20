@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+*{
+  font-family: "Exo 2", sans-serif;
+}
 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

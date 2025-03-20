@@ -30,12 +30,12 @@ async def get_uploaded_image(image_filename: str):
 
 @router.post("/jewelry-uploads/")
 async def create_upload(
-    # user_id: int = Form(...),
+    user_id: int = Form(...),
     upload_source: str = Form(...),
     files: list[UploadFile] = File(...),
     view_types: list[str] = Form(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    # current_user: User = Depends(get_current_user)
 ):
     try:
         if not files:
@@ -45,7 +45,8 @@ async def create_upload(
         print(files)
         jewelry_name = os.path.splitext(files[0].filename)[0]  
         db_upload = JewelryUpload(
-            user_id=current_user,
+            # user_id=current_user,
+            user_id=user_id,
             jewelry_name=jewelry_name,
             upload_source=upload_source
         )

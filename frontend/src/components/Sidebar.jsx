@@ -25,7 +25,7 @@ const Sidebar = ({
 }) => {
   const location = useLocation();
   const [selectedProductType, setSelectedProductType] = useState("");
-  
+
   const handleAddEngravingLine = async () => {
     try {
       if (!selectedImageId) {
@@ -94,8 +94,8 @@ const Sidebar = ({
   return (
     <div
       className={`${sidebarOpen
-          ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-0 h-[100vh]"
-          : "hidden"
+        ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA] "
+        : "hidden"
         } lg:relative lg:block lg:z-0 lg:pt-0 lg:w-[20%] md:w-[40%] sm:w-[40%] transition-all overflow-y-auto duration-300 ease-in-out`}
     >
       {sidebarOpen && (
@@ -155,9 +155,10 @@ const Sidebar = ({
         type="text"
         placeholder=""
         className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
+        style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
       />
 
-      <div className="flex items-center justify-between cursor-pointer py-2">
+      <div className="flex items-center justify-between cursor-pointer pb-2 pt-4">
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
@@ -166,7 +167,7 @@ const Sidebar = ({
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
         <div className="flex flex-wrap gap-2 md:gap-3">
-        {engravingLines.length === 0 && (
+          {engravingLines.length === 0 && (
             <div className="text-gray-500 text-sm">
               No engraving lines added yet
             </div>
@@ -174,59 +175,60 @@ const Sidebar = ({
           {engravingLines.map((line) => (
             <div
               key={line}
-              className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${
-                selectedLine === line
+              className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
                   ? "bg-[#15405B] text-white"
                   : "border-gray-400"
-              }`}
+                }`}
               onClick={() => handleLineClick(line)}
             >
               {line}
             </div>
           ))}
-        </div> 
+        </div>
         {selectedLine && (
           <>
-          <div className="flex items-center gap-2">
-          <span className="text-xs md:text-sm w-20">No. of char</span>
-          <input
-            type="number"
-            placeholder=""
-            className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
-            value={
-              selectedLine ? engravingData[selectedLine]?.charCount || "" : ""
-            }
-            onChange={(e) =>
-              handleInputChange(selectedLine, e.target.value, "charCount")
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs md:text-sm w-20">Font size</span>
-          <input
-            type="number"
-            placeholder=""
-            className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
-            value={
-              selectedLine ? engravingData[selectedLine]?.fontSize || "" : ""
-            }
-            onChange={(e) =>
-              handleInputChange(selectedLine, e.target.value, "fontSize")
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs md:text-sm w-20">Font color</span>
-          <input
-            type="color"
-            value={engravingData[selectedLine]?.color || "#000000"}
-            onChange={(e) => handleInputChange(selectedLine, e.target.value, "color")}
-            className="h-9 w-20 cursor-pointer"
-          />
-        </div>
+            <div className="flex items-center gap-2 pt-4">
+              <span className="text-xs md:text-sm w-20">No. of char</span>
+              <input
+                type="number"
+                placeholder=""
+                className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
+                style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
+                value={
+                  selectedLine ? engravingData[selectedLine]?.charCount || "" : ""
+                }
+                onChange={(e) =>
+                  handleInputChange(selectedLine, e.target.value, "charCount")
+                }
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs md:text-sm w-20">Font size</span>
+              <input
+                type="number"
+                placeholder=""
+                className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
+                style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
+                value={
+                  selectedLine ? engravingData[selectedLine]?.fontSize || "" : ""
+                }
+                onChange={(e) =>
+                  handleInputChange(selectedLine, e.target.value, "fontSize")
+                }
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs md:text-sm w-20">Font color</span>
+              <input
+                type="color"
+                value={engravingData[selectedLine]?.color || "#000000"}
+                onChange={(e) => handleInputChange(selectedLine, e.target.value, "color")}
+                className="h-9 w-20 cursor-pointer"
+              />
+            </div>
           </>
         )}
-        
+
       </div>
     </div>
   );

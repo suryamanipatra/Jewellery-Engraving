@@ -26,7 +26,7 @@ const Auth = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    const url = isLogin ? "http://localhost:5000/api/login" : "http://localhost:5000/api/signup";
+    const url = isLogin ? "http://localhost:8000/api/login" : "http://localhost:8000/api/signup";
 
     const payload = isLogin
       ? new URLSearchParams({ username: formData.email, password: formData.password }) // Form URL encoding for login

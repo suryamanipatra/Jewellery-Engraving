@@ -7,7 +7,7 @@ import { FiRefreshCw } from "react-icons/fi";
 import PreviewPopup from "../components/PreviewPopUp";
 
 const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpen, handleClose, imageURLs, capturePreview,
-    previewImage,selectedIndex , textOverlays={}}) => {
+    previewImage, selectedIndex, textOverlays = {} }) => {
     const handlePreviewClick = () => {
         capturePreview();
         setIsPopupOpen(true);
@@ -27,10 +27,18 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
             {/* Navigation */}
             <div className="w-full bg-[#1C4E6D] px-2 md:px-8">
                 <nav className="flex flex-wrap items-center justify-between">
-                    <div className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md mb-2 sm:mb-0">
-                        <BiCategoryAlt onClick={() => setSideBarOpen((prev) => !prev)} className="text-white text-xl md:text-3xl" />
+                    <div
+                        onClick={() => {
+                            if (window.innerWidth < 1200) {
+                                setSideBarOpen((prev) => !prev);
+                            }
+                        }}
+                        className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md mb-2 sm:mb-0 cursor-pointer"
+                    >
+                        <BiCategoryAlt className="text-white text-xl md:text-3xl" />
                         <span className="text-white text-sm md:text-xl font-semibold">Features</span>
                     </div>
+
                     <div className="flex flex-wrap gap-2 md:gap-4">
                         <div
                             className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md cursor-pointer"
@@ -50,7 +58,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
             {isPopupOpen && (
                 <PreviewPopup
                     onClose={handleClose}
-                    images={imageURLs}  
+                    images={imageURLs}
                     previewImage={previewImage}
                     productDetails={{
                         name: "GenZ Silver Necklace",
@@ -61,7 +69,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
                         amount: "200",
                     }}
                     selectedIndex={selectedIndex}
-                    textOverlays={textOverlays} 
+                    textOverlays={textOverlays}
                 />
             )}
         </div>

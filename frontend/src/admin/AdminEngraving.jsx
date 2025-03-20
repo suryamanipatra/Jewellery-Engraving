@@ -238,9 +238,9 @@ const AdminEngraving = () => {
 
         <div className="h-full w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
           <div className="flex flex-col lg:flex-row">
-            <div className="w-full lg:w-[37%] flex flex-col  items-center mb-4 lg:mb-0">
+            <div className="w-full lg:w-[37%] flex flex-col mb-4 lg:mb-0">
               <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-              <p className="text-white text-2xl mt-4" style={{padding: '0 18% 4%'}}>Available Views of the Jewellery</p>
+              <p className="text-white text-4xl mt-2 mb-6 ">Available Views of the Jewellery</p>
               <ImageCarousel
                 imageURLs={backendImageURLs}
                 selectedImage={backendImageURLs[selectedImageIndex]}

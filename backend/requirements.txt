@@ -9,4 +9,5 @@ python-multipart==0.0.9
 starlette==0.36.3
 bcrypt
 passlib[bcrypt]==1.7.4
-pydantic[email] == 25.0.1
+pydantic[email]==2.10.6
+python-jose==3.4.0
