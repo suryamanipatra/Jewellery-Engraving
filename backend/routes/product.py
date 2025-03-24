@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.product import Product
+from models.jewelry_types import JewelryTypes
+from schemas.jewelry_types import ProductName
 from models.jewelry_image import JewelryImage
 from models.jewelry_upload import JewelryUpload
 from utils.database import get_db
@@ -55,3 +57,40 @@ def set_product_type(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error updating products: {str(e)}")
+    
+
+
+
+@router.post("/store_jewelry_types")
+def set_new_product_type(
+    product_type: ProductName, 
+    db: Session = Depends(get_db)
+):
+    product_name = product_type.name.capitalize()
+    existing_product = db.query(JewelryTypes).filter(JewelryTypes.name == product_name).first()
+    
+    if existing_product:
+        raise HTTPException(status_code=400, detail="Product type already exists")
+
+    try:
+        new_product = JewelryTypes(name=product_name)
+        db.add(new_product)
+        db.commit()
+        db.refresh(new_product)
+        return {"message": "Product type added successfully"}
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error adding product type: {str(e)}")
+    
+
+
+
+@router.get("/get_all_jewelry_types")
+def get_product_types(db: Session = Depends(get_db)):
+    try:
+        products = db.query(JewelryTypes).all()
+        return products
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    

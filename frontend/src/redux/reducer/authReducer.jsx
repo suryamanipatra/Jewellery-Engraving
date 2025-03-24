@@ -13,10 +13,14 @@ export const authReducer = createSlice({
             const {name,email} = action.payload.user
             state.name = name,
             state.email = email
+        },
+        logout : (state) => {
+            state.name = ""
+            state.email = ""
         }
     },
 })
 
-export const { setLoginDetails } = authReducer.actions
+export const { setLoginDetails, logout } = authReducer.actions
 
 export default authReducer.reducer

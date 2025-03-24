@@ -36,7 +36,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
                                 setSideBarOpen((prev) => !prev);
                             }
                         }}
-                        className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md mb-2 sm:mb-0 cursor-pointer"
+                        className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md sm:mb-0 cursor-pointer"
                     >
                         <BiCategoryAlt className="text-white text-xl md:text-3xl" />
                         <span className="text-white text-sm md:text-xl font-semibold">Features</span>

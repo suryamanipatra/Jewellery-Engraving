@@ -11,3 +11,4 @@ bcrypt
 passlib[bcrypt]==1.7.4
 pydantic[email]==2.10.6
 python-jose==3.4.0
+PyJWT=2.10.1

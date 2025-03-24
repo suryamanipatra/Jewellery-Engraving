@@ -6,13 +6,16 @@
   font-family: "Exo 2", sans-serif;
 }
 
-@keyframes spin {
+
+
+
+/* @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
+} */
 
 /* Custom spinner class */
-.jewelry-spinner {
+/* .jewelry-spinner {
   animation: spin 1.5s linear infinite;
   position: relative;
 }
@@ -38,7 +41,12 @@
      linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-}
+} */
+
+
+
+
+
 
 
 /* :root {

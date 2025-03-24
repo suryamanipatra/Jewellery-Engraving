@@ -73,7 +73,7 @@ const AdminSettings = () => {
             }
 
             const response = await axios.post(
-                `${API_BASE_URL}/admin/categories`,
+                `${API_BASE_URL}/products/store_jewelry_types`,
                 categoryFormData,
                 {
                     headers: {
@@ -125,12 +125,12 @@ const AdminSettings = () => {
                     <IoIosArrowUp
                         size={30}
                         color="white"
-                        className={`transition-transform ${openSection === 'admin' ? 'rotate-180' : ''}`}
+                        className={`transition-transform ${openSection === 'admin' ? '' : 'rotate-180'}`}
                     />
                 </div>
 
                 {openSection === 'admin' && (
-                    <form onSubmit={handleAdminSubmit} className="space-y-4 p-4 bg-[#D9D9D94F] rounded-lg mt-4">
+                    <form onSubmit={handleAdminSubmit} className="space-y-4 p-4 bg-[#D9D9D94F] rounded-lg mt-4 px-15.5">
                         <input
                             type="text"
                             name="name"
@@ -176,13 +176,13 @@ const AdminSettings = () => {
                                     setOpenSection(null);
                                     setAdminFormData({ name: "", email: "", password: "" });
                                 }}
-                                className="w-1/4 bg-[#062538] text-white py-2 rounded-lg hover:bg-[#15405B] transition"
+                                className="w-1/4 bg-[#fff] text-[#062538] cursor-pointer hover:text-white py-2 rounded-lg hover:bg-[#15405B] transition"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="w-1/4 bg-[#062538] text-white py-2 rounded-lg hover:bg-[#15405B] transition"
+                                className="w-1/4 bg-[#062538] cursor-pointer text-white py-2 rounded-lg hover:bg-[#15405B] transition"
                                 disabled={loading}
                             >
                                 {loading ? "Creating..." : "Done"}
@@ -203,12 +203,12 @@ const AdminSettings = () => {
                     <IoIosArrowUp
                         size={30}
                         color="white"
-                        className={`transition-transform ${openSection === 'category' ? 'rotate-180' : ''}`}
+                        className={`transition-transform ${openSection === 'category' ? '' : 'rotate-180'}`}
                     />
                 </div>
 
                 {openSection === 'category' && (
-                    <form onSubmit={handleCategorySubmit} className="space-y-4 p-4 bg-[#D9D9D94F] rounded-lg mt-4">
+                    <form onSubmit={handleCategorySubmit} className="space-y-4 p-4 bg-[#D9D9D94F] rounded-lg mt-4 px-15.5">
                         <input
                             type="text"
                             name="name"
@@ -226,13 +226,13 @@ const AdminSettings = () => {
                                     setOpenSection(null);
                                     setCategoryFormData({ name: "" });
                                 }}
-                                className="w-1/4 bg-[#062538] text-white py-2 px-4 rounded-lg hover:bg-[#15405B] transition"
+                                className="w-1/4 bg-[#fff] text-[#062538] cursor-pointer hover:text-white py-2 px-4 rounded-lg hover:bg-[#15405B] transition"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="w-1/4 bg-[#062538] text-white py-2 rounded-lg hover:bg-[#15405B] transition"
+                                className="w-1/4 bg-[#062538] cursor-pointer text-white py-2 rounded-lg hover:bg-[#15405B] transition"
                                 disabled={loading}
                             >
                                 {loading ? "Adding..." : "Done"}

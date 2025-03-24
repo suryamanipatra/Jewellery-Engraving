@@ -220,64 +220,69 @@ const AdminEngraving = () => {
       />
 
       <div className="w-full flex-grow px-2 md:px-8 flex flex-col lg:flex-row">
-        <Sidebar
-          selectedImageId={selectedImageId}
-          engravingLines={engravingState.engravingLines}
-          engravingData={engravingState.engravingData}
-          selectedLine={engravingState.selectedLine}
-          addEngravingLine={handleAddLine}
-          handleInputChange={handleInputChange}
-          setSelectedLine={setSelectedLine}
-          sidebarOpen={sidebarOpen}
-          setSideBarOpen={setSideBarOpen}
-          isProductTypeOpen={isProductTypeOpen}
-          setIsProductTypeOpen={setIsProductTypeOpen}
-          jewelryUploadId={jewelryUploadId}
-        />
-
-        <div className="h-full w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
-          <div className="flex flex-col lg:flex-row">
-            <div className="w-full lg:w-[37%] flex flex-col mb-4 lg:mb-0">
-              <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-              <p className="text-white text-4xl mt-2 mb-6 ">Available Views of the Jewellery</p>
-              <ImageCarousel
-                imageURLs={backendImageURLs}
-                selectedImage={backendImageURLs[selectedImageIndex]}
-                onImageSelect={(absoluteIndex) => setSelectedImageIndex(absoluteIndex)}
-                handleNext={handleNext}
-                handlePrev={handlePrev}
-                startIndex={startIndex}
-                itemsPerPage={itemsPerPage}
-              />
-            </div>
-
-            <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center lg:ml-6 p-2 md:p-4 overflow-hidden relative">
-              <EngravingStage
-                ref={stageRef}
-                selectedImage={backendImageURLs[selectedImageIndex]}
-                engravingLines={engravingState.engravingLines}
-                engravingData={engravingState.engravingData}
-                konvaState={konvaState}
-
-                onTextDrag={konvaActions.handleTextDrag}
-                onPathDrag={konvaActions.handlePathDrag}
-              />
-            </div>
-          </div>
-
-          <EngravingForm
+        <div className="lg:w-[20%] fixed">
+          <Sidebar
+            selectedImageId={selectedImageId}
             engravingLines={engravingState.engravingLines}
             engravingData={engravingState.engravingData}
+            selectedLine={engravingState.selectedLine}
+            addEngravingLine={handleAddLine}
             handleInputChange={handleInputChange}
-          />
-
-          <ActionButtons
-            onSave={handleSave}
-            onDownload={() => console.log("Download functionality")}
-            showPath={konvaState.showPath}
-            onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
+            setSelectedLine={setSelectedLine}
+            sidebarOpen={sidebarOpen}
+            setSideBarOpen={setSideBarOpen}
+            isProductTypeOpen={isProductTypeOpen}
+            setIsProductTypeOpen={setIsProductTypeOpen}
+            jewelryUploadId={jewelryUploadId}
           />
         </div>
+
+        <div className="lg:w-[78%] lg:ml-[20%]">
+          <div className="w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
+            <div className="flex flex-col lg:flex-row">
+              <div className="w-full lg:w-[37%] flex flex-col mb-4 lg:mb-0">
+                <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                <p className="text-white text-4xl mt-2 mb-6 ">Available Views of the Jewellery</p>
+                <ImageCarousel
+                  imageURLs={backendImageURLs}
+                  selectedImage={backendImageURLs[selectedImageIndex]}
+                  onImageSelect={(absoluteIndex) => setSelectedImageIndex(absoluteIndex)}
+                  handleNext={handleNext}
+                  handlePrev={handlePrev}
+                  startIndex={startIndex}
+                  itemsPerPage={itemsPerPage}
+                />
+              </div>
+
+              <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center lg:ml-6 p-2 md:p-4 overflow-hidden relative">
+                <EngravingStage
+                  ref={stageRef}
+                  selectedImage={backendImageURLs[selectedImageIndex]}
+                  engravingLines={engravingState.engravingLines}
+                  engravingData={engravingState.engravingData}
+                  konvaState={konvaState}
+                  
+                  onTextDrag={konvaActions.handleTextDrag}
+                  onPathDrag={konvaActions.handlePathDrag}
+                />
+              </div>
+            </div>
+
+            <EngravingForm
+              engravingLines={engravingState.engravingLines}
+              engravingData={engravingState.engravingData}
+              handleInputChange={handleInputChange}
+            />  
+
+            <ActionButtons
+              onSave={handleSave}
+              onDownload={() => console.log("Download functionality")}
+              showPath={konvaState.showPath}
+              onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
+            />
+          </div>
+        </div>
+        
       </div>
     </div>
   );

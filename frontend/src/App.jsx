@@ -26,7 +26,7 @@ const App = () => {
         <Route path="/signup" element={<Auth />} />
 
         
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

@@ -8,6 +8,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { FileUploadContext } from "../context/FileUploadContext";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Loader from "../common/Loader";
 import CircularProgress from '@mui/material/CircularProgress';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const VITE_GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -136,19 +137,23 @@ const AdminUpload = () => {
         }
       );
       console.log("upload response", responseData)
-      navigate("/admin/engraving", {
-        state: {
-          jewelryUploadId: responseData?.data.upload.id,
-          images: responseData?.data.images
-        }
-      });
+      setTimeout(() => {
+        navigate("/admin/engraving", {
+          state: {
+            jewelryUploadId: responseData?.data.upload.id,
+            images: responseData?.data.images
+          }
+        });
+      }, 5000);
     } catch (error) {
       console.error("Upload error:", error);
       setSnackbarMessage(error.response?.data?.message || 'Upload failed. Please try again.');
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
     }
   };
 
@@ -160,19 +165,7 @@ const AdminUpload = () => {
 
       {isLoading && (
         <div className="fixed inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="jewelry-spinner w-20 h-20">
-            <CircularProgress
-              size={80}
-              thickness={4}
-              className="text-transparent"
-              sx={{
-                '& .MuiCircularProgress-circle': {
-                  stroke: 'url(#gradient)',
-                  strokeLinecap: 'round',
-                },
-              }}
-            />
-          </div>
+          <Loader />
         </div>
       )}
 

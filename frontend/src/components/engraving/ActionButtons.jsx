@@ -4,24 +4,24 @@ import { BiDownload, BiSave } from "react-icons/bi";
 
 const ActionButtons = ({ onSave, onDownload, showPath, onTogglePath }) => {
   return (
-    <div className="flex justify-center gap-4 mt-4">
+    <div className="flex flex-col md:flex-row md:justify-center md:gap-4 mt-4 md:space-y-0 space-y-1">
       <button
         onClick={onTogglePath}
-        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition"
+        className="flex w-full md:w-auto items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition justify-center"
       >
         {showPath ? "Hide Wireframe" : "Show Wireframe"}
       </button>
 
       <button
         onClick={onDownload}
-        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition"
+        className="flex w-full md:w-auto items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition justify-center"
       >
         <BiDownload className="text-xl" /> Download
       </button>
 
       <button
         onClick={onSave}
-        className="flex items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition"
+        className="flex w-full md:w-auto items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition justify-center"
       >
         <BiSave className="text-xl" /> Save Configuration
       </button>

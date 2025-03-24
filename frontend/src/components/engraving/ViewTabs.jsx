@@ -5,7 +5,7 @@ const ViewTabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["DigiWire", "Pencil"];
 
   return (
-    <div className="flex rounded-lg bg-white p-1 w-full lg:w-[90%] max-w-[90%] shadow-md mb-4">
+    <div className="flex rounded-lg bg-white p-1 w-full lg:w-[90%] max-w-[100%] shadow-md mb-4">
       {tabs.map((tab) => (
         <button
           key={tab}

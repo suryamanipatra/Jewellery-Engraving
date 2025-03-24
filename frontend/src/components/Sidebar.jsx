@@ -83,9 +83,9 @@ const handleAddEngravingLine = async () => {
   return (
     <div
       className={`${sidebarOpen
-        ? "fixed inset-0 bg-white p-4 z-50 w-[40%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA] "
+        ? "fixed inset-0 bg-white p-4 z-50 w-[100%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA] "
         : "hidden"
-        } lg:relative lg:block lg:z-0 lg:pt-0 lg:w-[20%] md:w-[40%] sm:w-[40%] transition-all overflow-y-auto duration-300 ease-in-out`}
+        } lg:relative lg:block lg:z-0 lg:pt-0 transition-all overflow-y-auto duration-300 ease-in-out`}
     >
       {sidebarOpen && (
         <div className="lg:hidden absolute top-2 right-2">

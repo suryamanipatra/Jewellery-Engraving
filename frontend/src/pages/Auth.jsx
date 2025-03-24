@@ -151,7 +151,7 @@ const handleSubmit = async (e) => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#062538] text-white py-3 rounded-lg hover:bg-[#15405B] transition duration-300"
+                  className="w-full bg-[#062538] text-white py-3 rounded-lg hover:bg-[#15405B] transition duration-300 cursor-pointer"
                 >
                   {isLogin ? "Login" : "Create Account"}
                 </button>

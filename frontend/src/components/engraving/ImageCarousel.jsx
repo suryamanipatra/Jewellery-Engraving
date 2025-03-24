@@ -26,7 +26,7 @@ const ImageCarousel = ({
         <FaChevronLeft size={18} className="md:text-2xl" />
       </button>
 
-      <div className="grid grid-cols-2 gap-2 md:gap-4 min-h-[180px] md:min-h-[260px]">
+      <div className="grid lg:grid-cols-2 grid-cols-2 md:grid-cols-4  gap-2 md:gap-4">
         {/* {console.log("coursal Images", visibleImages)} */}
         {visibleImages.length > 0 ? (
 
