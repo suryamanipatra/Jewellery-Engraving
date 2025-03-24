@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
 
 class EngravingLineBase(BaseModel):
     engraving_id: int

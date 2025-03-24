@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const ViewTabs = ({ activeTab, setActiveTab }) => {
-  const tabs = ["Wireframe", "Pen Tool"];
+  const tabs = ["DigiWire", "Pencil"];
 
   return (
     <div className="flex rounded-lg bg-white p-1 w-full lg:w-[90%] max-w-[90%] shadow-md mb-4">

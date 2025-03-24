@@ -1,8 +1,45 @@
 @import "tailwindcss";
 
+
+
 *{
   font-family: "Exo 2", sans-serif;
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Custom spinner class */
+.jewelry-spinner {
+  animation: spin 1.5s linear infinite;
+  position: relative;
+}
+
+.jewelry-spinner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 8px;
+  background: conic-gradient(
+    #4B0082 0%,
+    #FFD700 25%,
+    #50C878 50%,
+    #FFBF00 75%,
+    #E0115F 100%
+  );
+  -webkit-mask: 
+     linear-gradient(#fff 0 0) content-box, 
+     linear-gradient(#fff 0 0);
+  mask: 
+     linear-gradient(#fff 0 0) content-box, 
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

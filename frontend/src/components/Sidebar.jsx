@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios'
 import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
 import { FaRing } from "react-icons/fa";
@@ -8,6 +9,7 @@ import { BsSoundwave } from "react-icons/bs";
 import { FiPlusCircle } from "react-icons/fi";
 import { IoIosArrowDown, IoIosArrowUp, IoMdCloseCircle } from "react-icons/io";
 import { ImCross } from "react-icons/im";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Sidebar = ({
   selectedImageId,
@@ -26,66 +28,53 @@ const Sidebar = ({
   const location = useLocation();
   const [selectedProductType, setSelectedProductType] = useState("");
 
-  const handleAddEngravingLine = async () => {
-    try {
-      if (!selectedImageId) {
-        alert("No image selected");
-        return;
-      }
 
-      const detailsRes = await fetch(
-        `http://localhost:8000/api/engraving-details/image/${selectedImageId}`
-      );
-      const details = await detailsRes.json();
-      let engravingDetail = details[details.length - 1];
-      const currentLines = engravingLines.length;
-      const neededLines = currentLines + 1;
-      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-        const newDetailRes = await fetch("http://localhost:8000/api/engraving-details/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jewelry_image_id: selectedImageId,
-            total_lines: neededLines
-          })
-        });
-        engravingDetail = await newDetailRes.json();
-        console.log("New engraving detail created:", engravingDetail);
-      }
-
-      addEngravingLine(neededLines);
-
-    } catch (error) {
-      console.error("Error adding line:", error);
-      alert("Failed to add engraving line");
+const handleAddEngravingLine = async () => {
+  try {
+    if (!selectedImageId) {
+      alert("No image selected");
+      return;
     }
-  };
+
+    const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+    const details = detailsRes.data;
+    let engravingDetail = details[details.length - 1];
+    const currentLines = engravingLines.length;
+    const neededLines = currentLines + 1;
+
+    if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+      const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+        jewelry_image_id: selectedImageId,
+        total_lines: neededLines
+      });
+      engravingDetail = newDetailRes.data;
+      console.log("New engraving detail created:", engravingDetail);
+    }
+
+    addEngravingLine(neededLines);
+  } catch (error) {
+    console.error("Error adding line:", error);
+    alert("Failed to add engraving line");
+  }
+};
+
+
 
   const handleProductTypeSelect = async (productType) => {
     try {
-      const response = await fetch("http://localhost:8000/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jewelry_upload_id: jewelryUploadId,
-          product_type: productType.toLowerCase()
-        })
+      const response = await axios.post(`${API_BASE_URL}/products`, {
+        jewelry_upload_id: jewelryUploadId,
+        product_type: productType.toLowerCase()
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to set product type");
-      }
-
-      const result = await response.json();
-      console.log("Product type updated:", result);
+  
+      console.log("Product type updated:", response.data);
       setSelectedProductType(productType);
     } catch (error) {
       console.error("Error setting product type:", error);
       alert("Error setting product type. Please check console for details.");
     }
   };
+  
 
   const handleLineClick = (line) => {
     setSelectedLine(line);

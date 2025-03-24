@@ -14,6 +14,7 @@ import { useImageHandling } from "../hooks/useImageHandling";
 import { useEngravingHandling } from "../hooks/useEngravingHandling";
 import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const AdminEngraving = () => {
@@ -23,7 +24,7 @@ const AdminEngraving = () => {
   const stageRef = useRef(null);
 
   const { imageURLs, selectedImage, handleNext, handlePrev, startIndex, itemsPerPage } = useImageHandling(files);
-  const { engravingState, handleInputChange, addEngravingLine, setSelectedLine,resetEngraving } = useEngravingHandling();
+  const { engravingState, handleInputChange, addEngravingLine, setSelectedLine, resetEngraving } = useEngravingHandling();
   const { konvaState, konvaActions } = useKonvaHandling();
   const { setEngravings } = useContext(FileUploadContext);
   const [currentDesign, setCurrentDesign] = useState(() => ({
@@ -33,7 +34,7 @@ const AdminEngraving = () => {
   }));
 
 
-  const [activeTab, setActiveTab] = useState("Wireframe");
+  const [activeTab, setActiveTab] = useState("DigiWire");
   const [sidebarOpen, setSideBarOpen] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -41,9 +42,9 @@ const AdminEngraving = () => {
   const selectedIndex = imageURLs.indexOf(selectedImage);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const selectedImageId = images?.[selectedImageIndex]?.id;
-  const backendImageURLs = useMemo(() => 
-    images?.map(img => `http://localhost:8000/api/uploads/${img.file_path}`) || [], 
-    [images] 
+  const backendImageURLs = useMemo(() =>
+    images?.map(img => `${API_BASE_URL}/uploads/${img.file_path}`) || [],
+    [images]
   );
   const [modifiedImages, setModifiedImages] = useState([]);
 
@@ -84,17 +85,17 @@ const AdminEngraving = () => {
   const handleSave = async () => {
     try {
       const engravingRes = await axios.get(
-        `http://localhost:8000/api/engraving-details/image/${selectedImageId}`
+        `${API_BASE_URL}/engraving-details/image/${selectedImageId}`
       );
-      console.log("engravingRes",engravingRes.data)
+      console.log("engravingRes", engravingRes.data)
       const engravingDetails = await engravingRes.data;
       const engravingDetail = engravingDetails[0];
-  
-      
+
+
       for (const line of engravingState.engravingLines) {
         const lineData = engravingState.engravingData[line];
-        
-  
+
+
         const payload = {
           engraving_id: engravingDetail.id,
           line_number: line,
@@ -106,24 +107,24 @@ const AdminEngraving = () => {
           position_y: konvaState.positions[line]?.y || 0,
           path_coordinates: konvaState.paths[line]
         };
-  
-        const response = await axios.post("http://localhost:8000/api/engraving-lines/", payload);
+
+        const response = await axios.post(`${API_BASE_URL}/engraving-lines/`, payload);
         console.log("response", response)
         if (!response) throw new Error("Failed to save line");
       }
-  
+
       const updatedDesign = {
         ...currentDesign,
         engravingLines: engravingState.engravingLines,
         engravingData: engravingState.engravingData,
         imageUrl: previewImage || selectedImage
       };
-  
-      setEngravings(prev => location.state?.engraving 
+
+      setEngravings(prev => location.state?.engraving
         ? prev.map(item => item.id === updatedDesign.id ? updatedDesign : item)
         : [...prev, { ...updatedDesign, id: Date.now() }]
       );
-  
+
       // navigate('/admin');
     } catch (error) {
       console.error("Save failed:", error);
@@ -136,7 +137,6 @@ const AdminEngraving = () => {
     }
   }, [backendImageURLs]);
   useEffect(() => {
-    // Update design properties from engraving and konva states
     setCurrentDesign(prev => ({
       ...prev,
       engravingLines: engravingState.engravingLines,
@@ -147,7 +147,7 @@ const AdminEngraving = () => {
       showPath: konvaState.showPath
     }));
   }, [
-    engravingState.engravingLines, 
+    engravingState.engravingLines,
     engravingState.engravingData,
     konvaState.positions,
     konvaState.paths,
@@ -166,7 +166,7 @@ const AdminEngraving = () => {
     }
   };
 
-  
+
   useEffect(() => {
     return () => setPreviewImage(null);
   }, []);
@@ -176,14 +176,13 @@ const AdminEngraving = () => {
     const fetchEngravingData = async () => {
       if (!selectedImageId) return;
 
-      const res = await fetch(
-        `http://localhost:8000/api/engraving-details/image/${selectedImageId}`
-      );
-      const details = await res.json();
-      console.log("line details", details);
-      // if (details.length > 0) {
-      //   setCurrentEngravingDetail(details[0]);
-      // }
+      try {
+        const res = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+        const details = res.data;
+        console.log('line details', details);
+      } catch (error) {
+        console.error('Error fetching engraving details:', error);
+      }
     };
 
     fetchEngravingData();
@@ -193,15 +192,15 @@ const AdminEngraving = () => {
     const newLine = addEngravingLine();
     konvaActions.addNewLine(
       newLine,
-      "M50,150 Q250,50 350,150", 
-      { x: 50, y: 150 } 
+      "M50,150 Q250,50 350,150",
+      { x: 50, y: 150 }
     );
   };
 
   useEffect(() => {
     resetEngraving();
-    
-  }, [selectedImageIndex, selectedImageId]); 
+
+  }, [selectedImageIndex, selectedImageId]);
 
   return (
     <div className="w-full min-h-screen flex flex-col">
@@ -259,7 +258,7 @@ const AdminEngraving = () => {
                 engravingLines={engravingState.engravingLines}
                 engravingData={engravingState.engravingData}
                 konvaState={konvaState}
-                
+
                 onTextDrag={konvaActions.handleTextDrag}
                 onPathDrag={konvaActions.handlePathDrag}
               />
@@ -270,7 +269,7 @@ const AdminEngraving = () => {
             engravingLines={engravingState.engravingLines}
             engravingData={engravingState.engravingData}
             handleInputChange={handleInputChange}
-          />  
+          />
 
           <ActionButtons
             onSave={handleSave}

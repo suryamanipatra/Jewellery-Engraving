@@ -6,8 +6,13 @@ import loginJewellery from "../assets/login-logo.png";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Snackbar, Alert } from "@mui/material";
+import { useSelector, useDispatch } from 'react-redux'
+import { setLoginDetails } from '../redux/reducer/authReducer.jsx'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Auth = () => {
+  const initialAuthDetails = useSelector((state) => state.auth.name)
+  const dispatch = useDispatch()
   const location = useLocation();
   const navigate = useNavigate();
   const isLogin = location.pathname === "/login";
@@ -26,11 +31,11 @@ const Auth = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    const url = isLogin ? "http://localhost:8000/api/login" : "http://localhost:8000/api/signup";
+    const url = isLogin ? `${API_BASE_URL}/login` : `${API_BASE_URL}/signup`;
 
     const payload = isLogin
-      ? new URLSearchParams({ username: formData.email, password: formData.password }) // Form URL encoding for login
-      : { name: formData.name, email: formData.email, password: formData.password }; // JSON for signup
+      ? new URLSearchParams({ username: formData.email, password: formData.password }) 
+      : { name: formData.name, email: formData.email, password: formData.password }; 
 
     const config = {
       headers: {
@@ -39,11 +44,13 @@ const handleSubmit = async (e) => {
     };
 
     const response = await axios.post(url, payload, config);
+    console.log("login response",response.data)
+    dispatch(setLoginDetails(response.data))
 
     if (isLogin) {
       localStorage.setItem("token", response.data.access_token);
       setSnackbar({ open: true, message: "Login successful!", severity: "success" });
-      setTimeout(() => navigate("/admin/upload"), 1000);
+      setTimeout(() => navigate("/admin/home"), 1000);
     } else {
       setSnackbar({ open: true, message: "Signup successful! Please login.", severity: "success" });
       setTimeout(() => navigate("/login"), 1000);

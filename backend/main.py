@@ -11,11 +11,45 @@ import os
 from routes.engraving_lines import router as engraving_lines_router
 from utils.database import Base, engine, SessionLocal
 from utils.auth import get_password_hash  
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel, OAuth2 as OAuth2Model
+from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="Your API",
+        version="1.0.0",
+        description="API with OAuth2 Bearer Token",
+        routes=app.routes,
+    )
+
+    openapi_schema["components"]["securitySchemes"] = {
+        "OAuth2PasswordBearer": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    openapi_schema["security"] = [{"OAuth2PasswordBearer": []}]
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 app.add_middleware( 
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], 
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+static_files = StaticFiles(directory="uploads")
+static_with_cors = CORSMiddleware(
+    static_files,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,10 +74,10 @@ async def startup_event():
         if not db.query(User).filter(User.email == admin_email).first():
             hashed_pw = get_password_hash(admin_password)
             admin_user = User(
-                name="Initial Admin",
+                name="Super Admin",
                 email=admin_email,
                 password_hash=hashed_pw,
-                role="admin"
+                role="super_admin"
             )
             db.add(admin_user)
             db.commit()
@@ -52,4 +86,4 @@ async def startup_event():
         print(f"Error creating database tables: {e}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)

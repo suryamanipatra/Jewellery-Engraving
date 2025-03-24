@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum, TIMESTAMP
 from sqlalchemy.sql import func
 from utils.database import Base
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -9,5 +10,8 @@ class User(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    role = Column(Enum('admin', 'user', name='user_role_enum'), nullable=False, default='admin')  # Default to admin
+    role = Column(Enum('super_admin','admin', 'user', name='user_roles'), nullable=False, default='user')
     created_at = Column(TIMESTAMP, server_default=func.now())
+    
+    
+    jewelry_uploads = relationship("JewelryUpload", back_populates="user")

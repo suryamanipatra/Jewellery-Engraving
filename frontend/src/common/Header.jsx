@@ -5,6 +5,7 @@ import { BiCategoryAlt } from "react-icons/bi";
 import { AiOutlineEye } from "react-icons/ai";
 import { FiRefreshCw } from "react-icons/fi";
 import PreviewPopup from "../components/PreviewPopUp";
+import { useSelector } from 'react-redux'
 
 const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpen, handleClose, imageURLs, capturePreview,
     previewImage, selectedIndex, textOverlays = {} }) => {
@@ -12,6 +13,8 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
         capturePreview();
         setIsPopupOpen(true);
     };
+    const nameSelector = useSelector((state) => state.auth.name)
+    console.log("useSelector",nameSelector)
     return (
         <div className="w-full sticky top-0 z-50">
             <div className="w-full bg-white shadow-md px-4 md:px-8">
@@ -19,7 +22,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
                     <img src={kamaLogo} alt="Kama Logo" className="w-24 md:w-40 h-auto" />
                     <div className="flex items-center gap-1 md:gap-3 text-[#062538]">
                         <FaUser className="text-lg md:text-2xl" />
-                        <span className="text-sm md:text-lg font-medium">{userName}</span>
+                        <span className="text-sm md:text-lg font-medium">{nameSelector}</span>
                     </div>
                 </header>
             </div>
