@@ -1,13 +1,11 @@
 
-import React, { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import kamaLogo from "../assets/kama-logo.png";
-import { FaUser, FaHome, FaUpload, FaCog } from "react-icons/fa";
+import React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { FaHome, FaUpload, FaCog } from "react-icons/fa";
 import { BiCategoryAlt } from "react-icons/bi";
 import { Tabs, Tab } from "@mui/material";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/reducer/authReducer";
-import { color } from "framer-motion";
+import TopHeader from "./TopHeader";
+
 
 const AdminLayout = () => {
     const location = useLocation();
@@ -27,46 +25,42 @@ const AdminLayout = () => {
     };
 
 
-    const [isOpen, setIsOpen] = useState(false);
-    const popoverRef = useRef(null);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+    // const [isOpen, setIsOpen] = useState(false);
+    // const popoverRef = useRef(null);
+    // const navigate = useNavigate();
+    // const dispatch = useDispatch();
 
-    const name = useSelector((state) => state.auth.name) || "Admin/User";
-    const email = useSelector((state) => state.auth.email) || "admin@example.com";
+    // const name = useSelector((state) => state.auth.name) || "Admin/User";
+    // const email = useSelector((state) => state.auth.email) || "admin@example.com";
 
-    const togglePopover = () => setIsOpen(!isOpen);
+    // const togglePopover = () => setIsOpen(!isOpen);
 
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    // useEffect(() => {
+    //     function handleClickOutside(event) {
+    //         if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+    //             setIsOpen(false);
+    //         }
+    //     }
+    //     document.addEventListener("mousedown", handleClickOutside);
+    //     return () => document.removeEventListener("mousedown", handleClickOutside);
+    // }, []);
 
-    const handleLogout = () => {
-        localStorage.clear();
-        dispatch(logout());
-        navigate("/");
-    };
+    // const handleLogout = () => {
+    //     localStorage.clear();
+    //     dispatch(logout());
+    //     navigate("/");
+    // };
 
-    const nameSelector = useSelector((state) => state.auth.name)
-    console.log("useSelector", nameSelector)
+    // const nameSelector = useSelector((state) => state.auth.name)
+    // console.log("useSelector", nameSelector)
 
     return (
         <div className="w-full h-screen flex justify-center items-center">
             <div className="w-full max-w-6xl h-full flex flex-col shadow-lg rounded-xl overflow-hidden">
 
-                <div className="w-full shadow-md px-4 md:px-8">
+                {/* <div className="w-full shadow-md px-4 md:px-8">
                     <header className="w-full flex justify-between items-center py-4">
                         <img src={kamaLogo} alt="Kama Logo" className="w-40 h-auto" />
-                        {/* <div className="flex items-center gap-2 md:gap-3 text-[#062538]">
-                            <FaUser className="text-xl md:text-2xl" />
-                            <span className="text-md md:text-lg font-medium">{nameSelector ? nameSelector : "Admin/User"}</span>
-                        </div> */}
                         <div className="relative">
                             <div
                                 className="flex items-center gap-2 md:gap-3 text-[#062538] cursor-pointer"
@@ -94,7 +88,9 @@ const AdminLayout = () => {
                             )}
                         </div>
                     </header>
-                </div>
+                </div> */}
+
+                <TopHeader />
 
 
                 <div className="w-full bg-[#1C4E6D] px-2 sm:px-3 md:px-4">

@@ -32,7 +32,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         data={"sub": str(user.id)},
         expires_delta=timedelta(minutes=30)
     )
-    user_info = UserBasicInfo(name=user.name, email=user.email, password="")
+    user_info = UserBasicInfo(name=user.name, email=user.email, role=user.role)
     
     response_data = {
         "access_token": access_token,
@@ -45,7 +45,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             User.role.in_(["super_admin", "admin"])
         ).all()
         response_data["admin_list"] = [
-            UserBasicInfo(name=admin.name, email=admin.email, password="") 
+            UserBasicInfo(name=admin.name, email=admin.email, role="super_admin") 
             for admin in admin_users
         ]
     

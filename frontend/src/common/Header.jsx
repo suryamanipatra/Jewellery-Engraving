@@ -1,11 +1,12 @@
 // Header.jsx
 import React from "react";
-import { FaUser } from "react-icons/fa";
+// import { FaUser } from "react-icons/fa";
 import { BiCategoryAlt } from "react-icons/bi";
 import { AiOutlineEye } from "react-icons/ai";
 import { FiRefreshCw } from "react-icons/fi";
 import PreviewPopup from "../components/PreviewPopUp";
 import { useSelector } from 'react-redux'
+import TopHeader from "./TopHeader";
 
 const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpen, handleClose, imageURLs, capturePreview,
     previewImage, selectedIndex, textOverlays = {} }) => {
@@ -17,7 +18,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
     console.log("useSelector",nameSelector)
     return (
         <div className="w-full sticky top-0 z-50">
-            <div className="w-full bg-white shadow-md px-4 md:px-8">
+            {/* <div className="w-full bg-white shadow-md px-4 md:px-8">
                 <header className="w-full flex justify-between items-center py-3 md:py-4">
                     <img src={kamaLogo} alt="Kama Logo" className="w-24 md:w-40 h-auto" />
                     <div className="flex items-center gap-1 md:gap-3 text-[#062538]">
@@ -25,7 +26,9 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
                         <span className="text-sm md:text-lg font-medium">{nameSelector}</span>
                     </div>
                 </header>
-            </div>
+            </div> */}
+
+            <TopHeader />
 
             {/* Navigation */}
             <div className="w-full bg-[#1C4E6D] px-2 md:px-8">

@@ -25,6 +25,8 @@ const App = () => {
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth />} />
 
+        <Route path = '/forgot-password' element = {<Auth />} /> 
+
         
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
