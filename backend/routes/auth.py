@@ -17,7 +17,6 @@ class Message(BaseModel):
     message: str
 
 
-# routes/auth.py
 @router.post("/login", response_model=LoginResponse)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == form_data.username).first()

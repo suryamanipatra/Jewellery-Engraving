@@ -39,7 +39,7 @@ const TopHeader = () => {
     };
 
     return (
-        <div className={`w-full ${path === '/' || path === '/login' || path === '/signup' || path === '/forgot-password' ? "" : "shadow-md"} px-4 md:px-8`}>
+        <div className={`w-full ${path === '/' || path === '/login' || path === '/signup' || path === '/forgot-password' ? "" : "shadow-md"} px-4 md:px-8  lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] md:h-[6vh] ` }>
             <header className="w-full flex justify-between items-center py-4">
                 <img src={kamaLogo} alt="Kama Logo" className="w-40 h-auto" />
                 {path === "/login" || path === "/" || path === "/signup" || path === '/forgot-password' ? null :

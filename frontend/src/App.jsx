@@ -8,6 +8,9 @@ import AdminEngraving from "./admin/AdminEngraving";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import AdminSettings from "./pages/AdminSettings";
+import UserCategories from "./user/UserCategories";
+import UserEngraving from "./user/UserEngraving";
+import UserPreview from "./user/UserPreview";
 
 const App = () => {
   return (
@@ -26,6 +29,9 @@ const App = () => {
         <Route path="/signup" element={<Auth />} />
 
         <Route path = '/forgot-password' element = {<Auth />} /> 
+        <Route path = '/engraving-categories' element = {<UserCategories />} />
+        <Route path="/engraving/:id" element={<UserEngraving />} />
+        <Route path= '/user-preview' element={<UserPreview />} />
 
         
         <Route path="*" element={<Navigate to="/login" replace />} />

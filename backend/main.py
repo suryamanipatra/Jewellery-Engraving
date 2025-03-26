@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware 
 from routes.jewelry import router as jewelry_router
 from routes.product import router as product_router
-from routes.mail import router as mail_router
+# from routes.mail import router as mail_router
 from routes.engraving import router as engraving_router
 from routes.auth import router as auth_router
 from models.user import User
@@ -62,7 +62,7 @@ app.include_router(product_router, prefix="/api")
 app.include_router(engraving_router, prefix="/api")
 app.include_router(engraving_lines_router, prefix="/api")
 app.include_router(auth_router, prefix="/api") 
-app.include_router(mail_router, prefix="/api") 
+# app.include_router(mail_router, prefix="/api") 
 
 
 @app.on_event("startup")

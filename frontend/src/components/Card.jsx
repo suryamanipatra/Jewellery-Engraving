@@ -1,24 +1,26 @@
 import React from 'react';
 import { IoArrowRedoSharp } from "react-icons/io5";
+import kamaLogo from "../assets/login-logo.png";
+import { useNavigate } from 'react-router-dom';
 
-const Card = ({ imageUrl, name, onEngrave }) => {
+const Card = ({ id, category }) => {
+  const navigate = useNavigate();
     return (
-      <div className="w-full max-w-[300px] mx-auto p-5 border border-gray-300 rounded-xl bg-white">
-        <div className="w-full h-[150px] bg-gray-100 rounded-md mb-2.5">
-          {imageUrl && (
+      <div className="w-full 2xl:w-[15vw] md:w-[30vw] mx-auto p-5 border border-gray-300 rounded-xl bg-white">
+        <div className="w-full h-[20vh] bg-gray-100 rounded-md mb-2.5">
+          
             <img
-              src={imageUrl}
-              alt={name}
+              src={kamaLogo}
+              alt="name"
               className="w-full h-full object-contain"
             />
-          )}
         </div>
-        <h4 className="text-lg font-bold text-black mb-0">{name}</h4>
-        {/* <h4 className='tex-lg font-bold text-black mb-0'>{}</h4> */}
+        <p className="text-md text-gray-500 mb-0">{category}</p>
+        <p className="text-sm text-black-500 mb-0">name</p>
         <div className="mt-2.5 flex justify-center">
           <button 
-            onClick={onEngrave}
-            className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+            className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 cursor-pointer"
+            onClick={() => navigate(`/engraving/${id}`)}
           >
             Engrave
             <IoArrowRedoSharp className="ml-2 text-white" />

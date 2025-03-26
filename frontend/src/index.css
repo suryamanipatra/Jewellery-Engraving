@@ -5,7 +5,15 @@
 *{
   font-family: "Exo 2", sans-serif;
 }
+::-webkit-scrollbar {
+  display: none;
+}
 
+/* Hide scrollbar for Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+}
 
 
 
