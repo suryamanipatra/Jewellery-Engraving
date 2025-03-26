@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { setLoginDetails } from '../redux/reducer/authReducer.jsx'
 import TopHeader from "../common/TopHeader.jsx";
 import Loader from "../common/Loader.jsx";
+import { useGoogleLogin } from '@react-oauth/google';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Auth = () => {
@@ -84,8 +85,55 @@ const Auth = () => {
 
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const getUserInfo = async (accessToken) => {
+    try {
+      const response = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      console.log("User Info:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+    }
+  };
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    console.log("credential", credentialResponse)
+    if (!credentialResponse.id_token) {
+      console.warn("id_token missing, using access_token instead.");
+      const userData = await getUserInfo(credentialResponse.access_token);
+      console.log("User Data from access_token:", userData);
+      
+    }
+    console.log("id_token exists:", credentialResponse.access_token);
+    setShowLoader(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/google-login`, {
+        token: credentialResponse.access_token
+      });
+      console.log("response",response)
 
+      if (response?.status === 200) {
+        dispatch(setLoginDetails(response.data));
+        localStorage.setItem("token", response.data.access_token);
+        setSnackbar({ open: true, message: "Google login successful!", severity: "success" });
+        setTimeout(() => navigate("/engraving-categories"), 1000);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || "Google login failed";
+      setSnackbar({ open: true, message: errorMessage, severity: "error" });
+    } finally {
+      setShowLoader(false);
+    }
+  };
 
+  const handleGoogleLoginError = () => {
+    setSnackbar({ open: true, message: "Google login failed", severity: "error" });
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: handleGoogleLoginError,
+  });
 
   useEffect(() => {
     setFormDataForForgotPassword({ email: "", password: "", confirmPassword: "", otp: "" });
@@ -135,8 +183,8 @@ const Auth = () => {
       if (response?.status === 200) {
         setSnackbar({ open: true, message: response?.data?.message, severity: "success" });
         setTimeout(() => navigate("/login"), 1000);
-      } 
-      
+      }
+
     } catch (error) {
       setSnackbar({ open: true, message: error.response?.data?.detail || "Unknown Error", severity: "error" });
     } finally {
@@ -171,7 +219,7 @@ const Auth = () => {
               <img
                 src={loginJewellery}
                 alt="Jewelry"
-                className="sm:w-[80%] sm:h-[80%] lg:w-[70%] lg:h-[70%] md:w-[70%] md:h-[70%] object-cover mx-auto md:mx-0 mt-4 md:mt-8 md:ml-8"
+                className="sm:w-[80%] sm:h-[80%] lg:w-[70%] lg:h-[60%] md:w-[70%] md:h-[60%] object-cover mx-auto md:mx-0 mt-4 md:mt-8 md:ml-8"
               />
             </div>
 
@@ -179,18 +227,21 @@ const Auth = () => {
               <div className="w-full flex flex-col">
                 <h2 className="text-[#062538] text-xl sm:text-2xl font-semibold mb-4 text-center">
                   {/* {isLogin ? "Welcome back" : "Create Account"} */}
-                  {isForgotPassword ? "Forgot Password" : isLogin ? "Welcome back" : "Create Account"}
+                  {isForgotPassword ? "Forgot Password" : isLogin ? "Welcome Back!" : "Create Account"}
                 </h2>
 
                 {!isForgotPassword && (
                   <>
-                    <div className="w-fit mx-auto border border-gray-300 lg:px-4 lg:py-2 sm:px-2 sm:py-2 xs:px-4 xs:py-4 rounded-lg cursor-pointer">
+                    <div className="w-fit mx-auto border border-gray-300 lg:px-4 lg:py-2 sm:px-2 sm:py-2 xs:px-4 xs:py-4 rounded-lg cursor-pointer"
+                      onClick={googleLogin}
+                    >
                       <div className="flex items-center gap-2">
                         <FcGoogle size={24} />
                         <span className="text-sm text-gray-700">
                           {isLogin ? "Sign in with Google" : "Sign up with Google"}
                         </span>
                       </div>
+
                     </div>
 
                     <p className="text-gray-400 text-center my-4">- OR -</p>

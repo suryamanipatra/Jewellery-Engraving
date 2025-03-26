@@ -11,6 +11,7 @@ from utils.auth_dependencies import oauth2_scheme, verify_role
 from schemas.auth import Token, UserBasicInfo, LoginResponse
 from schemas.auth import UserCreate
 from sqlalchemy.exc import SQLAlchemyError
+import requests
 
 
 router = APIRouter(tags=["auth"])
@@ -103,6 +104,63 @@ async def create_admin_user(
 
     
     return {"message": "Admin created successfully"}
+
+
+
+@router.post("/google-login", response_model=LoginResponse)
+async def google_login(google_data: dict, db: Session = Depends(get_db)):
+    print(google_data)
+    access_token = google_data.get("token")
+    if not access_token:
+        raise HTTPException(status_code=400, detail="Access token required")
+    try:
+        response = requests.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        response.raise_for_status()
+        user_info = response.json()
+        print(user_info)
+    except requests.RequestException:
+        raise HTTPException(status_code=400, detail="Invalid Google token")
+
+    email = user_info.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email not provided by Google")
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        if user.provider != 'google':
+            raise HTTPException(
+                status_code=400,
+                detail="Account exists with email/password. Use email login."
+            )
+    else:
+        user = User(
+            name=user_info.get("name", email.split('@')[0]),
+            email=email,
+            provider='google',
+            password_hash=None,
+            role='user'
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    access_token_jwt = create_access_token(data={"sub": str(user.id)})
+    user_info = UserBasicInfo(name=user.name, email=user.email, role=user.role)
+    response_data = {
+        "access_token": access_token_jwt,
+        "token_type": "bearer",
+        "user": user_info
+    }
+
+    if user.role == "super_admin":
+        admin_users = db.query(User).filter(User.role.in_(["super_admin", "admin"])).all()
+        response_data["admin_list"] = [
+            UserBasicInfo(name=admin.name, email=admin.email, role=admin.role)
+            for admin in admin_users
+        ]
+
+    return response_data
 
 
 
