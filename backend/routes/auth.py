@@ -9,13 +9,41 @@ from utils.auth import get_password_hash, verify_password
 from utils.jwttoken import create_access_token
 from utils.auth_dependencies import oauth2_scheme, verify_role
 from schemas.auth import Token, UserBasicInfo, LoginResponse
-from pydantic import BaseModel
+from schemas.auth import UserCreate
+from sqlalchemy.exc import SQLAlchemyError
+
 
 router = APIRouter(tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-class Message(BaseModel):
-    message: str
 
+@router.post("/signup")
+async def signup(user: UserCreate, db: Session = Depends(get_db)):
+    try:
+        db_user = db.query(User).filter(User.email == user.email).first()
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        hashed_password = get_password_hash(user.password)
+
+        new_user = User(
+            name=user.name,
+            email=user.email,
+            password_hash=hashed_password,
+            role="user"
+        )
+
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return {"message": "Registered successfully"}
+
+    except SQLAlchemyError as e:
+        db.rollback() 
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @router.post("/login", response_model=LoginResponse)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -49,7 +77,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         ]
     
     return response_data
-@router.post("/admin/users", response_model=Message)
+
+@router.post("/admin/users")
 async def create_admin_user(
     
     user_data: UserBasicInfo, 
