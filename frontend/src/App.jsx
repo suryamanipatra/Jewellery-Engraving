@@ -1,38 +1,98 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-import AdminLayout from "./common/AdminLayout";
-import AdminUpload from "./admin/AdminUpload";
-import AdminEngraving from "./admin/AdminEngraving";
-// import AdminSettings from "./admin/AdminSettings";
-import Auth from "./pages/Auth";
-import Home from "./pages/Home";
-import AdminSettings from "./pages/AdminSettings";
-import UserCategories from "./user/UserCategories";
-import UserEngraving from "./user/UserEngraving";
-import UserPreview from "./user/UserPreview";
+// Components imports
+import AdminLayout from './common/AdminLayout';
+import AdminUpload from './admin/AdminUpload';
+import AdminEngraving from './admin/AdminEngraving';
+import Auth from './pages/Auth';
+import Home from './pages/Home';
+import AdminSettings from './pages/AdminSettings';
+import UserCategories from './user/UserCategories';
+import UserEngraving from './user/UserEngraving';
+import UserPreview from './user/UserPreview';
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { role } = useSelector((state) => state.auth);
+
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children;
+};
+
+const ReverseProtectedRoute = ({ children }) => {
+  const { role } = useSelector((state) => state.auth);
+  
+  if (role) {
+    const redirectPath = ['admin', 'super_admin'].includes(role) 
+      ? '/admin/home' 
+      : '/engraving-categories';
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  return children;
+};
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/admin" element={<AdminLayout />}>
+        
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
           <Route path="upload" element={<AdminUpload />} />
-          <Route path="Settings" element={<AdminSettings />}/>
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="engraving" element={<AdminEngraving />} />
         </Route>
-          <Route path="/admin/engraving" element={<AdminEngraving />} />
 
         
-        <Route path="/login" element={<Auth />} />
-        <Route path="/signup" element={<Auth />} />
+        <Route path="/login" element={
+          <ReverseProtectedRoute>
+            <Auth />
+          </ReverseProtectedRoute>
+        } />
+        <Route path="/signup" element={
+          <ReverseProtectedRoute>
+            <Auth />
+          </ReverseProtectedRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <ReverseProtectedRoute>
+            <Auth />
+          </ReverseProtectedRoute>
+        } />
 
-        <Route path = '/forgot-password' element = {<Auth />} /> 
-        <Route path = '/engraving-categories' element = {<UserCategories />} />
-        <Route path="/engraving/:id" element={<UserEngraving />} />
-        <Route path= '/user-preview' element={<UserPreview />} />
-
+        
+        <Route path="/engraving-categories" element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <UserCategories />
+          </ProtectedRoute>
+        } />
+        <Route path="/engraving/:id" element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <UserEngraving />
+          </ProtectedRoute>
+        } />
+        <Route path="/user-preview" element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <UserPreview />
+          </ProtectedRoute>
+        } />
         
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

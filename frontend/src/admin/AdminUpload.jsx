@@ -114,14 +114,16 @@ const AdminUpload = () => {
 
     // formData.append("user_id", userId);
     formData.append("upload_source", uploadSource);
-    // console.log("upload files", files);
+    console.log("upload files", files);
     files.forEach((item, index) => {
+      console.log("item",item)
       // console.log("item", item);
       if (uploadSource === "local" && item.type === "local") {
         formData.append("files", item.file);
         formData.append("view_types", viewTypes[index]);
       } else if (uploadSource === "drive" && item.type === "drive") {
-        formData.append("drive_files", item.doc.id);
+        console.log("item",item)
+        formData.append("files", item.doc.name);
         formData.append("view_types", viewTypes[index]);
       }
     });

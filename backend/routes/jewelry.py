@@ -42,8 +42,8 @@ async def create_upload(
             raise HTTPException(status_code=400, detail="No files uploaded")
         if len(files) != len(view_types):
             raise HTTPException(status_code=400, detail="Mismatched files and view types")
-        print(files)
         jewelry_name = os.path.splitext(files[0].filename)[0]  
+        print(jewelry_name)
         db_upload = JewelryUpload(
             user_id=current_user.id,
             # user_id=user_id,
