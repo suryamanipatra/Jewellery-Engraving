@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from routes.jewelry import router as jewelry_router
 from routes.product import router as product_router
 from routes.mail import router as mail_router
+from routes.user_flow import router as user_flow_router
 from routes.engraving import router as engraving_router
 from routes.auth import router as auth_router
 from models.user import User
@@ -14,6 +15,7 @@ from utils.database import Base, engine, SessionLocal
 from utils.auth import get_password_hash  
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel, OAuth2 as OAuth2Model
 from fastapi.openapi.utils import get_openapi
+from utils.database import create_database_if_not_exists, Base, engine, SessionLocal
 
 app = FastAPI()
 def custom_openapi():
@@ -62,12 +64,15 @@ app.include_router(product_router, prefix="/api")
 app.include_router(engraving_router, prefix="/api")
 app.include_router(engraving_lines_router, prefix="/api")
 app.include_router(auth_router, prefix="/api") 
-app.include_router(mail_router, prefix="/api") 
+app.include_router(mail_router, prefix="/api")
+app.include_router(user_flow_router, prefix="/api")
+
 
 
 @app.on_event("startup")
 async def startup_event():
     try:
+        create_database_if_not_exists() 
         Base.metadata.create_all(bind=engine)
         print("Database tables created successfully.")
         db = SessionLocal()

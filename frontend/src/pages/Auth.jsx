@@ -214,7 +214,7 @@ const Auth = () => {
           <div className="bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] flex md:flex-row rounded-lg">
             <div className="w-full md:w-2/5 p-4 md:p-8 text-center md:text-left">
               <p className="text-white font-telex font-normal text-base sm:text-2xl md:text-2xl leading-[137%] tracking-wide">
-                Make It Yours: Personalized Jewelry Engraved with Love...
+                Make It Yours: <br /> Personalized Jewelry Engraved with Love...
               </p>
               <img
                 src={loginJewellery}
@@ -411,6 +411,12 @@ const Auth = () => {
                         {isLogin ? "Sign Up" : "Login"}
                       </NavLink>
                     </p>
+                    {/* <p className="text-center text-gray-500 mt-4">
+                      Are you an admin ? 
+                      <span className="text-[#062538] font-semibold" onClick={() => navigate("/admin/login")}>
+                        &nbsp;Admin Login
+                      </span>
+                    </p> */}
                   </>
                 )}
               </div>

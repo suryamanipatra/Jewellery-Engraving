@@ -10,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminSettings = () => {
     const [openSection, setOpenSection] = useState(null);
-    const [adminFormData, setAdminFormData] = useState({ name: "", email: "", password: "" });
+    const [adminFormData, setAdminFormData] = useState({ name: "", email: "", password: "",role:"admin" });
     const [categoryFormData, setCategoryFormData] = useState({ name: "" });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);

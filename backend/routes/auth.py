@@ -68,14 +68,14 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         "user": user_info
     }
     
-    if user.role == "super_admin":
-        admin_users = db.query(User).filter(
-            User.role.in_(["super_admin", "admin"])
-        ).all()
-        response_data["admin_list"] = [
-            UserBasicInfo(name=admin.name, email=admin.email, role="super_admin") 
-            for admin in admin_users
-        ]
+    # if user.role == "super_admin":
+    #     admin_users = db.query(User).filter(
+    #         User.role.in_(["super_admin", "admin"])
+    #     ).all()
+    #     response_data["admin_list"] = [
+    #         UserBasicInfo(name=admin.name, email=admin.email, role="super_admin") 
+    #         for admin in admin_users
+    #     ]
     
     return response_data
 

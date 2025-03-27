@@ -1,5 +1,6 @@
 
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 class Token(BaseModel):
     access_token: str
@@ -10,6 +11,7 @@ class UserBasicInfo(BaseModel):
     name: str
     email: str
     role: str
+    password:Optional[str] = None
 
     class Config:
         from_attributes = True
