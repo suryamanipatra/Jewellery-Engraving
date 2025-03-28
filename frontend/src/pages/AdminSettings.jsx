@@ -9,7 +9,7 @@ import Alert from '@mui/material/Alert';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminSettings = () => {
-    const [openSection, setOpenSection] = useState(null);
+    const [openSection, setOpenSection] = useState('admin');
     const [adminFormData, setAdminFormData] = useState({ name: "", email: "", password: "",role:"admin" });
     const [categoryFormData, setCategoryFormData] = useState({ name: "" });
     const [showPassword, setShowPassword] = useState(false);

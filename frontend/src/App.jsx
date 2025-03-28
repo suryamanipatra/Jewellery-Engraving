@@ -29,10 +29,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 const ReverseProtectedRoute = ({ children }) => {
   const { role } = useSelector((state) => state.auth);
-  
+
   if (role) {
-    const redirectPath = ['admin', 'super_admin'].includes(role) 
-      ? '/admin/home' 
+    const redirectPath = ['admin', 'super_admin'].includes(role)
+      ? '/admin/home'
       : '/engraving-categories';
     return <Navigate to={redirectPath} replace />;
   }
@@ -44,7 +44,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        
+
         <Route
           path="/admin"
           element={
@@ -57,10 +57,17 @@ const App = () => {
           <Route path="home" element={<Home />} />
           <Route path="upload" element={<AdminUpload />} />
           <Route path="settings" element={<AdminSettings />} />
-          <Route path="engraving" element={<AdminEngraving />} />
         </Route>
+        <Route
+          path="/admin/engraving"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+              <AdminEngraving />
+            </ProtectedRoute>
+          }
+        />
 
-        
+
         <Route path="/login" element={
           <ReverseProtectedRoute>
             <Auth />
@@ -77,7 +84,7 @@ const App = () => {
           </ReverseProtectedRoute>
         } />
 
-        
+
         <Route path="/engraving-categories" element={
           <ProtectedRoute allowedRoles={['user']}>
             <UserCategories />
@@ -93,7 +100,7 @@ const App = () => {
             <UserPreview />
           </ProtectedRoute>
         } />
-        
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
