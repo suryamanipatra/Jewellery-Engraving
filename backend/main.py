@@ -7,6 +7,7 @@ from routes.product import router as product_router
 from routes.mail import router as mail_router
 from routes.user_flow import router as user_flow_router
 from routes.engraving import router as engraving_router
+from routes.contact_us import router as contact_us_router
 from routes.auth import router as auth_router
 from models.user import User
 import os
@@ -66,6 +67,7 @@ app.include_router(engraving_lines_router, prefix="/api")
 app.include_router(auth_router, prefix="/api") 
 app.include_router(mail_router, prefix="/api")
 app.include_router(user_flow_router, prefix="/api")
+app.include_router(contact_us_router, prefix="/api")
 
 
 

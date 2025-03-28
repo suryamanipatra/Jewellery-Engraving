@@ -11,7 +11,7 @@ class AdminEmailRequest(BaseModel):
     password: str
 
 class ContactUsRequest(BaseModel):
-    username: str
+    name: str
     email: str
     phone: str
     message: str
