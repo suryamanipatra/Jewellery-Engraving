@@ -58,6 +58,7 @@ const App = () => {
           <Route path="upload" element={<AdminUpload />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
+<<<<<<< Updated upstream
         <Route
           path="/admin/engraving"
           element={
@@ -67,6 +68,13 @@ const App = () => {
           }
         />
 
+=======
+        <Route path="/admin/engraving"
+          element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+            <AdminEngraving />
+          </ProtectedRoute>
+          } />
+>>>>>>> Stashed changes
 
         <Route path="/login" element={
           <ReverseProtectedRoute>

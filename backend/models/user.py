@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Enum, TIMESTAMP, Text
 from sqlalchemy.sql import func
 from utils.database import Base
 from sqlalchemy.orm import relationship
@@ -12,6 +12,8 @@ class User(Base):
     password_hash = Column(String(255), nullable=True)
     provider = Column(String(50), default='email')
     role = Column(Enum('super_admin','admin', 'user', name='user_roles'), nullable=False, default='user')
+    phone = Column(String(20), nullable=True)
+    message = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     
     

@@ -6,7 +6,6 @@ from sqlalchemy import func
 from utils.database import get_db
 from models.jewelry_image import JewelryImage
 from models.engraving_detail import EngravingDetail
-from models.engraving_line import EngravingLine
 from models.product import Product
 from typing import Optional, List, Dict, Any
 import os
