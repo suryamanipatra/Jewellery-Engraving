@@ -10,6 +10,7 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { getCategoryIcon } from '../utils/IconMapping';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -22,14 +23,14 @@ const CustomInput = styled(InputBase)(({ theme }) => ({
 }));
 
 const UserCategories = () => {
-    const categoryTypes = Array.from({ length: 13 }, (_, i) => ({
-        name: `Category ${i + 1}`,
-        icon1: <FaChildren />
-    }));
-    const allCards = Array.from({ length: 30 }, (_, i) => ({
-        id: i + 1,
-        category: `Category ${Math.floor(Math.random() * 13) + 1}`
-    }));
+    // const categoryTypes = Array.from({ length: 13 }, (_, i) => ({
+    //     name: `Category ${i + 1}`,
+    //     icon1: <FaChildren />
+    // }));
+    // const allCards = Array.from({ length: 30 }, (_, i) => ({
+    //     id: i + 1,
+    //     category: `Category ${Math.floor(Math.random() * 13) + 1}`
+    // }));
 
     const [formData, setFormData] = useState({
         name: '',
@@ -38,19 +39,23 @@ const UserCategories = () => {
         countryCode: '+1',
         message: ''
     });
+    const [jewelleryTypes, setJewelleryTypes] = useState([]);
+
+    const [selectedProductType, setSelectedProductType] = useState("All Categories");
+    const [currentCards, setCurrentCards] = useState([]);
     const [countries, setCountries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    // const [selectedCategory, setSelectedCategory] = useState(null);
     const cardsPerPage = 12;
-    const filteredCards = selectedCategory
-        ? allCards.filter(card => card.category === selectedCategory)
-        : allCards;
+    // const filteredCards = selectedCategory
+    //     ? allCards.filter(card => card.category === selectedCategory)
+    //     : allCards;
 
-    const startIndex = (currentPage - 1) * cardsPerPage;
-    const currentCards = filteredCards.slice(startIndex, startIndex + cardsPerPage);
+    // const startIndex = (currentPage - 1) * cardsPerPage;
+    // const currentCards = filteredCards.slice(startIndex, startIndex + cardsPerPage);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
@@ -74,14 +79,14 @@ const UserCategories = () => {
             const payload = {
                 name: formData.name,
                 email: formData.email,
-                phone:  `${formData.countryCode} ${formData.phone}`,
+                phone: `${formData.countryCode} ${formData.phone}`,
                 message: formData.message
             };
             console.log(payload)
             const response = await axios.post(`${API_BASE_URL}/contact-us`, payload);
             console.log(response.data)
             setMessage(response.data.message);
-            
+
             setFormData({
                 name: '',
                 email: '',
@@ -134,24 +139,65 @@ const UserCategories = () => {
     }, []);
 
 
+    useEffect(() => {
+        const fetchJewelleryProductTypes = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/products/get_all_jewelry_types`);
+                if (response?.status === 200) {
+                    const temp = [];
+                    temp.push("All Categories")
+                    response?.data?.map((item) => {
+                        temp.push(item?.name);
+                    });
+                    console.log("Jewellery types:", temp);
+                    setJewelleryTypes(temp);
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        };
+        fetchJewelleryProductTypes();
+    }, []);
+
+    useEffect(() => {
+        fetchCards(selectedProductType);
+    }, []);
+
+    const fetchCards = async (selectedProductType) => {
+        try {
+            // console.log("Selected category:", selectedCategory)
+            const response = await axios.get(`${API_BASE_URL}/get-image?jewelry_type=${selectedProductType === "All Categories" ? "" : selectedProductType}`);
+            console.log("Cards:", response.data)
+            if (response?.status === 200) {
+                setCurrentCards(response?.data);
+            }
+        } catch (error) {
+            if (error.response.data.detail === "No matching images found") {
+                setCurrentCards([]);
+            }
+            
+            console.error('Error fetching cards:', error);
+        }
+    };
+
     return (
         <div>
             <TopHeader />
             <Snackbar
-                            open={!!message || !!error}
-                            autoHideDuration={6000}
-                            onClose={handleCloseSnackbar}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                        >
-                            <Alert
-                                onClose={handleCloseSnackbar}
-                                severity={error ? 'error' : 'success'}
-                                variant="filled"
-                                sx={{ width: '100%' }}
-                            >
-                                {error || message}
-                            </Alert>
-                        </Snackbar>
+                open={!!message || !!error}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={error ? 'error' : 'success'}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {error || message}
+                </Alert>
+            </Snackbar>
             <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                 <nav className="flex flex-wrap items-center justify-between h-full">
                     <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
@@ -307,35 +353,27 @@ const UserCategories = () => {
             <div className="flex gap-4 py-4 pt-4 md:h-[calc(100vh-12vh)] lg:h-[calc(100vh-10vh)] xl:h-[calc(100vh-14vh)] 2xl:h-[calc(100vh-18vh)]">
 
                 <div className="border w-[20vw] ml-2 md:ml-8 overflow-y-auto rounded-md bg-white shadow-md p-2 2xl:block md:hidden">
-                    <div
-                        className={`flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-100 cursor-pointer ${!selectedCategory ? 'bg-gray-200' : ''
-                            }`}
-                        onClick={() => {
-                            setSelectedCategory(null);
-                            setCurrentPage(1);
-                        }}
-                    >
-                        <div className="flex items-center gap-4">
-                            <FaChildren />
-                            <p>All Categories</p>
-                        </div>
-                    </div>
-                    {categoryTypes.map((category, index) => (
-                        <div
+                    
+                    {jewelleryTypes.map((item, index) => (
+                        <label
                             key={index}
-                            className={`flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-100 cursor-pointer ${selectedCategory === category.name ? 'bg-gray-200' : ''
+                            htmlFor={`productType-${item}`}
+                            className={`flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-100 cursor-pointer ${selectedProductType === item ? 'bg-gray-200' : ''
                                 }`}
                             onClick={() => {
-                                setSelectedCategory(category.name);
+                                setSelectedProductType(item === "All Categories" ? '' : item);
+                                fetchCards(item === "All Categories" ? '' : item);
+                                console.log("Selected category:", item)
                                 setCurrentPage(1);
                             }}
                         >
-                            <div className="flex items-center gap-4">
-                                {category.icon1}
-                                <p>{category.name}</p>
+
+                            <div className='flex items-center gap-8'>
+                                {getCategoryIcon(item)}
+                                <span className="text-gray-700 color-[#062538]">{item}</span>
                             </div>
-                            <IoIosArrowForward />
-                        </div>
+                            <IoIosArrowForward className="text-gray-500" />
+                        </label>
                     ))}
                 </div>
 
@@ -357,7 +395,7 @@ const UserCategories = () => {
                         )}
                     </div>
                     <div className="mt-4 flex justify-center">
-                        <Stack spacing={2}>
+                        {/* <Stack spacing={2}>
                             <Pagination
                                 count={Math.ceil(filteredCards.length / cardsPerPage)}
                                 page={currentPage}
@@ -377,7 +415,7 @@ const UserCategories = () => {
                                 }}
                             />
 
-                        </Stack>
+                        </Stack> */}
                     </div>
                 </div>
             </div>

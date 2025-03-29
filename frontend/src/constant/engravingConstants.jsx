@@ -12,13 +12,3 @@ export const defaultDesign = {
   path: null,
 };
 
-// import { GiDiamondRing, GiHeartNecklace, GiGemPendant   } from "react-icons/gi";
-// import { FaChildren } from "react-icons/fa6";
-
-// export const defaultProducts = {
-//   ring: <GiDiamondRing />,
-//   necklace: <GiHeartNecklace />,
-//   children: <FaChildren />,
-//   pendant:<GiGemPendant  />,
-
-// }

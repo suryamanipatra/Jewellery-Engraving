@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios'
 import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
-import { FaRing } from "react-icons/fa";
-import { GiEarrings, GiNecklace } from "react-icons/gi";
+// import { FaRing } from "react-icons/fa";
+// import { GiEarrings, GiNecklace } from "react-icons/gi";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { BsSoundwave } from "react-icons/bs";
 import { FiPlusCircle } from "react-icons/fi";
 import { IoIosArrowDown, IoIosArrowUp, IoMdCloseCircle } from "react-icons/io";
 import { ImCross } from "react-icons/im";
+import { getCategoryIcon } from "../utils/IconMapping.jsx";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Sidebar = ({
@@ -25,38 +27,39 @@ const Sidebar = ({
   setIsProductTypeOpen,
   jewelryUploadId
 }) => {
-  const location = useLocation();
   const [selectedProductType, setSelectedProductType] = useState("");
+  const [jewelleryTypes, setJewelleryTypes] = useState([]);
+  const [error, setError] = useState(null);
 
 
-const handleAddEngravingLine = async () => {
-  try {
-    if (!selectedImageId) {
-      alert("No image selected");
-      return;
+  const handleAddEngravingLine = async () => {
+    try {
+      if (!selectedImageId) {
+        alert("No image selected");
+        return;
+      }
+
+      const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+      const details = detailsRes.data;
+      let engravingDetail = details[details.length - 1];
+      const currentLines = engravingLines.length;
+      const neededLines = currentLines + 1;
+
+      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+        const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+          jewelry_image_id: selectedImageId,
+          total_lines: neededLines
+        });
+        engravingDetail = newDetailRes.data;
+        console.log("New engraving detail created:", engravingDetail);
+      }
+
+      addEngravingLine(neededLines);
+    } catch (error) {
+      console.error("Error adding line:", error);
+      alert("Failed to add engraving line");
     }
-
-    const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
-    const details = detailsRes.data;
-    let engravingDetail = details[details.length - 1];
-    const currentLines = engravingLines.length;
-    const neededLines = currentLines + 1;
-
-    if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-      const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
-        jewelry_image_id: selectedImageId,
-        total_lines: neededLines
-      });
-      engravingDetail = newDetailRes.data;
-      console.log("New engraving detail created:", engravingDetail);
-    }
-
-    addEngravingLine(neededLines);
-  } catch (error) {
-    console.error("Error adding line:", error);
-    alert("Failed to add engraving line");
-  }
-};
+  };
 
 
 
@@ -66,7 +69,7 @@ const handleAddEngravingLine = async () => {
         jewelry_upload_id: jewelryUploadId,
         product_type: productType.toLowerCase()
       });
-  
+
       console.log("Product type updated:", response.data);
       setSelectedProductType(productType);
     } catch (error) {
@@ -74,11 +77,30 @@ const handleAddEngravingLine = async () => {
       alert("Error setting product type. Please check console for details.");
     }
   };
-  
+
 
   const handleLineClick = (line) => {
     setSelectedLine(line);
   };
+
+  useEffect(() => {
+    const fetchJewelleryProductTypes = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/products/get_all_jewelry_types`);
+            if (response?.status === 200) {
+              const temp =[];
+              response?.data?.map((item) => {
+                temp.push(item?.name);
+              });
+              console.log("Jewellery types:", temp);
+              setJewelleryTypes(temp);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    };
+    fetchJewelleryProductTypes();
+}, []);
 
   return (
     <div
@@ -107,8 +129,8 @@ const handleAddEngravingLine = async () => {
           {isProductTypeOpen ? <IoIosArrowDown /> : <IoIosArrowUp />}
         </div>
         {isProductTypeOpen && (
-          <div className="space-y-2 md:space-y-3 ml-4 md:ml-8">
-            {["Ring", "Earring", "Necklace"].map((item, index) => (
+          <div className="space-y-2 md:space-y-3 ml-4 md:ml-8 h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
+            {jewelleryTypes.map((item, index) => (
               <label
                 key={index}
                 htmlFor={`productType-${item}`}
@@ -123,13 +145,7 @@ const handleAddEngravingLine = async () => {
                   onChange={(e) => handleProductTypeSelect(e.target.value)}
                   className="form-radio h-4 w-4  accent-[#062538]"
                 />
-                {item === "Ring" ? (
-                  <FaRing className="text-lg" />
-                ) : item === "Earring" ? (
-                  <GiEarrings className="text-lg" />
-                ) : (
-                  <GiNecklace className="text-lg" />
-                )}
+                {getCategoryIcon(item) }
                 <span className="text-gray-700 color-[#062538]">{item}</span>
               </label>
             ))}
@@ -144,7 +160,7 @@ const handleAddEngravingLine = async () => {
         type="text"
         placeholder=""
         className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
-        style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
+        style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
       />
 
       <div className="flex items-center justify-between cursor-pointer pb-2 pt-4">
@@ -165,8 +181,8 @@ const handleAddEngravingLine = async () => {
             <div
               key={line}
               className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
-                  ? "bg-[#15405B] text-white"
-                  : "border-gray-400"
+                ? "bg-[#15405B] text-white"
+                : "border-gray-400"
                 }`}
               onClick={() => handleLineClick(line)}
             >
@@ -182,7 +198,7 @@ const handleAddEngravingLine = async () => {
                 type="number"
                 placeholder=""
                 className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
-                style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
+                style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
                 value={
                   selectedLine ? engravingData[selectedLine]?.charCount || "" : ""
                 }
@@ -197,7 +213,7 @@ const handleAddEngravingLine = async () => {
                 type="number"
                 placeholder=""
                 className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
-                style={{boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)"}}
+                style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
                 value={
                   selectedLine ? engravingData[selectedLine]?.fontSize || "" : ""
                 }

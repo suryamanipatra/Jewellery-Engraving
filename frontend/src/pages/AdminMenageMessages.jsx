@@ -54,7 +54,7 @@ const AdminMenageMessages = () => {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/users');
+                const response = await axios.get(`${API_BASE_URL}/users`);
                 setMessages(response?.data);
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -66,7 +66,7 @@ const AdminMenageMessages = () => {
     const handleDelete = async (email) => {
         try {
             const response = await axios.delete(
-                `http://localhost:5000/api/delete-message?mail=${encodeURIComponent(email)}`
+                `${API_BASE_URL}/delete-message?mail=${encodeURIComponent(email)}`
             );
             if (response?.data?.message === "Message deleted successfully") {
                 setMessages(messages.filter(message => message.email !== email));
