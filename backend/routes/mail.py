@@ -147,7 +147,7 @@ def contact_us(request: ContactUsRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
-    send_email(request.email, "Thank You for Contacting Us!", contact_us_body(request.username))
+    send_email(request.email, "Thank You for Contacting Us!", contact_us_body(request.name))
 
     return {"message": "Contact confirmation email sent successfully!"}
 

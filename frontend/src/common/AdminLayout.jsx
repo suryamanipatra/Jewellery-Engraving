@@ -87,6 +87,15 @@ const AdminLayout = () => {
                                 className="text-[#062538] font-semibold"
                                 sx={tabStyle}
                             />
+                            <Tab
+                                component={Link}
+                                to="/admin/manage-messages"
+                                icon={<FaCog className="text-lg" style={{ marginRight: '30px' }} />}
+                                label="Manage Messages"
+                                iconPosition="start"
+                                className="text-[#062538] font-semibold"
+                                sx={tabStyle}
+                            />
                         </Tabs>
                     </div>
 

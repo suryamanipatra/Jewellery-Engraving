@@ -12,6 +12,7 @@ import AdminSettings from './pages/AdminSettings';
 import UserCategories from './user/UserCategories';
 import UserEngraving from './user/UserEngraving';
 import UserPreview from './user/UserPreview';
+import AdminMenageMessages from './pages/AdminMenageMessages';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { role } = useSelector((state) => state.auth);
@@ -57,6 +58,7 @@ const App = () => {
           <Route path="home" element={<Home />} />
           <Route path="upload" element={<AdminUpload />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="manage-messages" element={<AdminMenageMessages />} />
         </Route>
         <Route
           path="/admin/engraving"

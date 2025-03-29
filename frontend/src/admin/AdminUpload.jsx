@@ -9,7 +9,6 @@ import { FileUploadContext } from "../context/FileUploadContext";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Loader from "../common/Loader";
-import CircularProgress from '@mui/material/CircularProgress';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const VITE_GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const VITE_GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;

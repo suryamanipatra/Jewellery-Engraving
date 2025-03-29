@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Select, MenuItem, InputBase, styled } from '@mui/material';
 import TopHeader from '../common/TopHeader';
 import { BiCategoryAlt, BiSolidContact } from "react-icons/bi";
@@ -7,6 +8,9 @@ import { IoIosArrowForward } from "react-icons/io";
 import Card from '../components/Card';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const CustomInput = styled(InputBase)(({ theme }) => ({
@@ -37,6 +41,8 @@ const UserCategories = () => {
     const [countries, setCountries] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isOpen, setIsOpen] = useState(false);
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const cardsPerPage = 12;
     const filteredCards = selectedCategory
@@ -55,12 +61,49 @@ const UserCategories = () => {
             [e.target.name]: e.target.value
         });
     };
-    const handleSubmit = (e) => {
+    const handleCloseSnackbar = () => {
+        setMessage(null);
+        setError(null);
+    };
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log({
-            ...formData,
-            fullPhone: `${formData.countryCode}${formData.phone}`
-        });
+        setMessage(null);
+        setError(null);
+
+        try {
+            const payload = {
+                name: formData.name,
+                email: formData.email,
+                phone:  `${formData.countryCode} ${formData.phone}`,
+                message: formData.message
+            };
+            console.log(payload)
+            const response = await axios.post(`${API_BASE_URL}/contact-us`, payload);
+            console.log(response.data)
+            setMessage(response.data.message);
+            
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                countryCode: '+1',
+                message: ''
+            });
+            setIsOpen(false);
+        } catch (error) {
+            let errorMessage = 'An error occurred while submitting the form';
+
+            if (error.response) {
+                console.log(error.response)
+                errorMessage = error.response.data.detail || errorMessage;
+            } else if (error.request) {
+                errorMessage = 'No response from server';
+            }
+
+            // enqueueSnackbar(errorMessage, { variant: 'error' });
+        } finally {
+            // setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -94,6 +137,21 @@ const UserCategories = () => {
     return (
         <div>
             <TopHeader />
+            <Snackbar
+                            open={!!message || !!error}
+                            autoHideDuration={6000}
+                            onClose={handleCloseSnackbar}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                        >
+                            <Alert
+                                onClose={handleCloseSnackbar}
+                                severity={error ? 'error' : 'success'}
+                                variant="filled"
+                                sx={{ width: '100%' }}
+                            >
+                                {error || message}
+                            </Alert>
+                        </Snackbar>
             <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                 <nav className="flex flex-wrap items-center justify-between h-full">
                     <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
