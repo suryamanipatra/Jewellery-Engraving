@@ -107,7 +107,7 @@ const AdminMenageMessages = () => {
             // boxShadow: 3
         }}>
             <Snackbar
-                open={!!message || !!error}
+                open={!!error}
                 autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -118,9 +118,10 @@ const AdminMenageMessages = () => {
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {error || message}
+                    {error ? error : "Action completed successfully"}
                 </Alert>
             </Snackbar>
+
             <Paper sx={{
                 width: '100%',
                 mb: 2,

@@ -19,6 +19,8 @@ const AdminLayout = () => {
                 return 1;
             case "/admin/settings":
                 return 2;
+            case "/admin/manage-messages":
+                return 3;
             default:
                 return 0;
         }
