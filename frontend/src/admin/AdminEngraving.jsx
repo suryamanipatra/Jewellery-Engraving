@@ -95,7 +95,9 @@ const AdminEngraving = () => {
       for (const line of engravingState.engravingLines) {
         const lineData = engravingState.engravingData[line];
 
-
+        console.log("image_width:", konvaState.imageDimensions.width,
+          )
+        console.log("image_height:", konvaState.imageDimensions.width)
         const payload = {
           engraving_id: engravingDetail.id,
           line_number: line,
@@ -103,8 +105,8 @@ const AdminEngraving = () => {
           font_type: "Arial",
           font_size: lineData.fontSize,
           font_color: lineData.color,
-          position_x: konvaState.positions[line]?.x || 0,
-          position_y: konvaState.positions[line]?.y || 0,
+          position_x: konvaState.positions[line]?.x / konvaState.scale || 0,
+          position_y: konvaState.positions[line]?.y / konvaState.scale || 0,
           path_coordinates: konvaState.paths[line]
         };
 

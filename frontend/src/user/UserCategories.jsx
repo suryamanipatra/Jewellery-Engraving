@@ -48,6 +48,7 @@ const UserCategories = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
+    const [images, setImages] = useState({});
     // const [selectedCategory, setSelectedCategory] = useState(null);
     const cardsPerPage = 12;
     // const filteredCards = selectedCategory
@@ -163,19 +164,54 @@ const UserCategories = () => {
         fetchCards(selectedProductType);
     }, []);
 
+
+    useEffect(() => {
+        const fetchImages = async () => {
+            const imageResponses = await Promise.all(
+                currentCards.map(async (card) => {
+                    try {
+                        const response = await axios.get(`${API_BASE_URL}/get-file/${card.file_path}`, {
+                            responseType: "blob", // Ensures data is a Blob
+                        });
+    
+                        console.log("Response Data Type:", response.data.constructor.name); // Should print "Blob"
+    
+                        const blob = response.data;
+                        const url = URL.createObjectURL(blob);
+    
+                        return { 
+                            id: card.id, 
+                            url, 
+                            jewelry_upload_id: card.jewelry_upload_id 
+                        };
+                    } catch (error) {
+                        console.error("Error fetching image:", error);
+                        return { id: card.id, url: null };
+                    }
+                })
+            );
+    
+            const imageMap = Object.fromEntries(imageResponses.map(img => [img.id, img]));
+            setImages(imageMap);
+        };
+    
+        if (currentCards.length > 0) fetchImages();
+    }, [currentCards]);
+    
+
     const fetchCards = async (selectedProductType) => {
         try {
             // console.log("Selected category:", selectedCategory)
             const response = await axios.get(`${API_BASE_URL}/get-image?jewelry_type=${selectedProductType === "All Categories" ? "" : selectedProductType}`);
-            console.log("Cards:", response.data)
+            console.log("Cards:", response?.data)
             if (response?.status === 200) {
                 setCurrentCards(response?.data);
             }
         } catch (error) {
-            if (error.response.data.detail === "No matching images found") {
+            if (error?.response?.data?.detail === "No matching images found") {
                 setCurrentCards([]);
             }
-            
+
             console.error('Error fetching cards:', error);
         }
     };
@@ -353,7 +389,7 @@ const UserCategories = () => {
             <div className="flex gap-4 py-4 pt-4 md:h-[calc(100vh-12vh)] lg:h-[calc(100vh-10vh)] xl:h-[calc(100vh-14vh)] 2xl:h-[calc(100vh-18vh)]">
 
                 <div className="border w-[20vw] ml-2 md:ml-8 overflow-y-auto rounded-md bg-white shadow-md p-2 2xl:block md:hidden">
-                    
+
                     {jewelleryTypes.map((item, index) => (
                         <label
                             key={index}
@@ -382,11 +418,13 @@ const UserCategories = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {currentCards.length > 0 ? (
                             currentCards.map((card) => (
+                                <>
                                 <Card
-                                    key={card.id}
                                     id={card.id}
-                                    category={card.category}
+                                    upload_id={card.jewelry_upload_id}
+                                    imageUrl={images[card.id]?.url}
                                 />
+                                </>
                             ))
                         ) : (
                             <div className="text-white text-lg col-span-full text-center">
