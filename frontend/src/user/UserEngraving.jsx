@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import TopHeader from '../common/TopHeader';
@@ -10,52 +10,69 @@ import { MdEmail } from 'react-icons/md';
 import { FaChevronLeft, FaChevronRight, FaCubes, FaDollarSign, FaGem, FaWeightHanging } from 'react-icons/fa';
 import { GiDiamondRing } from 'react-icons/gi';
 import Loader from "../common/Loader.jsx";
+import EngravingStageForUser from "../components/engraving/EngravingStageForUser.jsx";
 
 const UserEngraving = () => {
     const { id } = useParams();
     const [isOpen, setIsOpen] = useState(false);
-    const [images, setImages] = useState([]); 
+    const [images, setImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
     const [engravingLines, setEngravingLines] = useState([]);
     const [inputValues, setInputValues] = useState({});
-    const [productDetails, setProductDetails] = useState({});
     const [showLoader, setShowLoader] = useState(true);
     const categoryTypes = Array(13).fill({ name: "Category 1", icon1: <FaChildren /> });
+    const [texts, setTexts] = useState({});
+
+    const [engravingData, setEngravingData] = useState({});
+    const stageRef = useRef(null);
 
 
-useEffect(() => {
-    const fetchData = async () => {
-        try {
-            setShowLoader(true);
-            const detailsResponse = await axios.get(`http://localhost:5000/api/get-details?jewelry_upload_id=${id}`);
-            const detailsData = detailsResponse?.data;
-            const imagesWithUrls = await Promise.all(detailsData.map(async (item) => {
-                const fileResponse = await axios.get(`http://localhost:5000/api/get-file/${item.file_path}`, { responseType: 'blob' });
-                const blob = new Blob([fileResponse.data]);
-                return {
-                    ...item,
-                    imageUrl: URL.createObjectURL(blob),
-                    engraving_details: item.engraving_details[0] || null
-                };
-            }));
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setShowLoader(true);
+                const detailsResponse = await axios.get(`http://localhost:5000/api/get-details?jewelry_upload_id=${id}`);
+                const detailsData = detailsResponse?.data;
 
-            setImages(imagesWithUrls);
-            if (imagesWithUrls.length > 0) {
-                setSelectedImage(imagesWithUrls[0]);
-                setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
+                const imagesWithUrls = await Promise.all(detailsData.map(async (item) => {
+                    const fileResponse = await axios.get(`http://localhost:5000/api/get-file/${item.file_path}`, { responseType: 'blob' });
+                    const blob = new Blob([fileResponse.data]);
+                    return {
+                        ...item,
+                        imageUrl: URL.createObjectURL(blob),
+                        engraving_details: item.engraving_details[0] || null
+                    };
+                }));
+
+                setImages(imagesWithUrls);
+                if (imagesWithUrls.length > 0) {
+                    setSelectedImage(imagesWithUrls[0]);
+                    setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
+
+                    // Convert engraving details into an object
+                    const engravingMap = {};
+                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach(line => {
+                        engravingMap[line.id] = {
+                            text: line.text,
+                            path: line.path_coordinates || "",
+                            fontSize: line.font_size || 24,
+                            color: line.font_color || "#000",
+                            positionX: line.position_x || 0,
+                            positionY: line.position_y || 0,
+                        };
+                    });
+                    setEngravingData(engravingMap);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setTimeout(() => setShowLoader(false), 3000);
             }
-            if (detailsData[0]?.product) {
-                setProductDetails(detailsData[0].product);
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setTimeout(() => setShowLoader(false), 3000);
-        }
-    };
+        };
 
-    fetchData();
-}, [id]);
+        fetchData();
+    }, [id]);
+
 
 
     useEffect(() => {
@@ -78,6 +95,12 @@ useEffect(() => {
         setInputValues(prev => ({
             ...prev,
             [lineNumber]: value
+        }));
+    };
+    const handleTextChange = (lineId, value) => {
+        setTexts(prev => ({
+            ...prev,
+            [lineId]: value
         }));
     };
 
@@ -253,42 +276,29 @@ useEffect(() => {
                                         <IoIosArrowForward className='text-white' size={32} />
                                     </div>
                                 </div>
-                                <div className="w-full  md:h-[40vh] lg:h-[60vh] 2xl:h-full flex items-center justify-center bg-white rounded-2xl shadow-md relative">
+                                <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
                                     {selectedImage && (
-                                        <svg
-                                            viewBox={`0 0 ${selectedImage.image_width} ${selectedImage.image_height}`}
-                                            className="w-full h-full"
-                                        >
-                                            <image
-                                                xlinkHref={selectedImage.imageUrl}
-                                                width="100%"
-                                                height="100%"
-                                            />
-                                            {engravingLines.map((line) => (
-                                                line.path_coordinates ? (
-                                                    <text key={line.id}>
-                                                        <path id={`path-${line.id}`} d={line.path_coordinates} fill="none" />
-                                                        <textPath href={`#path-${line.id}`}
-                                                            fontSize={line.font_size}
-                                                            fill={line.font_color}
-                                                            fontFamily={line.font_type}>
-                                                            {inputValues[line.line_number] || ''}
-                                                        </textPath>
-                                                    </text>
-                                                ) : (
-                                                    <text
-                                                        key={line.id}
-                                                        x={line.position_x}
-                                                        y={line.position_y}
-                                                        fontSize={line.font_size}
-                                                        fill={line.font_color}
-                                                        fontFamily={line.font_type}
-                                                    >
-                                                        {inputValues[line.line_number] || ''}
-                                                    </text>
-                                                )
-                                            ))}
-                                        </svg>
+
+                                        <EngravingStageForUser
+                                            ref={stageRef}
+                                            selectedImage={selectedImage.imageUrl}
+                                            engravingLines={engravingLines}
+                                            engravingData={engravingData}
+                                            konvaState={{
+                                                scale: 1,
+                                                rotation: 0,
+                                                paths: engravingLines.reduce((acc, line) => {
+                                                    acc[line.id] = line.path_coordinates || "";
+                                                    return acc;
+                                                }, {}),
+                                                positions: engravingLines.reduce((acc, line) => {
+                                                    acc[line.id] = { x: line.position_x || 0, y: line.position_y || 0 };
+                                                    return acc;
+                                                }, {}),
+                                                showPath: true
+                                            }}
+                                            texts={texts}
+                                        />
                                     )}
                                 </div>
                             </div>
@@ -298,23 +308,27 @@ useEffect(() => {
                                     {selectedImage?.engraving_details &&
                                         Array.from({ length: selectedImage.engraving_details.total_lines }).map((_, index) => {
                                             const lineNumber = index + 1;
-                                            const lineData = engravingLines.find(l => l.line_number === lineNumber);
 
                                             return (
                                                 <div key={index} className="w-full flex items-center gap-3">
-                                                    <label className="text-white text-[16px] font-medium w-16">
-                                                        Line {lineNumber}
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Enter engraving text"
-                                                        value={inputValues[lineNumber] || ''}
-                                                        onChange={(e) => handleInputChange(lineNumber, e.target.value)}
-                                                        className="flex-1 min-w-0 p-2 rounded-lg bg-white border border-gray-400 text-black focus:border-blue-500 outline-none"
-                                                    />
-                                                    <span className="text-white text-[16px] w-10 text-right">
-                                                        {inputValues[lineNumber]?.length || 0}/10
-                                                    </span>
+                                                    {engravingLines.map((line, index) => {
+                                                        const lineId = line.id;
+                                                        return (
+                                                            <div key={lineId} className="w-full flex items-center gap-3">
+                                                                <label className="text-white text-[16px] font-medium w-16">Line {index + 1}</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Enter engraving text"
+                                                                    value={texts[lineId] || ""}
+                                                                    onChange={(e) => handleTextChange(lineId, e.target.value)}
+                                                                    className="flex-1 min-w-0 p-2 rounded-lg bg-white border border-gray-400 text-black focus:border-blue-500 outline-none"
+                                                                />
+                                                                <span className="text-white text-[16px] w-10 text-right">
+                                                                    {texts[lineId]?.length || 0}/10
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             );
                                         })}

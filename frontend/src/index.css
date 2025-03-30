@@ -4,16 +4,19 @@
 
 *{
   font-family: "Exo 2", sans-serif;
+  user-select: none; 
+  -webkit-user-select: none; 
+  -moz-user-select: none; 
+  -ms-user-select: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for Firefox */
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none; /* IE and Edge */
-}
+
+
 
 
 

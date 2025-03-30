@@ -79,8 +79,8 @@ const EngravingStage = forwardRef(({
               onDragMove={(e) => onTextDrag(line, e)}
               rotation={konvaState.rotation}
             />
-            {console.log("x path",konvaState.positions[line]?.x)}
-            {console.log("y path",konvaState.positions[line]?.y)}
+            {console.log("x cordinate",konvaState.positions[line]?.x)}
+            {console.log("y cordinate ",konvaState.positions[line]?.y)}
             <Path
               data={konvaState.paths[line] || ""}
               stroke="gray"

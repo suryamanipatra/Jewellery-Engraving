@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Select, MenuItem, InputBase, styled } from '@mui/material';
+import { Select, MenuItem, InputBase, styled, Drawer } from '@mui/material';
 import TopHeader from '../common/TopHeader';
 import { BiCategoryAlt, BiSolidContact } from "react-icons/bi";
 import { FaChildren } from "react-icons/fa6";
@@ -49,6 +49,7 @@ const UserCategories = () => {
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
     const [images, setImages] = useState({});
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     // const [selectedCategory, setSelectedCategory] = useState(null);
     const cardsPerPage = 12;
     // const filteredCards = selectedCategory
@@ -173,16 +174,16 @@ const UserCategories = () => {
                         const response = await axios.get(`${API_BASE_URL}/get-file/${card.file_path}`, {
                             responseType: "blob", // Ensures data is a Blob
                         });
-    
+
                         console.log("Response Data Type:", response.data.constructor.name); // Should print "Blob"
-    
+
                         const blob = response.data;
                         const url = URL.createObjectURL(blob);
-    
-                        return { 
-                            id: card.id, 
-                            url, 
-                            jewelry_upload_id: card.jewelry_upload_id 
+
+                        return {
+                            id: card.id,
+                            url,
+                            jewelry_upload_id: card.jewelry_upload_id
                         };
                     } catch (error) {
                         console.error("Error fetching image:", error);
@@ -190,14 +191,14 @@ const UserCategories = () => {
                     }
                 })
             );
-    
+
             const imageMap = Object.fromEntries(imageResponses.map(img => [img.id, img]));
             setImages(imageMap);
         };
-    
+
         if (currentCards.length > 0) fetchImages();
     }, [currentCards]);
-    
+
 
     const fetchCards = async (selectedProductType) => {
         try {
@@ -236,7 +237,14 @@ const UserCategories = () => {
             </Snackbar>
             <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                 <nav className="flex flex-wrap items-center justify-between h-full">
-                    <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
+                    <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
+                        onClick={() => {
+                            if (window.innerWidth < 1281) {
+                                setIsDrawerOpen(true);
+                            }
+                        }
+                        }
+                    >
                         <BiCategoryAlt className="text-white text-xl md:text-3xl" />
                         <span className="text-white text-sm md:text-xl font-semibold">Features</span>
                     </div>
@@ -247,6 +255,45 @@ const UserCategories = () => {
                         <BiSolidContact className="text-white text-xl md:text-3xl" />
                         <span className="text-white text-sm md:text-xl font-semibold">Contact Us</span>
                     </div>
+
+                    <Drawer
+                        anchor="left"
+                        open={isDrawerOpen}
+                        onClose={() => setIsDrawerOpen(false)}
+                        sx={{
+                            "& .MuiDrawer-paper": {
+                                width: "40vw",
+                                backgroundColor: "#062538",
+                                color: "white",
+                                padding: "20px",
+                            },
+                        }}
+                    >
+                        <div className="w-full flex flex-col gap-4">
+                            <h2 className="text-xl font-bold text-white">Select Category</h2>
+                            {jewelleryTypes.map((item, index) => (
+                                <label
+                                    key={index}
+                                    htmlFor={`productType-${item}`}
+                                    className={`flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-700 cursor-pointer ${selectedProductType === item ? "bg-gray-600" : ""
+                                        }`}
+                                    onClick={() => {
+                                        setSelectedProductType(item === "All Categories" ? "" : item);
+                                        fetchCards(item === "All Categories" ? "" : item);
+                                        setIsDrawerOpen(false); 
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        {getCategoryIcon(item)}
+                                        <span className="text-white">{item}</span>
+                                    </div>
+                                    <IoIosArrowForward className="text-gray-300" />
+                                </label>
+                            ))}
+                        </div>
+                    </Drawer>
+
                     {isOpen && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white-200 bg-opacity-30">
                             <div className="fixed inset-0 backdrop-blur-[2px] bg-white/30 flex justify-center items-center z-50 p-4">
@@ -419,11 +466,11 @@ const UserCategories = () => {
                         {currentCards.length > 0 ? (
                             currentCards.map((card) => (
                                 <>
-                                <Card
-                                    id={card.id}
-                                    upload_id={card.jewelry_upload_id}
-                                    imageUrl={images[card.id]?.url}
-                                />
+                                    <Card
+                                        id={card.id}
+                                        upload_id={card.jewelry_upload_id}
+                                        imageUrl={images[card.id]?.url}
+                                    />
                                 </>
                             ))
                         ) : (

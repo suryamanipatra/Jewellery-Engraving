@@ -7,7 +7,7 @@ const Card = ({ id, upload_id,imageUrl }) => {
   const navigate = useNavigate();
     return (
       <div className="w-full 2xl:w-[15vw] md:w-[30vw] mx-auto p-5 border border-gray-300 rounded-xl bg-white">
-        <div className="w-full h-[20vh] bg-gray-100 rounded-md mb-2.5">
+        <div className="w-full h-[20vh] bg-white rounded-md mb-2.5 shadow-md flex items-center justify-center overflow-hidden">
           
             <img
               src={imageUrl}
