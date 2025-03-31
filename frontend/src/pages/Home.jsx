@@ -17,7 +17,7 @@ const Home = () => {
                         />
                     </div>
                 </div>
-                <div className="w-[40%] lg:h-[full] p-4">
+                <div className="w-[40%] lg:h-[full] md:p-4 lg:p-8">
                     <div className="h-full w-full relative">
                         <img
                             src={login2}

@@ -2,6 +2,7 @@
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { FaHome, FaUpload, FaCog } from "react-icons/fa";
+import { FaMessage } from "react-icons/fa6";
 import { BiCategoryAlt } from "react-icons/bi";
 import { Tabs, Tab } from "@mui/material";
 import TopHeader from "./TopHeader";
@@ -46,7 +47,7 @@ const AdminLayout = () => {
                 </div>
 
 
-                <div className="flex px-4 pt-2 gap-4 h-[80%]">
+                <div className="flex px-4 pt-2 gap-4 h-[80%] mr-3">
 
                     <div className="bg-white md:w-46 lg:w-70 md:ml-4 h-[98%] border border-gray-300 rounded-md shadow-md flex-shrink-0">
                         <Tabs
@@ -92,7 +93,7 @@ const AdminLayout = () => {
                             <Tab
                                 component={Link}
                                 to="/admin/manage-messages"
-                                icon={<FaCog className="text-lg" style={{ marginRight: '30px' }} />}
+                                icon={<FaMessage className="text-lg" style={{ marginRight: '30px' }} />}
                                 label="Manage Messages"
                                 iconPosition="start"
                                 className="text-[#062538] font-semibold"

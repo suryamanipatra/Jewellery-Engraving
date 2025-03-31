@@ -170,7 +170,7 @@ const AdminUpload = () => {
         </div>
       )}
 
-      <div className="max-w-[calc(100%-2rem)] h-full px-4 md:px-8 mt-4 mb-4 flex-grow  rounded-lg flex items-center justify-center">
+      <div className=" h-full px-4 md:px-8 flex-grow  rounded-lg flex items-center justify-center">
         <div className="bg-white p-3 sm:p-4 md:p-6 lg:p-8 rounded-lg shadow-lg max-w-2xl w-full">
 
 
