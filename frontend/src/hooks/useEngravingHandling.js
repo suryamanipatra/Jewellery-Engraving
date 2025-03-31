@@ -11,7 +11,7 @@ export const useEngravingHandling = (initialState = {}) => {
     setEngravingLines([...engravingLines, newLine]);
     setEngravingData(prev => ({
       ...prev,
-      [newLine]: { text: "", fontSize: 24, charCount: 10, color: "#000000" }
+      [newLine]: { text: "", fontSize: 24, charCount: prev[newLine]?.charCount || 10, color: "#000000" }
     }));
     setSelectedLine(newLine); 
     return newLine;

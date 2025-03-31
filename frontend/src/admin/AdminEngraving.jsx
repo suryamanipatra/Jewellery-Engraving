@@ -47,43 +47,15 @@ const AdminEngraving = () => {
     [images]
   );
   const [modifiedImages, setModifiedImages] = useState([]);
+  const [selectedJewelleryType, setSelectedJewelleryType] = useState("");
+  const [productDetails, setProductDetails] = useState("");
+  // const [noOfChar, setNoOfChar] = useState([]);
 
-
-  // const handleSaveEngravedImage = () => {
-  //   if (stageRef.current) {
-  //     const dataURL = stageRef.current.toDataURL();
-  //     const currentIndex = imageURLs.indexOf(selectedImage);
-  //     if (currentIndex !== -1) {
-  //       replaceImageAtIndex(currentIndex, dataURL);
-  //     }
-  //     setPreviewImage(null); // Clear preview image after save
-  //     handleImageClick(dataURL);
-  //     navigate("/admin");
-  //   }
-  // };
-  // const handleSave = () => {
-  //   const updatedDesign = {
-  //     ...currentDesign,
-  //     engravingLines: engravingState.engravingLines,
-  //     engravingData: engravingState.engravingData,
-  //     textPosition: konvaState.textPosition,
-  //     rotation: konvaState.rotation,
-  //     showPath: konvaState.showPath,
-  //     path: konvaState.path,
-  //     imageUrl: previewImage || selectedImage
-  //   };
-
-  //   setEngravings(prev => {
-  //     if (location.state?.engraving) {
-  //       return prev.map(item => item.id === updatedDesign.id ? updatedDesign : item);
-  //     }
-  //     return [...prev, { ...updatedDesign, id: Date.now() }];
-  //   });
-
-  //   navigate('/admin');
-  // };
   const handleSave = async () => {
     try {
+      handleProductTypeSelect()
+      handleAddEngravingLine()
+
       const engravingRes = await axios.get(
         `${API_BASE_URL}/engraving-details/image/${selectedImageId}`
       );
@@ -96,7 +68,7 @@ const AdminEngraving = () => {
         const lineData = engravingState.engravingData[line];
 
         console.log("image_width:", konvaState.imageDimensions.width,
-          )
+        )
         console.log("image_height:", konvaState.imageDimensions.width)
         const payload = {
           engraving_id: engravingDetail.id,
@@ -107,6 +79,8 @@ const AdminEngraving = () => {
           font_color: lineData.color,
           position_x: konvaState.positions[line]?.x / konvaState.scale || 0,
           position_y: konvaState.positions[line]?.y / konvaState.scale || 0,
+          product_details: productDetails,
+          no_of_characters: Number(lineData.charCount) || 10,
           path_coordinates: konvaState.paths[line]
         };
 
@@ -133,11 +107,16 @@ const AdminEngraving = () => {
       alert("Error saving engraving. Check console for details.");
     }
   };
+
+
   useEffect(() => {
     if (backendImageURLs.length > 0 && !selectedImage) {
       setModifiedImages([...backendImageURLs]);
     }
   }, [backendImageURLs]);
+
+
+
   useEffect(() => {
     setCurrentDesign(prev => ({
       ...prev,
@@ -204,6 +183,53 @@ const AdminEngraving = () => {
 
   }, [selectedImageIndex, selectedImageId]);
 
+  const handleAddEngravingLine = async () => {
+    try {
+      if (!selectedImageId) {
+        alert("No image selected");
+        return;
+      }
+
+      const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+      const details = detailsRes.data;
+      let engravingDetail = details[details.length - 1];
+      const currentLines = engravingState.engravingLines.length;
+      const neededLines = currentLines + 1;
+
+      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+        const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+          jewelry_image_id: selectedImageId,
+          total_lines: neededLines
+        });
+        engravingDetail = newDetailRes.data;
+        console.log("New engraving detail created:", engravingDetail);
+      }
+
+      const newLine = addEngravingLine();
+      konvaActions.addNewLine(
+        newLine,
+        "M50,150 Q250,50 350,150", 
+        { x: 50, y: 150 } 
+      );
+    } catch (error) {
+      console.error("Error adding line:", error);
+      alert("Failed to add engraving line");
+    }
+  };
+
+
+  const handleProductTypeSelect = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/products`, {
+        jewelry_upload_id: jewelryUploadId,
+        product_type: selectedJewelleryType.toLowerCase()
+      });
+    } catch (error) {
+      console.error("Error setting product type:", error);
+      alert("Error setting product type. Please check console for details.");
+    }
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col">
       <Header
@@ -224,18 +250,20 @@ const AdminEngraving = () => {
       <div className="w-full flex-grow px-2 md:px-8 flex flex-col lg:flex-row">
         <div className="lg:w-[20%] fixed">
           <Sidebar
-            selectedImageId={selectedImageId}
             engravingLines={engravingState.engravingLines}
             engravingData={engravingState.engravingData}
             selectedLine={engravingState.selectedLine}
-            addEngravingLine={handleAddLine}
             handleInputChange={handleInputChange}
             setSelectedLine={setSelectedLine}
             sidebarOpen={sidebarOpen}
             setSideBarOpen={setSideBarOpen}
             isProductTypeOpen={isProductTypeOpen}
             setIsProductTypeOpen={setIsProductTypeOpen}
-            jewelryUploadId={jewelryUploadId}
+            setSelectedJewelleryType={setSelectedJewelleryType}
+            selectedJewelleryType={selectedJewelleryType}
+            setProductDetails={setProductDetails}
+            // setNoOfChar={setNoOfChar}
+            handleAddEngravingLine={handleAddEngravingLine}
           />
         </div>
 
@@ -263,7 +291,7 @@ const AdminEngraving = () => {
                   engravingLines={engravingState.engravingLines}
                   engravingData={engravingState.engravingData}
                   konvaState={konvaState}
-                  
+
                   onTextDrag={konvaActions.handleTextDrag}
                   onPathDrag={konvaActions.handlePathDrag}
                 />
@@ -274,7 +302,7 @@ const AdminEngraving = () => {
               engravingLines={engravingState.engravingLines}
               engravingData={engravingState.engravingData}
               handleInputChange={handleInputChange}
-            />  
+            />
 
             <ActionButtons
               onSave={handleSave}
@@ -284,7 +312,7 @@ const AdminEngraving = () => {
             />
           </div>
         </div>
-        
+
       </div>
     </div>
   );

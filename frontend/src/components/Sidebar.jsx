@@ -1,82 +1,60 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios'
-import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
-// import { FaRing } from "react-icons/fa";
-// import { GiEarrings, GiNecklace } from "react-icons/gi";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { BsSoundwave } from "react-icons/bs";
 import { FiPlusCircle } from "react-icons/fi";
-import { IoIosArrowDown, IoIosArrowUp, IoMdCloseCircle } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ImCross } from "react-icons/im";
 import { getCategoryIcon } from "../utils/IconMapping.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Sidebar = ({
-  selectedImageId,
   engravingLines,
   engravingData,
   selectedLine,
-  addEngravingLine,
   handleInputChange,
   sidebarOpen,
   setSideBarOpen,
   setSelectedLine,
   isProductTypeOpen,
   setIsProductTypeOpen,
-  jewelryUploadId
+  setSelectedJewelleryType,
+  selectedJewelleryType,
+  setProductDetails,
+  handleAddEngravingLine
 }) => {
-  const [selectedProductType, setSelectedProductType] = useState("");
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
-  const [error, setError] = useState(null);
 
+  // const handleAddEngravingLine = async () => {
+  //   try {
+  //     if (!selectedImageId) {
+  //       alert("No image selected");
+  //       return;
+  //     }
 
-  const handleAddEngravingLine = async () => {
-    try {
-      if (!selectedImageId) {
-        alert("No image selected");
-        return;
-      }
+  //     const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+  //     const details = detailsRes.data;
+  //     let engravingDetail = details[details.length - 1];
+  //     const currentLines = engravingLines.length;
+  //     const neededLines = currentLines + 1;
 
-      const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
-      const details = detailsRes.data;
-      let engravingDetail = details[details.length - 1];
-      const currentLines = engravingLines.length;
-      const neededLines = currentLines + 1;
+  //     if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+  //       const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+  //         jewelry_image_id: selectedImageId,
+  //         total_lines: neededLines
+  //       });
+  //       engravingDetail = newDetailRes.data;
+  //       console.log("New engraving detail created:", engravingDetail);
+  //     }
 
-      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-        const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
-          jewelry_image_id: selectedImageId,
-          total_lines: neededLines
-        });
-        engravingDetail = newDetailRes.data;
-        console.log("New engraving detail created:", engravingDetail);
-      }
-
-      addEngravingLine(neededLines);
-    } catch (error) {
-      console.error("Error adding line:", error);
-      alert("Failed to add engraving line");
-    }
-  };
-
-
-
-  const handleProductTypeSelect = async (productType) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/products`, {
-        jewelry_upload_id: jewelryUploadId,
-        product_type: productType.toLowerCase()
-      });
-
-      console.log("Product type updated:", response.data);
-      setSelectedProductType(productType);
-    } catch (error) {
-      console.error("Error setting product type:", error);
-      alert("Error setting product type. Please check console for details.");
-    }
-  };
+  //     addEngravingLine(neededLines);
+  //   } catch (error) {
+  //     console.error("Error adding line:", error);
+  //     alert("Failed to add engraving line");
+  //   }
+  // };
 
 
   const handleLineClick = (line) => {
@@ -85,22 +63,22 @@ const Sidebar = ({
 
   useEffect(() => {
     const fetchJewelleryProductTypes = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/products/get_all_jewelry_types`);
-            if (response?.status === 200) {
-              const temp =[];
-              response?.data?.map((item) => {
-                temp.push(item?.name);
-              });
-              console.log("Jewellery types:", temp);
-              setJewelleryTypes(temp);
-            }
-        } catch (error) {
-            console.error('Error fetching messages:', error);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/products/get_all_jewelry_types`);
+        if (response?.status === 200) {
+          const temp = [];
+          response?.data?.map((item) => {
+            temp.push(item?.name);
+          });
+          console.log("Jewellery types:", temp);
+          setJewelleryTypes(temp);
         }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
     };
     fetchJewelleryProductTypes();
-}, []);
+  }, []);
 
   return (
     <div
@@ -141,11 +119,11 @@ const Sidebar = ({
                   id={`productType-${item}`}
                   name="productType"
                   value={item}
-                  checked={selectedProductType === item}
-                  onChange={(e) => handleProductTypeSelect(e.target.value)}
+                  checked={selectedJewelleryType === item}
+                  onChange={(e) => setSelectedJewelleryType(e.target.value)}
                   className="form-radio h-4 w-4  accent-[#062538]"
                 />
-                {getCategoryIcon(item) }
+                {getCategoryIcon(item)}
                 <span className="text-gray-700 color-[#062538]">{item}</span>
               </label>
             ))}
@@ -156,10 +134,10 @@ const Sidebar = ({
       <div className="flex items-center gap-2 md:gap-3 py-2">
         <MdOutlineInventory2 /> <span>Product Details</span>
       </div>
-      <input
-        type="text"
+      <textarea
         placeholder=""
-        className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
+        className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none resize-y"
+        onChange={(e) => setProductDetails(e.target.value)}
         style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
       />
 
@@ -199,13 +177,19 @@ const Sidebar = ({
                 placeholder=""
                 className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
                 style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
-                value={
-                  selectedLine ? engravingData[selectedLine]?.charCount || "" : ""
-                }
-                onChange={(e) =>
-                  handleInputChange(selectedLine, e.target.value, "charCount")
-                }
+                value={engravingData[selectedLine]?.charCount ?? 10}
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // Remove leading zeros (except for "0" itself)
+                  if (value.length > 1 && value.startsWith("0")) {
+                    value = value.replace(/^0+/, "");
+                  }
+
+                  handleInputChange(selectedLine, value, "charCount");
+                }}
               />
+
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs md:text-sm w-20">Font size</span>

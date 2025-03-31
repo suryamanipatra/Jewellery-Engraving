@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, TIMESTAMP, Float
+from sqlalchemy import Column, Integer, ForeignKey, String, TIMESTAMP, Float, Text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.mysql import JSON
 from utils.database import Base
 
 class EngravingLine(Base):
@@ -16,7 +15,8 @@ class EngravingLine(Base):
     font_color = Column(String(10), nullable=False)
     position_x = Column(Float, nullable=False)
     position_y = Column(Float, nullable=False)
-    # path_coordinates = Column(JSON, nullable=False)
+    no_of_characters = Column(Integer, nullable=False)
+    product_details = Column(Text, nullable=False)
     path_coordinates = Column(String(255), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     

@@ -87,6 +87,7 @@ const AdminUpload = () => {
     const updatedViewTypes = viewTypes.filter((_, i) => i !== index);
     setViewTypes(updatedViewTypes);
   };
+
   const handleViewTypeChange = (index, value) => {
     const newTypes = [...viewTypes];
     newTypes[index] = value;
@@ -157,6 +158,12 @@ const AdminUpload = () => {
       }, 5000);
     }
   };
+
+  const removeFiles = () => {
+    setFiles([]);
+    setViewTypes([]);
+    setUploadSource("local");
+  }
 
 
 
@@ -280,7 +287,7 @@ const AdminUpload = () => {
 
 
           <div className="flex justify-center gap-6 mt-4">
-            <button className="px-4 py-2 bg-gray-200 rounded-md cursor-pointer">Cancel</button>
+            <button className="px-4 py-2 bg-gray-200 rounded-md cursor-pointer" onClick={() => removeFiles()}>Cancel</button>
             <button className={`px-4 py-2 rounded-md ${files.length === 0 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-[#062538] text-white cursor-pointer"}`} onClick={handleDoneClick} disabled={files.length === 0}>
               Upload
             </button>

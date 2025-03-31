@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { FaHome, FaUpload, FaCog } from "react-icons/fa";
-import { FaMessage } from "react-icons/fa6";
+import { AiFillMessage } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
 import { Tabs, Tab } from "@mui/material";
 import TopHeader from "./TopHeader";
@@ -93,7 +93,7 @@ const AdminLayout = () => {
                             <Tab
                                 component={Link}
                                 to="/admin/manage-messages"
-                                icon={<FaMessage className="text-lg" style={{ marginRight: '30px' }} />}
+                                icon={<AiFillMessage className="text-lg" style={{ marginRight: '30px' }} />}
                                 label="Manage Messages"
                                 iconPosition="start"
                                 className="text-[#062538] font-semibold"
