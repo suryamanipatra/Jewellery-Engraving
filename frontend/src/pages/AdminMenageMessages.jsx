@@ -19,6 +19,7 @@ import { visuallyHidden } from '@mui/utils';
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { MdOutlineHourglassEmpty } from "react-icons/md";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const descendingComparator = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) return -1;
@@ -172,11 +173,16 @@ const AdminMenageMessages = () => {
                             {messages.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                                        <Typography variant="h6" color="textSecondary">
-                                            There are no queries
-                                        </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', py: 3, justifyContent: "center" }}>
+                                                                                        <MdOutlineHourglassEmpty size={25} color='white' />
+                                                                                        <Typography sx={{ color: "white", marginLeft: '5px' }} variant="h6">
+                                                                                            No data to show
+                                                                                        </Typography>
+                                                                                    </Box>
                                     </TableCell>
                                 </TableRow>
+
+                                                                                
                             ) : (
                                 <>
                                     {visibleRows.map((row) => (

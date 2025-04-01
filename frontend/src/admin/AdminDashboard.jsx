@@ -66,7 +66,7 @@ const AdminDashboard = () => {
         capturePreview={() => { }}
         previewImage={null}
       />
-      <div className="flex flex-1">
+      <div className="flex flex-1"> 
         {/* Sidebar */}
         <Drawer
           variant="permanent"

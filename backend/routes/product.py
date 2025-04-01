@@ -94,3 +94,25 @@ def get_product_types(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+
+
+# create an api to delete a jewellery type based on id by taking reference from above
+
+@router.delete("/delete_jewelry_type/{jewelry_type_id}")
+def delete_product_type(
+    jewelry_type_id: int, 
+    db: Session = Depends(get_db)
+):
+    try:
+        product = db.query(JewelryTypes).filter(JewelryTypes.id == jewelry_type_id).first()
+        
+        if not product:
+            raise HTTPException(status_code=404, detail="Product type not found")
+        
+        db.delete(product)
+        db.commit()
+        return {"message": "Product type deleted successfully"}
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error deleting product type: {str(e)}")
