@@ -17,7 +17,7 @@ const Header = ({ kamaLogo, userName, setSideBarOpen, setIsPopupOpen, isPopupOpe
     const nameSelector = useSelector((state) => state.auth.name)
     console.log("useSelector",nameSelector)
     return (
-        <div className="w-full sticky top-0 z-50">
+        <div className="w-full sticky top-0 z-50" style={{ zIndex:2000 }}>
             {/* <div className="w-full bg-white shadow-md px-4 md:px-8">
                 <header className="w-full flex justify-between items-center py-3 md:py-4">
                     <img src={kamaLogo} alt="Kama Logo" className="w-24 md:w-40 h-auto" />

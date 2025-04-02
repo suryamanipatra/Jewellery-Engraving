@@ -268,7 +268,7 @@ const AdminEngraving = () => {
         </div>
 
         <div className="lg:w-[78%] lg:ml-[20%]">
-          <div className="w-full overflow-hidden bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col relative">
+          <div className="w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col">
             <div className="flex flex-col lg:flex-row ">
               <div className="w-full lg:w-[37%] flex flex-col mb-4 lg:mb-0">
                 <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />

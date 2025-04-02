@@ -3,7 +3,7 @@ import axios from 'axios'
 import { AiOutlineSetting } from "react-icons/ai";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { BsSoundwave } from "react-icons/bs";
-import { FiPlusCircle } from "react-icons/fi";
+import { FiPlusCircle, FiMinusCircle } from "react-icons/fi";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ImCross } from "react-icons/im";
 import { getCategoryIcon } from "../utils/IconMapping.jsx";
@@ -27,35 +27,22 @@ const Sidebar = ({
 }) => {
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
 
-  // const handleAddEngravingLine = async () => {
-  //   try {
-  //     if (!selectedImageId) {
-  //       alert("No image selected");
-  //       return;
-  //     }
+  const [showInputFields, setShowInputFields] = useState(false);
+  const [property, setProperty] = useState("");
+  const [value, setValue] = useState("");
+  const [productInfo, setProductInfo] = useState([]);
 
-  //     const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
-  //     const details = detailsRes.data;
-  //     let engravingDetail = details[details.length - 1];
-  //     const currentLines = engravingLines.length;
-  //     const neededLines = currentLines + 1;
 
-  //     if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-  //       const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
-  //         jewelry_image_id: selectedImageId,
-  //         total_lines: neededLines
-  //       });
-  //       engravingDetail = newDetailRes.data;
-  //       console.log("New engraving detail created:", engravingDetail);
-  //     }
-
-  //     addEngravingLine(neededLines);
-  //   } catch (error) {
-  //     console.error("Error adding line:", error);
-  //     alert("Failed to add engraving line");
-  //   }
-  // };
-
+  const handleAddProperty = () => {
+    if (property.trim() && value.trim()) {
+      const newProductInfo = [...productInfo, { property, value }];
+      setProductInfo(newProductInfo);
+      setProductDetails(JSON.stringify(newProductInfo)); // Store as JSON string
+      setProperty("");
+      setValue("");
+      setShowInputFields(false);
+    }
+  };
 
   const handleLineClick = (line) => {
     setSelectedLine(line);
@@ -97,6 +84,7 @@ const Sidebar = ({
       )}
 
       <div>
+
         <div
           className="flex items-center justify-between cursor-pointer py-2 md:py-4"
           onClick={() => setIsProductTypeOpen(!isProductTypeOpen)}
@@ -106,7 +94,8 @@ const Sidebar = ({
           </span>
           {isProductTypeOpen ? <IoIosArrowDown /> : <IoIosArrowUp />}
         </div>
-        {isProductTypeOpen && (
+
+        {jewelleryTypes.length !== 0 && isProductTypeOpen && (
           <div className="space-y-2 md:space-y-3 ml-4 md:ml-8 h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
             {jewelleryTypes.map((item, index) => (
               <label
@@ -131,7 +120,7 @@ const Sidebar = ({
         )}
       </div>
 
-      <div className="flex items-center gap-2 md:gap-3 py-2">
+      {/* <div className="flex items-center gap-2 md:gap-3 py-2">
         <MdOutlineInventory2 /> <span>Product Details</span>
       </div>
       <textarea
@@ -139,13 +128,73 @@ const Sidebar = ({
         className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none resize-y"
         onChange={(e) => setProductDetails(e.target.value)}
         style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
-      />
+      /> */}
+
+
+      <div className="flex items-center justify-between py-2 mt-2">
+        <div className="flex items-center gap-2 md:gap-3">
+          <MdOutlineInventory2 />
+          <span>Product Details</span>
+        </div>
+        <FiPlusCircle
+          className="cursor-pointer text-xl"
+          onClick={() => setShowInputFields(true)}
+        />
+      </div>
+
+      {showInputFields && (
+        <div className="flex gap-2 mt-2">
+          <input
+            type="text"
+            placeholder="Property"
+            value={property}
+            onChange={(e) => setProperty(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none w-1/2"
+          />
+          <input
+            type="text"
+            placeholder="Value"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none w-1/2"
+          />
+          <button
+            className="bg-[#062538] text-white px-3 py-1 rounded-md cursor-pointer"
+            onClick={handleAddProperty}
+          >
+            ✓
+          </button>
+        </div>
+      )}
+
+
+      {productInfo.length !== 0 && (
+        <div className="mt-3 space-y-2 md:space-y-3 ml-4 md:ml-8 max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
+          {productInfo.map((item, index) => (
+            <div key={index} className="flex justify-between items-center py-1">
+              <div className="flex gap-2">
+                <span className="font-semibold">{item.property}:</span>
+                <span>{item.value}</span>
+              </div>
+              <FiMinusCircle
+                className="cursor-pointer text-red-500 text-lg"
+                onClick={() => {
+                  const updatedInfo = productInfo.filter((_, i) => i !== index);
+                  setProductInfo(updatedInfo);
+                  setProductDetails(JSON.stringify(updatedInfo));
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
 
       <div className="flex items-center justify-between cursor-pointer pb-2 pt-4">
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
-        <FiPlusCircle className="cursor-pointer" onClick={handleAddEngravingLine} />
+        <FiPlusCircle className="cursor-pointer text-xl" onClick={handleAddEngravingLine} />
       </div>
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
