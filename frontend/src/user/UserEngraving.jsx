@@ -474,7 +474,7 @@ const UserEngraving = () => {
                         {isContactOpen && (
                             <div className="fixed inset-0 z-50 flex items-center justify-center bg-white-200 bg-opacity-30">
                                 <div className="fixed inset-0 backdrop-blur-[2px] bg-white/30 flex justify-center items-center z-50 p-4">
-                                    <div className="bg-gradient-to-br from-[#1C4E6D] to-[#062538] p-4 md:p-6 rounded-lg shadow-lg w-full max-w-4xl 2xl:h-[62%] flex flex-col relative">
+                                    <div className="bg-gradient-to-br from-[#1C4E6D] to-[#062538] p-4 md:p-6 rounded-lg shadow-lg w-full max-w-4xl 2xl:h-[77%] flex flex-col relative">
                                         <button
                                             className="absolute top-2 right-2 md:top-4 md:right-4 text-white text-lg font-bold hover:text-gray-300 z-10 cursor-pointer"
                                             onClick={() => setIsContactOpen(false)}
