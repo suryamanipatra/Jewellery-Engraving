@@ -39,7 +39,6 @@ const EngravingStageForUser = forwardRef(({
         {konvaImage && (
           <Image image={konvaImage} width={window.innerWidth < 768 ? 250 : 450}  height={window.innerWidth < 768 ? 150 : 400} />
         )}
-        {console.log("setText", texts)} 
         {engravingLines.map(line => (
           <React.Fragment key={line.id}>
             <TextPath

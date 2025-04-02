@@ -127,11 +127,13 @@ def get_details(jewelry_upload_id: int, db: Session = Depends(get_db)):
                             "text": line.text,
                             "font_type": line.font_type,
                             "font_size": line.font_size,
+                            "no_of_characters":line.no_of_characters,
                             "font_color": line.font_color,
                             "position_x": line.position_x,
                             "position_y": line.position_y,
                             "path_coordinates": line.path_coordinates,
-                            "created_at": line.created_at
+                            "created_at": line.created_at,
+                            "product_details":line.product_details,
                         } for line in engraving.lines
                     ]
                 } for engraving in image.engraving_details

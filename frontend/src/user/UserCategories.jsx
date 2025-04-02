@@ -69,7 +69,7 @@ const UserCategories = () => {
         });
     };
     const handleCloseSnackbar = () => {
-        setMessage(null);
+        (null);setMessage
         setError(null);
     };
     const handleSubmit = async (e) => {

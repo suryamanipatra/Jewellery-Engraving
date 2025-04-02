@@ -1,70 +1,111 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import TopHeader from '../common/TopHeader';
+import React, { useState, useEffect, useRef } from "react";
+import { debounce } from "lodash";
+import axios from "axios";
+import {getAttributeIcon} from '../utils/DescriptionMapping.jsx'
+import { Select, MenuItem, InputBase, styled, Drawer } from '@mui/material';
+import { useParams } from "react-router-dom";
+import TopHeader from "../common/TopHeader";
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { BiCategoryAlt, BiSolidContact } from "react-icons/bi";
-import { FaChildren } from 'react-icons/fa6';
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
-import kamaLogo from "../assets/with-ring.jpg";
-import { MdEmail } from 'react-icons/md';
-import { FaChevronLeft, FaChevronRight, FaCubes, FaDollarSign, FaGem, FaWeightHanging } from 'react-icons/fa';
-import { GiDiamondRing } from 'react-icons/gi';
+import { RiRefreshFill } from "react-icons/ri";
+import { MdEmail, MdPreview } from "react-icons/md";
+import {
+    FaChevronLeft,
+    FaChevronRight,
+    FaCubes,
+    FaDollarSign,
+    FaGem,
+    FaWeightHanging,
+} from "react-icons/fa";
+import { GiDiamondRing } from "react-icons/gi";
 import Loader from "../common/Loader.jsx";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import EngravingStageForUser from "../components/engraving/EngravingStageForUser.jsx";
+const CustomInput = styled(InputBase)(({ theme }) => ({
+    '& .MuiInputBase-input': {
+        backgroundColor: '#D9D9D94F',
+        color: 'white',
+        padding: '10px 26px 10px 12px',
+    },
+}));
 
 const UserEngraving = () => {
     const { id } = useParams();
     const [isOpen, setIsOpen] = useState(false);
+    const [isContactOpen, setIsContactOpen] = useState(false)
     const [images, setImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
     const [engravingLines, setEngravingLines] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [message, setMessage] = useState(null);
     const [inputValues, setInputValues] = useState({});
+    const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(true);
-    const categoryTypes = Array(13).fill({ name: "Category 1", icon1: <FaChildren /> });
     const [texts, setTexts] = useState({});
-
+    const [selectedPreviewIndex, setSelectedPreviewIndex] = useState(0);
     const [engravingData, setEngravingData] = useState({});
     const stageRef = useRef(null);
-
+    const [modifiedImages, setModifiedImages] = useState([]);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        countryCode: '+1',
+        message: ''
+    });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setShowLoader(true);
-                const detailsResponse = await axios.get(`http://localhost:5000/api/get-details?jewelry_upload_id=${id}`);
+                const detailsResponse = await axios.get(
+                    `http://localhost:5000/api/get-details?jewelry_upload_id=${id}`
+                );
                 const detailsData = detailsResponse?.data;
 
-                const imagesWithUrls = await Promise.all(detailsData.map(async (item) => {
-                    const fileResponse = await axios.get(`http://localhost:5000/api/get-file/${item.file_path}`, { responseType: 'blob' });
-                    const blob = new Blob([fileResponse.data]);
-                    return {
-                        ...item,
-                        imageUrl: URL.createObjectURL(blob),
-                        engraving_details: item.engraving_details[0] || null
-                    };
-                }));
+                const imagesWithUrls = await Promise.all(
+                    detailsData.map(async (item) => {
+                        const fileResponse = await axios.get(
+                            `http://localhost:5000/api/get-file/${item.file_path}`,
+                            { responseType: "blob" }
+                        );
+                        const blob = new Blob([fileResponse.data]);
+                        return {
+                            ...item,
+                            imageUrl: URL.createObjectURL(blob),
+                            engraving_details: item.engraving_details[0] || null,
+                        };
+                    })
+                );
 
                 setImages(imagesWithUrls);
                 if (imagesWithUrls.length > 0) {
+                    console.log("imagesWithUrls", imagesWithUrls);
                     setSelectedImage(imagesWithUrls[0]);
-                    setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
-
-                    // Convert engraving details into an object
+                    setEngravingLines(
+                        imagesWithUrls[0].engraving_details?.engraving_lines || []
+                    );
                     const engravingMap = {};
-                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach(line => {
-                        engravingMap[line.id] = {
-                            text: line.text,
-                            path: line.path_coordinates || "",
-                            fontSize: line.font_size || 24,
-                            color: line.font_color || "#000",
-                            positionX: line.position_x || 0,
-                            positionY: line.position_y || 0,
-                        };
-                    });
+                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach(
+                        (line) => {
+                            engravingMap[line.id] = {
+                                text: line.text,
+                                path: line.path_coordinates || "",
+                                fontSize: line.font_size || 24,
+                                color: line.font_color || "#000",
+                                positionX: line.position_x || 0,
+                                positionY: line.position_y || 0,
+                                productDetails: line.product_details,
+                            };
+                        }
+                    );
                     setEngravingData(engravingMap);
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error("Error fetching data:", error);
             } finally {
                 setTimeout(() => setShowLoader(false), 3000);
             }
@@ -74,68 +115,227 @@ const UserEngraving = () => {
     }, [id]);
 
 
+    useEffect(() => {
+        const fetchCountries = async () => {
+            try {
+                const response = await axios.get('https://countriesnow.space/api/v0.1/countries/codes');
+                const data = response.data;
+
+                const formattedCountries = data.data
+                    .map(country => ({
+                        name: country.name,
+                        code: country.dial_code.split(',')[0].trim()
+                    }))
+                    .sort((a, b) => a.name.localeCompare(b.name));
+
+                setCountries(formattedCountries);
+                setFormData(prev => ({
+                    ...prev,
+                    countryCode: formattedCountries[0]?.code || '+1'
+                }));
+
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchCountries();
+    }, []);
+
+    const debouncedCapturePreview = debounce(() => {
+        capturePreview();
+    }, 500);
 
     useEffect(() => {
         setTimeout(() => setShowLoader(false), 3000);
-    }, [])
-
+    }, []);
 
     const handleImageSelect = (image) => {
         setSelectedImage(image);
         setEngravingLines(image.engraving_details?.engraving_lines || []);
         const initialValues = {};
-        (image.engraving_details?.engraving_lines || []).forEach(line => {
+        (image.engraving_details?.engraving_lines || []).forEach((line) => {
             initialValues[line.line_number] = line.text;
         });
         setInputValues(initialValues);
     };
+    const handleCloseSnackbar = () => {
+        setMessage(null);
+        setError(null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setMessage(null);
+        setError(null);
+
+        try {
+            const payload = {
+                name: formData.name,
+                email: formData.email,
+                phone: `${formData.countryCode} ${formData.phone}`,
+                message: formData.message,
+            };
+            console.log("Payload", payload);
+            const response = await axios.post(`${API_BASE_URL}/contact-us`, payload);
+            console.log(response.data);
+            setMessage(response.data.message);
+
+            setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                countryCode: "+1",
+                message: "",
+            });
+            setIsOpen(false);
+        } catch (error) {
+            let errorMessage = "An error occurred while submitting the form";
+
+            if (error.response) {
+                console.log(error.response);
+                errorMessage = error.response.data.detail || errorMessage;
+            } else if (error.request) {
+                errorMessage = "No response from server";
+            }
+
+            // enqueueSnackbar(errorMessage, { variant: 'error' });
+        } finally {
+            // setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (selectedImage) {
+            const timer = setTimeout(() => {
+                capturePreview();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [selectedImage]);
 
 
-    const handleInputChange = (lineNumber, value) => {
-        setInputValues(prev => ({
-            ...prev,
-            [lineNumber]: value
-        }));
+    useEffect(() => {
+        if (selectedImage) {
+            setEngravingLines(selectedImage.engraving_details?.engraving_lines || []);
+            const newEngravingData = {};
+            (selectedImage.engraving_details?.engraving_lines || []).forEach((line) => {
+                newEngravingData[line.id] = {
+                    text: line.text,
+                    path: line.path_coordinates || "",
+                    fontSize: line.font_size || 24,
+                    color: line.font_color || "#000",
+                    positionX: line.position_x || 0,
+                    positionY: line.position_y || 0,
+                    productDetails: line.product_details,
+                };
+            });
+            setEngravingData(newEngravingData);
+            const initialValues = {};
+            (selectedImage.engraving_details?.engraving_lines || []).forEach((line) => {
+                initialValues[line.line_number] = line.text;
+            });
+            setInputValues(initialValues);
+        }
+    }, [selectedImage]);
+
+
+    useEffect(() => {
+        if (images.length > 0) {
+            setModifiedImages(images.map((img) => img.imageUrl));
+        }
+    }, [images]);
+
+    // useEffect(() => {
+    //     setTexts({});
+    // }, []);
+
+
+    useEffect(() => {
+        if (selectedImage) {
+            const index = images.findIndex((img) => img.id === selectedImage.id);
+            setSelectedPreviewIndex(index);
+        }
+    }, [selectedImage]);
+
+    const capturePreview = () => {
+        if (stageRef.current) {
+            const dataUrl = stageRef.current.toDataURL();
+            const updatedImages = [...modifiedImages];
+            updatedImages[selectedPreviewIndex] = dataUrl;
+            setModifiedImages(updatedImages);
+            setPreviewImage(dataUrl);
+        }
+    };
+
+    // const handleInputChange = (lineNumber, value) => {
+    //     setInputValues((prev) => ({
+    //         ...prev,
+    //         [lineNumber]: value,
+    //     }));
+    // };
+
+    const handleContactChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     };
     const handleTextChange = (lineId, value) => {
-        setTexts(prev => ({
+        setTexts((prev) => ({
             ...prev,
-            [lineId]: value
+            [lineId]: value,
         }));
+        debouncedCapturePreview();
     };
 
     return (
-
         <>
-            {showLoader &&
+            {showLoader && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#062538]/[0.34] backdrop-blur-[5px]">
                     <Loader />
                 </div>
-
-            }
+            )}
 
             <div>
                 <TopHeader />
+                <Snackbar
+                    open={!!message || !!error}
+                    autoHideDuration={6000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                    <Alert
+                        onClose={handleCloseSnackbar}
+                        severity={error ? 'error' : 'success'}
+                        variant="filled"
+                        sx={{ width: '100%' }}
+                    >
+                        {error || message}
+                    </Alert>
+                </Snackbar>
                 <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                     <nav className="flex flex-wrap items-center justify-between h-full">
-                        <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
+                        <div className="h-full flex justify-center gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
                             <BiCategoryAlt className="text-white text-xl md:text-3xl" />
-                            <span className="text-white text-sm md:text-xl font-semibold">Features</span>
+                            <span className="text-white text-sm md:text-xl font-semibold">
+                                Features
+                            </span>
                         </div>
                         <div className="flex items-center gap-2 h-full ml-auto">
-                            <div className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
+                            <div
+                                className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
                                 onClick={() => setIsOpen(true)}
                             >
-                                <BiSolidContact className="text-white text-xl md:text-3xl" />
-                                <span className="text-white text-sm md:text-xl font-semibold">Preview</span>
+                                <MdPreview className="text-white text-xl md:text-3xl" />
+                                <span className="text-white text-sm md:text-xl font-semibold">
+                                    Preview
+                                </span>
                             </div>
                             {isOpen && (
                                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white-200 bg-opacity-30">
                                     <div className="fixed inset-0 backdrop-blur-[2px] bg-white/30 flex justify-center items-center z-50 p-4">
-                                        <div
-                                            className="bg-gradient-to-br from-[#1C4E6D] to-[#062538] p-4 md:p-6 rounded-lg shadow-lg w-full max-w-4xl 2xl:h-[80%] flex flex-col relative"
-
-                                        >
+                                        <div className="bg-gradient-to-br from-[#1C4E6D] to-[#062538] p-4 md:p-6 rounded-lg shadow-lg w-full max-w-4xl 2xl:h-[80%] flex flex-col relative">
                                             <button
                                                 className="absolute top-2 right-2 md:top-4 md:right-4 text-white text-lg font-bold hover:text-gray-300 z-10 cursor-pointer"
                                                 onClick={() => setIsOpen(false)}
@@ -145,103 +345,316 @@ const UserEngraving = () => {
 
                                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full mb-4 mt-2 md:mt-4 gap-4">
                                                 <div className="text-white">
-                                                    <h2 className="font-exo2 font-normal text-2xl md:text-[40px]">Preview...</h2>
+                                                    <h2 className="font-exo2 font-normal text-2xl md:text-[40px]">
+                                                        Preview...
+                                                    </h2>
                                                     <p className="font-exo2 font-normal text-lg md:text-[24px] text-gray-300 mt-2 md:mt-4">
                                                         How does it look? Isn't it pretty?...
                                                     </p>
                                                 </div>
                                                 <button className="group flex items-center gap-2 bg-white text-[#062538] px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-[#062538] hover:text-white hover:border text-sm md:text-base cursor-pointer">
-                                                    <MdEmail size={16} className="md:size-[20px] text-[#062538] group-hover:text-white" />
-                                                    <span className="group-hover:text-white">Send Via Email</span>
+                                                    <MdEmail
+                                                        size={16}
+                                                        className="md:size-[20px] text-[#062538] group-hover:text-white"
+                                                    />
+                                                    <span className="group-hover:text-white">
+                                                        Send Via Email
+                                                    </span>
                                                 </button>
-
                                             </div>
 
                                             <div className="flex flex-col 2xl:h-[30%] md:flex-row flex-1 w-full gap-4 md:gap-6">
-                                                <div className="w-full md:w-3/5 2xl:h-[full]  relative bg-white rounded-lg flex flex-col items-center justify-center p-2 md:p-4">
-
-                                                    <img
-                                                        src={kamaLogo}
-                                                        alt="Preview"
-                                                        className="w-full md:h-full 2xl:h-[90%] object-contain rounded-lg"
-                                                    />
+                                                <div className="w-full md:w-3/5 2xl:h-[full] relative bg-white rounded-lg flex flex-col items-center justify-center p-2 md:p-4">
+                                                    {modifiedImages.length > 0 && (
+                                                        <>
+                                                            <img
+                                                                src={
+                                                                    previewImage ||
+                                                                    modifiedImages[selectedPreviewIndex]
+                                                                }
+                                                                alt="Preview"
+                                                                className="w-full md:h-full 2xl:h-[90%] object-contain rounded-lg"
+                                                            />
+                                                        </>
+                                                    )}
                                                     <div className="flex gap-4 mt-2 md:mt-4">
-                                                        <button className="bg-gray-700 text-white p-2 md:p-3 rounded-full shadow-md hover:bg-gray-900 cursor-pointer hover:border">
+
+                                                        <button
+                                                            className="bg-gray-700 text-white p-2 md:p-3 rounded-full shadow-md hover:bg-gray-900 cursor-pointer hover:border"
+                                                            onClick={() => {
+                                                                const newIndex =
+                                                                    (selectedPreviewIndex - 1 + images.length) %
+                                                                    images.length;
+                                                                setSelectedPreviewIndex(newIndex);
+                                                                setSelectedImage(images[newIndex]);
+                                                                setPreviewImage(modifiedImages[newIndex]);
+                                                            }}
+                                                        >
                                                             <FaChevronLeft size={20} />
                                                         </button>
-                                                        <button className="bg-gray-700 text-white p-2 md:p-3 rounded-full shadow-md hover:bg-gray-900 cursor-pointer">
+
+
+                                                        <button
+                                                            className="bg-gray-700 text-white p-2 md:p-3 rounded-full shadow-md hover:bg-gray-900 cursor-pointer"
+                                                            onClick={() => {
+                                                                const newIndex =
+                                                                    (selectedPreviewIndex + 1) % images.length;
+                                                                setSelectedPreviewIndex(newIndex);
+                                                                setSelectedImage(images[newIndex]);
+                                                                setPreviewImage(modifiedImages[newIndex]);
+                                                            }}
+                                                        >
                                                             <FaChevronRight size={20} />
                                                         </button>
                                                     </div>
                                                 </div>
 
-                                                {/* Product Details */}
-                                                <div className="w-full md:w-2/5  bg-white p-3 md:p-5 rounded-lg">
-                                                    <h3 className="text-base md:text-lg font-bold mb-2 md:mb-4">Product Name</h3>
-                                                    <div className="text-[#062538] 2xl:h-[90%] space-y-2 md:space-y-3 text-sm md:text-base overflow-y-auto">
-                                                        <div className="">
-                                                            <span className="flex items-center gap-1 md:gap-2">
-                                                                <GiDiamondRing className="text-blue-600 md:size-[20px] whitespace-nowrap" size={16} />
-                                                                Diamond Color:
-                                                            </span>
-                                                            <span className="font-bold whitespace-nowrap px-7">Diamond Color</span>
-                                                        </div>
-                                                        <div className="">
-                                                            <span className="flex items-center gap-1 md:gap-2">
-                                                                <FaGem className="text-purple-600 md:size-[20px]" size={16} />
-                                                                Diamond Quality:
-                                                            </span>
-                                                            <span className="font-bold whitespace-nowrap px-7">Diamond Quantity</span>
-                                                        </div>
-                                                        <div className="">
-                                                            <span className="flex items-center gap-1 md:gap-2">
-                                                                <FaWeightHanging className="text-yellow-600 md:size-[20px]" size={16} />
-                                                                Gold Wt.:
-                                                            </span>
-                                                            <span className="font-bold whitespace-nowrap px-7">productDetails gm</span>
-                                                        </div>
-                                                        <div className="">
-                                                            <span className="flex items-center gap-1 md:gap-2">
-                                                                <FaCubes className="text-green-600 md:size-[20px]" size={16} />
-                                                                Stones:
-                                                            </span>
-                                                            <span className="font-bold whitespace-nowrap px-7">Stone</span>
-                                                        </div>
-                                                        <div className=" text-base md:text-lg font-semibold">
-                                                            <span className="flex items-center gap-1 md:gap-2">
-                                                                <FaDollarSign className="text-gray-700 md:size-[20px] " size={16} />
-                                                                Amount:
-                                                            </span>
-                                                            <span className="font-bold whitespace-nowrap px-7">Amount $</span>
-                                                        </div>
-                                                    </div>
+
+                                                <div className="w-full md:w-2/5 bg-white p-3 md:p-5 rounded-lg">
+                                                    {Array.from(new Set(
+                                                        selectedImage?.engraving_details?.engraving_lines?.flatMap(
+                                                            line => JSON.parse(line.product_details || "[]").map(pd => pd.property)
+                                                        ) || []
+                                                    )).map((property, index) => {
+                                                        const values = selectedImage.engraving_details.engraving_lines
+                                                            .flatMap(line => JSON.parse(line.product_details || "[]")
+                                                                .filter(pd => pd.property === property)
+                                                                .map(pd => pd.value) || []
+                                                            );
+
+                                                        // const icons = [
+                                                        //     { Component: GiDiamondRing, color: 'text-blue-600' },
+                                                        //     { Component: FaGem, color: 'text-purple-600' },
+                                                        //     { Component: FaWeightHanging, color: 'text-yellow-600' },
+                                                        //     { Component: FaCubes, color: 'text-green-600' },
+                                                        //     { Component: FaDollarSign, color: 'text-gray-700' },
+                                                        // ];
+                                                        
+
+                                                        // const { Component: Icon, color } = icons[index % icons.length];
+
+                                                        return (
+                                                            <div key={property} className="flex flex-row">
+                                                                <div className="flex items-center gap-2 text-gray-700">
+                                                                    {/* <Icon className={`${color} text-lg`} /> */}
+                                                                    {getAttributeIcon(property)}
+                                                                    <span>{property}:</span>
+                                                                </div>
+                                                                <span className="font-semibold pl-2">
+                                                                    {[...new Set(values)].join(', ')}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
+
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-
-
-
                             <div className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
-                                <BiSolidContact className="text-white text-xl md:text-3xl" />
-                                <span className="text-white text-sm md:text-xl font-semibold">Refresh</span>
+                                <RiRefreshFill className="text-white text-xl md:text-3xl" />
+                                <span className="text-white text-sm md:text-xl font-semibold">
+                                    Refresh
+                                </span>
                             </div>
-                            <div className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
+                            <div
+                                className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
+                                onClick={() => setIsContactOpen(true)}
+                            >
                                 <BiSolidContact className="text-white text-xl md:text-3xl" />
-                                <span className="text-white text-sm md:text-xl font-semibold">Contact Us</span>
+                                <span className="text-white text-sm md:text-xl font-semibold">
+                                    Contact Us
+                                </span>
                             </div>
                         </div>
 
+                        {isContactOpen && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-white-200 bg-opacity-30">
+                                <div className="fixed inset-0 backdrop-blur-[2px] bg-white/30 flex justify-center items-center z-50 p-4">
+                                    <div className="bg-gradient-to-br from-[#1C4E6D] to-[#062538] p-4 md:p-6 rounded-lg shadow-lg w-full max-w-4xl 2xl:h-[62%] flex flex-col relative">
+                                        <button
+                                            className="absolute top-2 right-2 md:top-4 md:right-4 text-white text-lg font-bold hover:text-gray-300 z-10 cursor-pointer"
+                                            onClick={() => setIsContactOpen(false)}
+                                        >
+                                            ✖
+                                        </button>
+                                        <div>
+                                            <h2 className="text-white text-4xl font-bold mb-4">
+                                                Contact Us{" "}
+                                            </h2>
+                                            <div>
+                                                <form
+                                                    onSubmit={handleSubmit}
+                                                    className="space-y-10 p-4 bg-[#D9D9D94F] rounded-lg mt-4 px-15.5"
+                                                >
+                                                    <input
+                                                        type="text"
 
+                                                        name="name"
+                                                        placeholder="Full Name"
+                                                        className="w-[60%] border-b border-gray-300 py-2 outline-none text-white bg-transparent"
+                                                        value={formData.name}
+                                                        onChange={handleContactChange}
+                                                        required
+                                                    />
+
+                                                    <input
+                                                        type="email"
+                                                        name="email"
+                                                        placeholder="Email Address"
+                                                        className="w-[60%] border-b border-gray-300 py-2 outline-none text-white bg-transparent"
+                                                        value={formData.email}
+                                                        onChange={handleContactChange}
+                                                        required
+                                                    />
+                                                    <div className="w-[60%] flex gap-2">
+                                                        <div className="flex items-center justify-center relative min-w-[80px] w-[40]">
+                                                            <Select
+                                                                value={formData.countryCode}
+                                                                onChange={handleContactChange}
+                                                                name="countryCode"
+                                                                input={<CustomInput />}
+                                                                className="w-full"
+                                                                IconComponent={() => (
+                                                                    <svg
+                                                                        className="w-4 h-4 text-white absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M19 9l-7 7-7-7"
+                                                                        />
+                                                                    </svg>
+                                                                )}
+                                                                MenuProps={{
+                                                                    PaperProps: {
+                                                                        sx: {
+                                                                            width: "auto",
+                                                                            "& .MuiMenuItem-root": {
+                                                                                bgcolor: "#1C4E6D",
+                                                                                color: "white",
+                                                                            },
+                                                                            maxHeight: "200px",
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
+                                                                {countries.map((country) => (
+                                                                    <MenuItem
+                                                                        key={country.code}
+                                                                        value={country.code}
+                                                                    >
+                                                                        {country.code}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </div>
+
+                                                        <input
+                                                            type="tel"
+                                                            name="phone"
+                                                            placeholder="Phone Number"
+                                                            className="flex-1 bg-transparent text-white outline-none border-b border-gray-300 py-2"
+                                                            value={formData.phone}
+                                                            onChange={handleContactChange}
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    <div className="relative">
+                                                        <input
+                                                            type="text"
+                                                            name="message"
+                                                            placeholder="Message"
+                                                            className="w-[60%] border-b border-gray-300 py-2 outline-none text-white bg-transparent"
+                                                            value={formData.message}
+                                                            onChange={handleContactChange}
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex gap-4 justify-end pt-4">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setFormData({
+                                                                    name: "",
+                                                                    email: "",
+                                                                    phone: "",
+                                                                    countryCode: "+1",
+                                                                    message: "",
+                                                                })
+                                                            }
+                                                            className="w-1/4 bg-[#fff] text-[#062538] cursor-pointer hover:text-white py-2 rounded-lg hover:bg-[#15405B] transition"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className="w-1/4 bg-[#062538] cursor-pointer text-white py-2 rounded-lg hover:bg-[#15405B] transition"
+                                                        // disabled={loading}
+                                                        >
+                                                            Submit
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </nav>
                     <div className="flex gap-4 py-4 pt-4 md:h-[calc(100vh-12vh)] lg:h-[calc(100vh-10vh)] xl:h-[calc(100vh-14vh)] 2xl:h-[calc(100vh-18vh)]">
-
                         <div className="border w-[20vw] overflow-y-auto ml-2 rounded-md bg-white shadow-md p-2 2xl:block md:hidden">
-                            {categoryTypes.map((category, index) => (
+                            <div className="w-full h-full p-8">
+                                <h3 className="text-lg font-bold mb-4">Product Details</h3>
+                                <div className="space-y-4">
+                                    {console.log("selectedImage?.engraving_details?", selectedImage?.engraving_details)}
+                                    {Array.from(new Set(
+                                        selectedImage?.engraving_details?.engraving_lines?.flatMap(
+                                            line => JSON.parse(line.product_details || "[]").map(pd => pd.property)
+                                        ) || []
+                                    )).map((property, index) => {
+                                        const values = selectedImage.engraving_details.engraving_lines
+                                            .flatMap(line => JSON.parse(line.product_details || "[]")
+                                                .filter(pd => pd.property === property)
+                                                .map(pd => pd.value) || []
+                                            );
+
+                                        // const icons = [
+                                        //     { Component: GiDiamondRing, color: 'text-blue-600' },
+                                        //     { Component: FaGem, color: 'text-purple-600' },
+                                        //     { Component: FaWeightHanging, color: 'text-yellow-600' },
+                                        //     { Component: FaCubes, color: 'text-green-600' },
+                                        //     { Component: FaDollarSign, color: 'text-gray-700' },
+                                        // ];
+
+                                        // const { Component: Icon, color } = icons[index % icons.length];
+
+                                        return (
+                                            <div key={property} className="flex flex-row">
+                                                <div className="flex items-center gap-2 text-gray-700">
+                                                    {getAttributeIcon(property)}
+                                                    <span>{property}:</span>
+                                                </div>
+                                                <span className="font-semibold pl-2">
+                                                    {[...new Set(values)].join(', ')}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+
+                                </div>
+                            </div>
+                            {/* {categoryTypes.map((category, index) => (
                                 <div key={index} className="flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-100 cursor-pointer">
                                     <div className="flex items-center gap-4">
                                         {category.icon1}
@@ -249,20 +662,23 @@ const UserEngraving = () => {
                                     </div>
                                     <IoIosArrowForward />
                                 </div>
-                            ))}
+                            ))} */}
                         </div>
                         <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md p-4 gap-4">
-                            <div className="flex flex-col xl:flex-row  gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-center">
-                                <div className="w-full md:w-full lg:w-full lg:w-2/5 flex flex-col items-center relative">
-                                    <p className="text-2xl text-gray-300 ml-10 py-4">Available Views of the Jewellery</p>
-                                    <div className="relative flex items-center justify-center lg:justify-start">
-                                        <IoIosArrowBack className='text-white' size={32} />
-                                        <div className="grid md:grid-cols-4 2xl:grid-cols-2 gap-2 mx-2 ml-10 mr-10">
-                                            {images.map((image, index) => (
+                            <div className="flex flex-col xl:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
+                                <div className="w-full h-full md:w-full lg:w-[35%] flex flex-col items-start justify-start relative">
+                                    <p className="text-2xl text-gray-300 ml-10 py-4">
+                                        Available Views of the Jewellery
+                                    </p>
+
+                                    <div className="relative flex flex-col items-start justify-start">
+                                        {/* Image Grid */}
+                                        <div className="w-[30vw] h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-2 grid-rows-2   gap-2 mx-2 ml-10 mr-10">
+                                            {images.slice(0, 4).map((image, index) => (
                                                 <div
                                                     key={index}
-                                                    className={`bg-white p-2 w-24 md:w-28 lg:w-32 rounded-lg shadow-lg aspect-square flex items-center justify-center cursor-pointer ${selectedImage?.id === image.id ? 'border-2 border-blue-500' : ''
-                                                        }`}
+                                                    className={`bg-white w-full h-full p-2 rounded-lg shadow-lg flex items-center justify-center cursor-pointer 
+                    ${selectedImage?.id === image.id ? "border-2 border-blue-500" : ""}`}
                                                     onClick={() => handleImageSelect(image)}
                                                 >
                                                     <img
@@ -273,12 +689,17 @@ const UserEngraving = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <IoIosArrowForward className='text-white' size={32} />
+
+                                        {/* Arrows Centered Below the Grid */}
+                                        <div className="flex items-center justify-center mt-4 w-full">
+                                            <IoIosArrowBack className="text-white cursor-pointer mx-4" size={32} />
+                                            <IoIosArrowForward className="text-white cursor-pointer mx-4" size={32} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
-                                    {selectedImage && (
 
+                                <div className="w-full lg:w-[60%] h-[300px] md:h-[400px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
+                                    {selectedImage && (
                                         <EngravingStageForUser
                                             ref={stageRef}
                                             selectedImage={selectedImage.imageUrl}
@@ -292,10 +713,13 @@ const UserEngraving = () => {
                                                     return acc;
                                                 }, {}),
                                                 positions: engravingLines.reduce((acc, line) => {
-                                                    acc[line.id] = { x: line.position_x || 0, y: line.position_y || 0 };
+                                                    acc[line.id] = {
+                                                        x: line.position_x || 0,
+                                                        y: line.position_y || 0,
+                                                    };
                                                     return acc;
                                                 }, {}),
-                                                showPath: true
+                                                showPath: true,
                                             }}
                                             texts={texts}
                                         />
@@ -303,43 +727,51 @@ const UserEngraving = () => {
                                 </div>
                             </div>
                             <div className="w-full p-2 rounded-2xl flex flex-col justify-between">
-                                <h2 className="text-lg font-semibold text-white mb-2">Engraving Id: {id}</h2>
+                                <h2 className="text-lg font-semibold text-white mb-2">
+                                    Engraving Id: {id}
+                                </h2>
                                 <div className="w-full flex flex-col gap-3">
-                                    {selectedImage?.engraving_details &&
-                                        Array.from({ length: selectedImage.engraving_details.total_lines }).map((_, index) => {
-                                            const lineNumber = index + 1;
+                                    <div className="w-full flex flex-col gap-3">
+                                        {engravingLines
+                                            .slice()
+                                            .sort((a, b) => a.line_number - b.line_number)
+                                            .map((line) => {
+                                                const lineId = line.id;
+                                                const maxChars = line.no_of_characters; // Get character limit from data
 
-                                            return (
-                                                <div key={index} className="w-full flex items-center gap-3">
-                                                    {engravingLines.map((line, index) => {
-                                                        const lineId = line.id;
-                                                        return (
-                                                            <div key={lineId} className="w-full flex items-center gap-3">
-                                                                <label className="text-white text-[16px] font-medium w-16">Line {index + 1}</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Enter engraving text"
-                                                                    value={texts[lineId] || ""}
-                                                                    onChange={(e) => handleTextChange(lineId, e.target.value)}
-                                                                    className="flex-1 min-w-0 p-2 rounded-lg bg-white border border-gray-400 text-black focus:border-blue-500 outline-none"
-                                                                />
-                                                                <span className="text-white text-[16px] w-10 text-right">
-                                                                    {texts[lineId]?.length || 0}/10
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            );
-                                        })}
+                                                return (
+                                                    <div
+                                                        key={lineId}
+                                                        className="w-full flex items-center gap-3"
+                                                    >
+                                                        <label className="text-white text-[16px] font-medium w-16">
+                                                            Line {line.line_number}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder={`Enter up to ${maxChars} characters`}
+                                                            value={texts[lineId] || ""}
+                                                            onChange={(e) => {
+                                                                // Enforce character limit
+                                                                const input = e.target.value.slice(0, maxChars);
+                                                                handleTextChange(lineId, input);
+                                                            }}
+                                                            className="flex-1 min-w-0 p-2 rounded-lg bg-white border border-gray-400 text-black focus:border-blue-500 outline-none"
+                                                        />
+                                                        <span className="text-white text-[16px] w-10 text-right">
+                                                            {texts[lineId]?.length || 0}/{maxChars}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </>
     );
-}
+};
 export default UserEngraving;
