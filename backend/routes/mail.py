@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends, APIRouter, UploadFile, File
+from fastapi import HTTPException, Depends, APIRouter, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 import random
@@ -129,7 +129,7 @@ def send_welcome_email(request: AdminEmailRequest):
     return {"message": "Welcome email sent successfully!"}
 
 @router.post("/send-pdf")
-def send_pdf(email: str, file: UploadFile = File(...)):
+def send_pdf(email: str = Form(...), file: UploadFile = File(...)):
     send_email(email, "Your Requested Document", "Please find the attached document.", file)
     return {"message": "PDF sent successfully!"}
 
