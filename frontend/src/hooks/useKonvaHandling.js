@@ -6,7 +6,8 @@ export const useKonvaHandling = (initialState = {}) => {
     paths: initialState.paths || { 1: "M50,150 Q250,50 350,150" },
     positions: initialState.positions || { 1: { x: 50, y: 150 } },
     rotation: initialState.rotation || 0,
-    showPath: initialState.showPath !== undefined ? initialState.showPath : true,
+    visiblePaths: initialState.visiblePaths || { 1: true },
+    // showPath: initialState.showPath !== undefined ? initialState.showPath : true,
     scale: 1,
     imageDimensions: { width: 0, height: 0 },
   });
@@ -45,6 +46,27 @@ export const useKonvaHandling = (initialState = {}) => {
     
   };
 
+
+  const togglePathVisibility = (line) => {
+    setKonvaState(prev => ({
+      ...prev,
+      visiblePaths: {
+        ...prev.visiblePaths,
+        [line]: !prev.visiblePaths[line]
+      }
+    }));
+  };
+
+  const setPathVisibility = (line, isVisible) => {
+    setKonvaState(prev => ({
+      ...prev,
+      visiblePaths: {
+        ...prev.visiblePaths,
+        [line]: isVisible
+      }
+    }));
+  };
+
   return {
     konvaState,
     konvaActions: {
@@ -53,7 +75,9 @@ export const useKonvaHandling = (initialState = {}) => {
       addNewLine,
       setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
       setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),
-      setShowPath: (showPath) => setKonvaState(prev => ({ ...prev, showPath }))
+      togglePathVisibility,
+      setPathVisibility,
+      // setShowPath: (showPath) => setKonvaState(prev => ({ ...prev, showPath }))
     }
   };
 }; 

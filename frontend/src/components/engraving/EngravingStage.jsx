@@ -5,22 +5,17 @@ const EngravingStage = forwardRef(({
   selectedImage,
   engravingLines,
   engravingData,
-  // konvaActions,
   konvaState,
   onTextDrag,
   onPathDrag
 }, ref) => {
   const [konvaImage, setKonvaImage] = useState(null);
-  // console.log("Konva state",konvaState)
 
   useEffect(() => {
     if (selectedImage) {
-      // console.log("Selected image:", selectedImage);
       const img = new window.Image();
       img.crossOrigin = "anonymous";
       img.src = selectedImage;
-      console.log("image height",img.height)
-      console.log("Image width", img.width)
       img.onload = () => {
         setKonvaImage(img);
         const stageWidth = window.innerWidth < 768 ? 250 : 450;
@@ -28,11 +23,6 @@ const EngravingStage = forwardRef(({
         const scaleX = stageWidth / img.width;
         const scaleY = stageHeight / img.height;
         const scale = Math.min(scaleX, scaleY);
-        // konvaActions.setScale(scale);
-        // konvaActions.setImageDimensions({
-        //   width: img.width,
-        //   height: img.height,
-        // });
       };
     }
   }, [selectedImage]);
@@ -44,7 +34,6 @@ const EngravingStage = forwardRef(({
       height={window.innerWidth < 768 ? 150 : 400}
     >
       <Layer scaleX={konvaState.scale} scaleY={konvaState.scale}>
-        {/* {console.log("konvaImage",konvaImage)} */}
         {konvaImage && (
           <Image 
             image={konvaImage}
@@ -64,57 +53,60 @@ const EngravingStage = forwardRef(({
         )}
         {engravingLines.map(line => {
           const data = engravingData[line] || {};
-          return(
+          return (
             <React.Fragment key={line}>
-            
-            
-            <TextPath
-              text={data.text || ""}
-              data={konvaState.paths[line] || ""}
-              fontSize={engravingData[line]?.fontSize || 24}
-              fill={engravingData[line]?.color || "#000000"}
-              x={konvaState.positions[line]?.x || 0}
-              y={konvaState.positions[line]?.y || 0}
-              draggable
-              onDragMove={(e) => onTextDrag(line, e)}
-              rotation={konvaState.rotation}
-            />
-            {console.log("x cordinate",konvaState.positions[line]?.x)}
-            {console.log("y cordinate ",konvaState.positions[line]?.y)}
-            <Path
-              data={konvaState.paths[line] || ""}
-              stroke="gray"
-              strokeWidth={2}
-              visible={konvaState.showPath}
-            />
-
-            {konvaState.showPath && konvaState.paths[line]?.match(/(-?\d+\.?\d*)/g)?.map((val, index, arr) =>
-              index % 2 === 0 ? (
-                <Circle
-                  key={index}
-                  x={Number.parseFloat(arr[index])}
-                  y={Number.parseFloat(arr[index + 1])}
-                  radius={5}
-                  fill="blue"
-                  draggable
-                  onDragMove={(e) => 
-                    onPathDrag(
-                      line,
-                      arr[index],
-                      arr[index + 1],
-                      e.target.x(),
-                      e.target.y()
-                    )
-                  }
-                />
-              ) : null
-            )}
-          </React.Fragment>
-          )
+              {/* TextPath is always visible */}
+              <TextPath
+                text={data.text || ""}
+                data={konvaState.paths[line] || ""}
+                fontSize={engravingData[line]?.fontSize || 24}
+                fill={engravingData[line]?.color || "#000000"}
+                x={konvaState.positions[line]?.x || 0}
+                y={konvaState.positions[line]?.y || 0}
+                draggable
+                onDragMove={(e) => onTextDrag(line, e)}
+                rotation={konvaState.rotation}
+              />
+              
+              {/* Path visibility controlled by visiblePaths */}
+              {konvaState.visiblePaths[line] && (
+                <>
+                  <Path
+                    data={konvaState.paths[line] || ""}
+                    stroke="gray"
+                    strokeWidth={2}
+                  />
+                  
+                  {/* Control points visibility also controlled by visiblePaths */}
+                  {konvaState.paths[line]?.match(/(-?\d+\.?\d*)/g)?.map((val, index, arr) =>
+                    index % 2 === 0 ? (
+                      <Circle
+                        key={index}
+                        x={Number.parseFloat(arr[index])}
+                        y={Number.parseFloat(arr[index + 1])}
+                        radius={5}
+                        fill="blue"
+                        draggable
+                        onDragMove={(e) => 
+                          onPathDrag(
+                            line,
+                            arr[index],
+                            arr[index + 1],
+                            e.target.x(),
+                            e.target.y()
+                          )
+                        }
+                      />
+                    ) : null
+                  )}
+                </>
+              )}
+            </React.Fragment>
+          );
         })}
       </Layer>
     </Stage>
   );
 });
 
-export default EngravingStage; 
+export default EngravingStage;

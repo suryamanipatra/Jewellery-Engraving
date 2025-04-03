@@ -383,8 +383,11 @@ const AdminEngraving = () => {
             <ActionButtons
               onSave={handleSave}
               onDownload={downloadParticularEngravedImage}
-              showPath={konvaState.showPath}
-              onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
+              konvaState={konvaState}
+              konvaActions={konvaActions}
+              engravingLines={engravingState.engravingLines}
+              // showPath={konvaState.showPath}
+              // onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
             />
           </div>
         </div>
