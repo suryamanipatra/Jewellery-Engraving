@@ -63,7 +63,7 @@ const AdminEngraving = () => {
 
   const handleSave = async () => {
     try {
-      if (!engravingState.engravingLines.length || !engravingState.engravingData) {
+      if (!engravingState.engravingLines.length || !engravingState.engravingData || (selectedJewelleryType === "") || (productDetails === "")) {
         setSnackbarMessage("Please add all engraving details before saving!");
         setSnackbarSeverity("warning");
         setSnackbarOpen(true);
@@ -277,6 +277,21 @@ const AdminEngraving = () => {
     }
   };
 
+
+  const downloadParticularEngravedImage = () => {
+    if (!stageRef.current) return;
+  
+    const dataURL = stageRef.current.toDataURL({ pixelRatio: 2 });
+  
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = `engraved_image_${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+
   return (
     <div className="w-full min-h-screen flex flex-col">
        {isLoading && (
@@ -367,7 +382,7 @@ const AdminEngraving = () => {
 
             <ActionButtons
               onSave={handleSave}
-              onDownload={() => console.log("Download functionality")}
+              onDownload={downloadParticularEngravedImage}
               showPath={konvaState.showPath}
               onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
             />

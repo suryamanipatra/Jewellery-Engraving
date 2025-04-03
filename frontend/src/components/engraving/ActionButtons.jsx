@@ -16,7 +16,7 @@ const ActionButtons = ({ onSave, onDownload, showPath, onTogglePath }) => {
         onClick={onDownload}
         className="flex w-full md:w-auto items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition justify-center cursor-pointer hover:border-2 hover:border-white"
       >
-        <BiDownload className="text-xl" /> Download
+        <BiDownload className="text-xl" /> Download This Engraved Image
       </button>
 
       <button
