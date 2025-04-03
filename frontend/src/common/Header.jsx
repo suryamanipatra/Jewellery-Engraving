@@ -76,11 +76,14 @@ const Header = ({
             </div>
             <div 
               onClick={() => {
+                setTimeout(() => {
+                  setIsRefreshClicked(true);
+                }, 2000);
+
                 setIsLoading(true);
                 setSelectedJewelleryType("");
                 setProductDetails("");
                 resetEngraving();
-                setIsRefreshClicked(true);
               }}
               className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md">
               <RiRefreshFill className="text-white text-xl md:text-3xl" />
