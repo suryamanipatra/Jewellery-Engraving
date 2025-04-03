@@ -454,7 +454,20 @@ const UserEngraving = () => {
                                 </div>
                             )}
 
-                            <div className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
+                            <div
+                                onClick={() => {
+                                    setSelectedImage(images[0]);
+                                    setEngravingLines(images[0].engraving_details?.engraving_lines || []);
+                                    setPreviewImage(images[0].imageUrl);
+                                    setSelectedPreviewIndex(0);
+                                    setInputValues({});
+                                    setTexts({});
+                                    setEngravingData({});
+                                    setModifiedImages(images.map((img) => img.imageUrl));
+                                    setShowLoader(true);
+                                    setTimeout(() => setShowLoader(false), 3000);
+                                }}
+                                className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
                                 <RiRefreshFill className="text-white text-xl md:text-3xl" />
                                 <span className="text-white text-sm md:text-xl font-semibold">
                                     Refresh
@@ -737,7 +750,7 @@ const UserEngraving = () => {
                                             .sort((a, b) => a.line_number - b.line_number)
                                             .map((line) => {
                                                 const lineId = line.id;
-                                                const maxChars = line.no_of_characters; // Get character limit from data
+                                                const maxChars = line.no_of_characters; 
 
                                                 return (
                                                     <div

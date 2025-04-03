@@ -14,6 +14,7 @@ import { useImageHandling } from "../hooks/useImageHandling";
 import { useEngravingHandling } from "../hooks/useEngravingHandling";
 import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
+import Loader from "../common/Loader";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -49,18 +50,25 @@ const AdminEngraving = () => {
   const [modifiedImages, setModifiedImages] = useState([]);
   const [selectedJewelleryType, setSelectedJewelleryType] = useState("");
   const [productDetails, setProductDetails] = useState("");
+  const [isRefreshClicked, setIsRefreshClicked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const isSaveConfigurationClickedRef = useRef(false);
+
   // const [noOfChar, setNoOfChar] = useState([]);
 
   const handleSave = async () => {
     try {
+      isSaveConfigurationClickedRef.current = true; 
+
+      setIsLoading(true);
       handleProductTypeSelect()
       // handleAddEngravingLine(true)
       handleAddEngravingLine()
       const engravingRes = await axios.get(
         `${API_BASE_URL}/engraving-details/image/${selectedImageId}`
       );
-      console.log("engravingRes", engravingRes.data)
-      const engravingDetails = await engravingRes.data;
+      console.log("engravingRes", engravingRes?.data)
+      const engravingDetails = await engravingRes?.data;
       const engravingDetail = engravingDetails[0];
 
 
@@ -105,6 +113,11 @@ const AdminEngraving = () => {
     } catch (error) {
       console.error("Save failed:", error);
       alert("Error saving engraving. Check console for details.");
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }
+      , 3000);
     }
   };
 
@@ -156,27 +169,32 @@ const AdminEngraving = () => {
   useEffect(() => {
     const fetchEngravingData = async () => {
       if (!selectedImageId) return;
-
+      setIsLoading(true);
       try {
         const res = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
         const details = res.data;
         console.log('line details', details);
       } catch (error) {
         console.error('Error fetching engraving details:', error);
+      } finally {
+        setTimeout(() => {
+          setIsLoading(false);
+        }
+        , 3000);
       }
     };
 
     fetchEngravingData();
   }, [selectedImageId]);
 
-  const handleAddLine = () => {
-    const newLine = addEngravingLine();
-    konvaActions.addNewLine(
-      newLine,
-      "M50,150 Q250,50 350,150",
-      { x: 50, y: 150 }
-    );
-  };
+  // const handleAddLine = () => {
+  //   const newLine = addEngravingLine();
+  //   konvaActions.addNewLine(
+  //     newLine,
+  //     "M50,150 Q250,50 350,150",
+  //     { x: 50, y: 150 }
+  //   );
+  // };
 
   useEffect(() => {
     resetEngraving();
@@ -190,8 +208,13 @@ const AdminEngraving = () => {
         return;
       }
 
+      setIsLoading(true);
+
       const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
-      const details = detailsRes.data;
+      const details = detailsRes?.data;
+      if (isSaveConfigurationClickedRef.current){
+        return;
+      } else{
       let engravingDetail = details[details.length - 1];
       const currentLines = engravingState.engravingLines.length;
       const neededLines = currentLines + 1;
@@ -211,15 +234,24 @@ const AdminEngraving = () => {
         "M50,150 Q250,50 350,150", 
         { x: 50, y: 150 } 
       );
+    }
+
     } catch (error) {
       console.error("Error adding line:", error);
       alert("Failed to add engraving line");
+    } finally {
+      isSaveConfigurationClickedRef.current = false;
+      setTimeout(() => {
+        setIsLoading(false);
+      }
+      , 3000);
     }
   };
 
 
   const handleProductTypeSelect = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post(`${API_BASE_URL}/products`, {
         jewelry_upload_id: jewelryUploadId,
         product_type: selectedJewelleryType.toLowerCase()
@@ -227,11 +259,22 @@ const AdminEngraving = () => {
     } catch (error) {
       console.error("Error setting product type:", error);
       alert("Error setting product type. Please check console for details.");
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }
+      , 3000);
     }
   };
 
   return (
     <div className="w-full min-h-screen flex flex-col">
+       {isLoading && (
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
+          <Loader />
+        </div>
+      )}
+
       <Header
         kamaLogo={kamaLogo}
         userName="Mahesh"
@@ -245,6 +288,11 @@ const AdminEngraving = () => {
         previewImage={previewImage}
         selectedIndex={selectedIndex}
         textOverlays={engravingState.engravingData}
+        setSelectedJewelleryType={setSelectedJewelleryType}
+        setProductDetails={setProductDetails}
+        resetEngraving={resetEngraving}
+        setIsRefreshClicked={setIsRefreshClicked}
+        setIsLoading={setIsLoading}
       />
 
       <div className="w-full flex-grow px-2 md:px-8 flex flex-col lg:flex-row">
@@ -264,6 +312,9 @@ const AdminEngraving = () => {
             setProductDetails={setProductDetails}
             // setNoOfChar={setNoOfChar}
             handleAddEngravingLine={handleAddEngravingLine}
+            isRefreshClicked={isRefreshClicked}
+            setIsRefreshClicked={setIsRefreshClicked}
+            setIsLoading={setIsLoading}
           />
         </div>
 

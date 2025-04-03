@@ -107,7 +107,7 @@ const AdminUpload = () => {
       navigate('/login');
       return;
     }
-    setIsLoading(true);
+    // setIsLoading(true);
 
     const formData = new FormData();
     // const userId = Math.floor(1000 + Math.random() * 9000);
@@ -152,11 +152,7 @@ const AdminUpload = () => {
       setSnackbarMessage(error.response?.data?.message || 'Upload failed. Please try again.');
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 5000);
-    }
+    } 
   };
 
   const removeFiles = () => {

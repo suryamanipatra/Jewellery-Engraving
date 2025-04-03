@@ -86,6 +86,8 @@ const App = () => {
           </ReverseProtectedRoute>
         } />
 
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
 
         <Route path="/engraving-categories" element={
           <ProtectedRoute allowedRoles={['user']}>

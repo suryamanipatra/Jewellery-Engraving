@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import axios from 'axios'
 import { AiOutlineSetting } from "react-icons/ai";
 import { MdOutlineInventory2 } from "react-icons/md";
@@ -23,7 +23,10 @@ const Sidebar = ({
   setSelectedJewelleryType,
   selectedJewelleryType,
   setProductDetails,
-  handleAddEngravingLine
+  handleAddEngravingLine,
+  isRefreshClicked,
+  setIsRefreshClicked,
+  setIsLoading,
 }) => {
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
 
@@ -47,6 +50,19 @@ const Sidebar = ({
   const handleLineClick = (line) => {
     setSelectedLine(line);
   };
+
+  useEffect(() => {
+    if (isRefreshClicked) {
+      setProductInfo([]);
+      setProductDetails("");
+      setShowInputFields(false);
+      setProperty("");
+      setValue("");
+      setSelectedLine(null);
+      setIsRefreshClicked(false);
+      setIsLoading(false);
+    }
+  }, [isRefreshClicked, setIsRefreshClicked]);
 
   useEffect(() => {
     const fetchJewelleryProductTypes = async () => {

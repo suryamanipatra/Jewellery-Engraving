@@ -3,10 +3,11 @@ import React from "react";
 // import { FaUser } from "react-icons/fa";
 import { BiCategoryAlt } from "react-icons/bi";
 import { AiOutlineEye } from "react-icons/ai";
-import { FiRefreshCw } from "react-icons/fi";
+import { RiRefreshFill } from "react-icons/ri";
 import PreviewPopup from "../components/PreviewPopUp";
 import { useSelector } from "react-redux";
 import TopHeader from "./TopHeader";
+import { set } from "lodash";
 
 const Header = ({
   kamaLogo,
@@ -20,6 +21,11 @@ const Header = ({
   previewImage,
   selectedIndex,
   textOverlays = {},
+  setSelectedJewelleryType,
+  setProductDetails,
+  resetEngraving,
+  setIsRefreshClicked,
+  setIsLoading,
 }) => {
   const handlePreviewClick = () => {
     capturePreview();
@@ -68,8 +74,16 @@ const Header = ({
                 Preview
               </span>
             </div>
-            <div className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md">
-              <FiRefreshCw className="text-white text-xl md:text-3xl" />
+            <div 
+              onClick={() => {
+                setIsLoading(true);
+                setSelectedJewelleryType("");
+                setProductDetails("");
+                resetEngraving();
+                setIsRefreshClicked(true);
+              }}
+              className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md">
+              <RiRefreshFill className="text-white text-xl md:text-3xl" />
               <span className="text-white text-sm md:text-xl font-semibold">
                 Refresh
               </span>
