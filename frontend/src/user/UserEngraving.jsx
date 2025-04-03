@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { debounce } from "lodash";
 import axios from "axios";
-import {getAttributeIcon} from '../utils/DescriptionMapping.jsx'
+import { getAttributeIcon } from '../utils/DescriptionMapping.jsx'
 import { Select, MenuItem, InputBase, styled, Drawer } from '@mui/material';
 import { useParams } from "react-router-dom";
 import TopHeader from "../common/TopHeader";
@@ -16,12 +16,7 @@ import autoTable from "jspdf-autotable";
 import {
     FaChevronLeft,
     FaChevronRight,
-    FaCubes,
-    FaDollarSign,
-    FaGem,
-    FaWeightHanging,
 } from "react-icons/fa";
-import { GiDiamondRing } from "react-icons/gi";
 import Loader from "../common/Loader.jsx";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import EngravingStageForUser from "../components/engraving/EngravingStageForUser.jsx";
@@ -261,12 +256,13 @@ const UserEngraving = () => {
         const fetchCountries = async () => {
             try {
                 const response = await axios.get('https://countriesnow.space/api/v0.1/countries/codes');
-                const data = response.data;
-
+                const data = response?.data;
+                console.log(response)
                 const formattedCountries = data.data
                     .map(country => ({
                         name: country.name,
-                        code: country.dial_code.split(',')[0].trim()
+                        code: country.dial_code.split(',')[0].trim(),
+                        iso2: country.code
                     }))
                     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -655,8 +651,23 @@ const UserEngraving = () => {
                                                                 value={formData.countryCode}
                                                                 onChange={handleContactChange}
                                                                 name="countryCode"
-                                                                input={<CustomInput />}
+                                                                // input={<CustomInput />}
                                                                 className="w-full"
+                                                                renderValue={(value) => {
+                                                                    const selectedCountry = countries.find(c => c.dialCode === value);
+                                                                    return (
+                                                                        <div className="flex items-center gap-2">
+                                                                            {/* {selectedCountry && ( */}
+                                                                                <img
+                                                                                    src="https://flagsapi.com/AF/flat/64.png"
+                                                                                    alt="flag"
+                                                                                    className="h-4 w-6 object-cover"
+                                                                                />
+                                                                             {/* )} */}
+                                                                            <span>{value}</span>
+                                                                        </div>
+                                                                    );
+                                                                }}
                                                                 IconComponent={() => (
                                                                     <svg
                                                                         className="w-4 h-4 text-white absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -675,27 +686,56 @@ const UserEngraving = () => {
                                                                 MenuProps={{
                                                                     PaperProps: {
                                                                         sx: {
-                                                                            width: "auto",
+                                                                            backgroundColor: "#1C4E6D !important",
                                                                             "& .MuiMenuItem-root": {
-                                                                                bgcolor: "#1C4E6D",
-                                                                                color: "white",
+                                                                                backgroundColor: "#1C4E6D !important",
+                                                                                color: "white !important",
+                                                                                "&:hover": {
+                                                                                    backgroundColor: "#4B5563 !important",
+                                                                                    color: "black !important",
+                                                                                },
+                                                                                "&.Mui-selected": {
+                                                                                    backgroundColor: "#4B5563 !important",
+                                                                                    color: "black !important",
+                                                                                },
+                                                                                "&.Mui-selected:hover": {
+                                                                                    backgroundColor: "#4B5563 !important",
+                                                                                    color: "black !important",
+                                                                                },
                                                                             },
-                                                                            maxHeight: "200px",
                                                                         },
                                                                     },
                                                                 }}
                                                             >
                                                                 {countries.map((country) => (
                                                                     <MenuItem
-                                                                        key={country.code}
-                                                                        value={country.code}
+                                                                        key={country.dialCode}
+                                                                        value={country.dialCode}
+                                                                        sx={{
+                                                                            backgroundColor: "#1C4E6D",
+                                                                            color: "white",
+                                                                            "&:hover": {
+                                                                                backgroundColor: "#4B5563",
+                                                                                color: "black",
+                                                                            },
+                                                                            "&.Mui-selected": {
+                                                                                backgroundColor: "#4B5563",
+                                                                                color: "black",
+                                                                            },
+                                                                        }}
                                                                     >
-                                                                        {country.code}
+                                                                        <div className="flex items-center gap-2">
+                                                                            <img
+                                                                                src="https://flagsapi.com/AF/flat/64.png"
+                                                                                alt="flag"
+                                                                                className="h-4 w-6 object-cover"
+                                                                            />
+                                                                            <span>{country.name} ({country.dialCode})</span>
+                                                                        </div>
                                                                     </MenuItem>
                                                                 ))}
                                                             </Select>
                                                         </div>
-
                                                         <input
                                                             type="tel"
                                                             name="phone"
@@ -706,6 +746,7 @@ const UserEngraving = () => {
                                                             required
                                                         />
                                                     </div>
+
 
                                                     <div className="relative">
                                                         <input
@@ -876,7 +917,7 @@ const UserEngraving = () => {
                                             .sort((a, b) => a.line_number - b.line_number)
                                             .map((line) => {
                                                 const lineId = line.id;
-                                                const maxChars = line.no_of_characters; 
+                                                const maxChars = line.no_of_characters;
 
                                                 return (
                                                     <div

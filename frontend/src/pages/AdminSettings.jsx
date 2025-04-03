@@ -70,9 +70,24 @@ const AdminSettings = () => {
                     },
                 }
             );
-            setMessage(response.data.message);
-            setAdminFormData({ name: "", email: "", password: "" });
+            setMessage(response?.data?.message);
+            // setAdminFormData({ name: "", email: "", password: "" });
             setOpenSection(null);
+            if (response?.status == 200){
+                try {
+                    await axios.post(
+                        `${API_BASE_URL}/welcome-to-admin`,
+                        { username: adminFormData.name,email: adminFormData.email,password:adminFormData.password  }
+                       
+                    );
+                    setMessage(prev => `${prev} Welcome email sent.`);
+                    setAdminFormData({ name: "", email: "", password: "" });
+                } catch (err) {
+                    console.error("Failed to send welcome email:", err);
+                    setError("Admin created, but welcome email could not be sent.");
+                }
+            }
+    
         } catch (err) {
             setError(err.response?.data?.detail || "Something went wrong");
         }
