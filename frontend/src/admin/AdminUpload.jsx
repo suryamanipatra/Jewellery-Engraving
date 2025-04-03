@@ -146,7 +146,7 @@ const AdminUpload = () => {
             images: responseData?.data.images
           }
         });
-      }, 5000);
+      }, 3000);
     } catch (error) {
       console.error("Upload error:", error);
       setSnackbarMessage(error.response?.data?.message || 'Upload failed. Please try again.');
@@ -155,7 +155,7 @@ const AdminUpload = () => {
     } finally {
       setTimeout(() => {
         setIsLoading(false);
-      }, 2000);
+      }, 3000);
     }
   };
 

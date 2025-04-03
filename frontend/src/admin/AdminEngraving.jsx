@@ -15,6 +15,7 @@ import { useEngravingHandling } from "../hooks/useEngravingHandling";
 import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
 import Loader from "../common/Loader";
+import { Snackbar, Alert } from "@mui/material";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -54,10 +55,21 @@ const AdminEngraving = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isSaveConfigurationClickedRef = useRef(false);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   // const [noOfChar, setNoOfChar] = useState([]);
 
   const handleSave = async () => {
     try {
+      if (!engravingState.engravingLines.length || !engravingState.engravingData) {
+        setSnackbarMessage("Please add all engraving details before saving!");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+        return;
+      }
+
       isSaveConfigurationClickedRef.current = true; 
 
       setIsLoading(true);
@@ -110,9 +122,15 @@ const AdminEngraving = () => {
       );
 
       // navigate('/admin');
+      setSnackbarMessage("Engraving saved successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
     } catch (error) {
       console.error("Save failed:", error);
-      alert("Error saving engraving. Check console for details.");
+      // alert("Error saving engraving. Check console for details.");
+      setSnackbarMessage("Error saving engraving!");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     } finally {
       setTimeout(() => {
         setIsLoading(false);
@@ -187,14 +205,6 @@ const AdminEngraving = () => {
     fetchEngravingData();
   }, [selectedImageId]);
 
-  // const handleAddLine = () => {
-  //   const newLine = addEngravingLine();
-  //   konvaActions.addNewLine(
-  //     newLine,
-  //     "M50,150 Q250,50 350,150",
-  //     { x: 50, y: 150 }
-  //   );
-  // };
 
   useEffect(() => {
     resetEngraving();
@@ -365,6 +375,17 @@ const AdminEngraving = () => {
         </div>
 
       </div>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
