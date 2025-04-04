@@ -54,7 +54,6 @@ const AdminEngraving = () => {
   const [isRefreshClicked, setIsRefreshClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isSaveConfigurationClickedRef = useRef(false);
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -318,6 +317,7 @@ const AdminEngraving = () => {
         resetEngraving={resetEngraving}
         setIsRefreshClicked={setIsRefreshClicked}
         setIsLoading={setIsLoading}
+        productDetails={productDetails}
       />
 
       <div className="w-full flex-grow px-2 md:px-8 flex flex-col lg:flex-row">

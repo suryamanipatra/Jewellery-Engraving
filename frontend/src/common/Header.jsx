@@ -26,24 +26,17 @@ const Header = ({
   resetEngraving,
   setIsRefreshClicked,
   setIsLoading,
+  productDetails,
 }) => {
+  // console.log("productDetails", productDetails);
   const handlePreviewClick = () => {
     capturePreview();
     setIsPopupOpen(true);
   };
-  const nameSelector = useSelector((state) => state.auth.name);
-  console.log("useSelector", nameSelector);
+
   return (
     <div className="w-full sticky top-0 z-50 bg-white">
-      {/* <div className="w-full bg-white shadow-md px-4 md:px-8">
-                <header className="w-full flex justify-between items-center py-3 md:py-4">
-                    <img src={kamaLogo} alt="Kama Logo" className="w-24 md:w-40 h-auto" />
-                    <div className="flex items-center gap-1 md:gap-3 text-[#062538]">
-                        <FaUser className="text-lg md:text-2xl" />
-                        <span className="text-sm md:text-lg font-medium">{nameSelector}</span>
-                    </div>
-                </header>
-            </div> */}
+     
 
       <TopHeader />
 
@@ -100,14 +93,7 @@ const Header = ({
           onClose={handleClose}
           images={imageURLs}
           previewImage={previewImage}
-          productDetails={{
-            name: "GenZ Silver Necklace",
-            diamondColor: "Red",
-            diamondQuality: "2",
-            goldWeight: "5",
-            stones: "2",
-            amount: "200",
-          }}
+          productDetails={productDetails}
           selectedIndex={selectedIndex}
           textOverlays={textOverlays}
         />
