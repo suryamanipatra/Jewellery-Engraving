@@ -72,16 +72,16 @@ const AdminSettings = () => {
             );
             setMessage(response?.data?.message);
             // setAdminFormData({ name: "", email: "", password: "" });
-            setOpenSection(null);
             if (response?.status == 200){
                 try {
                     await axios.post(
                         `${API_BASE_URL}/welcome-to-admin`,
                         { username: adminFormData.name,email: adminFormData.email,password:adminFormData.password  }
-                       
+                        
                     );
                     setMessage(prev => `${prev} Welcome email sent.`);
                     setAdminFormData({ name: "", email: "", password: "" });
+                    setOpenSection(null);
                 } catch (err) {
                     console.error("Failed to send welcome email:", err);
                     setError("Admin created, but welcome email could not be sent.");
@@ -338,12 +338,12 @@ const AdminSettings = () => {
                     <Box sx={{ width: '100%', pt: 2, pb: 2, borderRadius: 2 }}>
                         <Paper sx={{ width: '100%', mb: 2, background: '#D9D9D94F', borderRadius: 2 }}>
                             <TableContainer sx={{ maxHeight: 400 }}>
-                                <Table>
+                                <Table sx={{ borderRadius: 5 }}>
                                     <TableHead>
-                                        <TableRow>
-                                            <TableCell sx={{ color: "white" }}>Name</TableCell>
-                                            <TableCell sx={{ color: "white" }}>Created At</TableCell>
-                                            <TableCell sx={{ color: "white" }}>Actions</TableCell>
+                                        <TableRow >
+                                            <TableCell sx={{ color: "white", background: '#062538' }}>NAME</TableCell>
+                                            <TableCell sx={{ color: "white", background: '#062538' }}>CREATED AT</TableCell>
+                                            <TableCell sx={{ color: "white", background: '#062538' }}>ACTIONS</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>

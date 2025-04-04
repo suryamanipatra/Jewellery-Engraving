@@ -127,16 +127,13 @@ const AdminMenageMessages = () => {
                 width: '100%',
                 mb: 2,
                 background: '#D9D9D94F',
-                borderRadius: 2,
+                borderRadius: "10px",
                 overflow: 'hidden'
             }}>
                 <TableContainer sx={{ maxHeight: 400, overflowY: 'auto' }}>
                     <Table
                         sx={{
                             minWidth: 750,
-                            '& .MuiTableCell-root': {
-                                // border: '2px solid rgba(113, 110, 110, 0.5)'
-                            }
                         }}
                         aria-labelledby="tableTitle"
                         size={dense ? 'small' : 'medium'}
@@ -149,15 +146,26 @@ const AdminMenageMessages = () => {
                                         align={headCell.numeric ? 'right' : 'left'}
                                         padding={headCell.disablePadding ? '26' : 'normal'}
                                         sortDirection={orderBy === headCell.id ? order : false}
-                                        sx={{ color: "white", padding: "20" }}
+                                        sx={{ background: "#062538", color: "white", padding: "20" }}
                                     >
                                         <TableSortLabel
                                             active={orderBy === headCell.id}
                                             direction={orderBy === headCell.id ? order : 'asc'}
                                             onClick={(event) => handleRequestSort(event, headCell.id)}
-                                            sx={{ color: "white" }}
+                                            sx={{ color: "white",
+                                                '&:hover': {
+                                                    color: 'white',
+                                                },
+                                                '&.Mui-active': {
+                                                    color: 'white',
+                                                },
+                                                '& .MuiTableSortLabel-icon': { 
+                                                    color: 'white !important', 
+                                                    opacity: 1, 
+                                                },
+                                             }}
                                         >
-                                            {headCell.label}
+                                            {headCell.label.toUpperCase()}
                                             {orderBy === headCell.id ? (
                                                 <Box component="span" sx={visuallyHidden}>
                                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -166,23 +174,27 @@ const AdminMenageMessages = () => {
                                         </TableSortLabel>
                                     </TableCell>
                                 ))}
-                                <TableCell align="right" sx={{ color: "white" }}>Actions</TableCell>
+                                <TableCell align="right" sx={{
+                                    color: "white",
+                                    background: "#062538",
+                                    borderTopRightRadius: "10px",
+                                }}>ACTIONS</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {messages.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', py: 3, justifyContent: "center" }}>
-                                                                                        <MdOutlineHourglassEmpty size={25} color='white' />
-                                                                                        <Typography sx={{ color: "white", marginLeft: '5px' }} variant="h6">
-                                                                                            No data to show
-                                                                                        </Typography>
-                                                                                    </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', py: 3, justifyContent: "center" }}>
+                                            <MdOutlineHourglassEmpty size={25} color='white' />
+                                            <Typography sx={{ color: "white", marginLeft: '5px' }} variant="h6">
+                                                No data to show
+                                            </Typography>
+                                        </Box>
                                     </TableCell>
                                 </TableRow>
 
-                                                                                
+
                             ) : (
                                 <>
                                     {visibleRows.map((row) => (
