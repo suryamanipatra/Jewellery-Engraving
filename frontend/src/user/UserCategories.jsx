@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { getCategoryIcon } from '../utils/IconMapping';
+import kamaLogoWhite from '../assets/kama-logo-white.png';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -262,7 +263,7 @@ const UserCategories = () => {
                         onClose={() => setIsDrawerOpen(false)}
                         sx={{
                             "& .MuiDrawer-paper": {
-                                width: "40vw",
+                                width: "50vw",
                                 backgroundColor: "#062538",
                                 color: "white",
                                 padding: "20px",
@@ -270,7 +271,11 @@ const UserCategories = () => {
                         }}
                     >
                         <div className="w-full flex flex-col gap-4">
-                            <h2 className="text-xl font-bold text-white">Select Category</h2>
+                            <div onClick={() => setIsDrawerOpen(false)} className='flex justify-end text-4xl'>x</div>
+                            <div className="flex items-center gap-4 mb-4 p-2 mt-4">
+                                <img src={kamaLogoWhite} alt="Logo" className="object-cover" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-white mb-4">Select Category</h1>
                             {jewelleryTypes.map((item, index) => (
                                 <label
                                     key={index}
