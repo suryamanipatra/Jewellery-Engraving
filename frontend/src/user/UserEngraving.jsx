@@ -26,8 +26,9 @@ const CustomInput = styled(InputBase)(({ theme }) => ({
         padding: '10px 26px 10px 12px',
     },
 }));
-import myImage from "../assets/kama-logo.png"; 
+import myImage from "../assets/kama-logo.png";
 import { useSelector } from 'react-redux';
+import kamaLogoWhite from '../assets/kama-logo-white.png';
 
 const UserEngraving = () => {
     const { id } = useParams();
@@ -47,6 +48,7 @@ const UserEngraving = () => {
     const stageRef = useRef(null);
     const [modifiedImages, setModifiedImages] = useState([]);
     const [previewImage, setPreviewImage] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -309,7 +311,14 @@ const UserEngraving = () => {
                 </Snackbar>
                 <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                     <nav className="flex flex-wrap items-center justify-between h-full">
-                        <div className="h-full flex justify-center gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
+                        <div className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
+                            onClick={() => {
+                                if (window.innerWidth < 1281) {
+                                    setIsDrawerOpen(true);
+                                }
+                            }
+                            }
+                        >
                             <BiCategoryAlt className="text-white text-xl md:text-3xl" />
                             <span className="text-white text-sm md:text-xl font-semibold">
                                 Features
@@ -325,6 +334,60 @@ const UserEngraving = () => {
                                     Preview
                                 </span>
                             </div>
+
+                            <Drawer
+                                anchor="left"
+                                open={isDrawerOpen}
+                                onClose={() => setIsDrawerOpen(false)}
+                                sx={{
+                                    "& .MuiDrawer-paper": {
+                                        width: "50vw",
+                                        backgroundColor: "#062538",
+                                        color: "white",
+                                        padding: "20px",
+                                    },
+                                }}
+                            >
+                                <div className="w-full flex flex-col gap-4">
+                                    <div onClick={() => setIsDrawerOpen(false)} className='flex justify-end text-4xl'>x</div>
+                                    <div className="flex items-center gap-4 mb-4 p-2 mt-4">
+                                        <img src={kamaLogoWhite} alt="Logo" className="object-cover" />
+                                    </div>
+                                    <h1 className="text-2xl font-bold text-white mb-4">Product Details</h1>
+
+
+                                    <div className="space-y-2">
+                                        {Array.from(new Set(
+                                            selectedImage?.engraving_details?.engraving_lines?.flatMap(
+                                                line => JSON.parse(line.product_details || "[]").map(pd => pd.property)
+                                            ) || []
+                                        )).map((property, index) => {
+                                            const values = selectedImage.engraving_details.engraving_lines
+                                                .flatMap(line =>
+                                                    JSON.parse(line.product_details || "[]")
+                                                        .filter(pd => pd.property === property)
+                                                        .map(pd => pd.value)
+                                                );
+
+                                            return (
+                                                <label
+                                                    key={index}
+                                                    htmlFor={`property-${property}`}
+                                                    className={`flex items-center justify-between gap-4 px-6 py-2 hover:bg-gray-700 cursor-pointer bg-gray-800 rounded`}
+                                                >
+                                                    <div className="flex items-center gap-4">
+                                                        {getAttributeIcon(property)}
+                                                        <span className="text-white">{property}</span>
+                                                    </div>
+                                                    <span className="text-white font-semibold">{[...new Set(values)].join(', ')}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+
+                                </div>
+                            </Drawer>
+
                             {isOpen && (
                                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white-200 bg-opacity-30">
                                     <div className="fixed inset-0 backdrop-blur-[2px] bg-white/30 flex justify-center items-center z-50 p-4">
@@ -345,8 +408,8 @@ const UserEngraving = () => {
                                                         How does it look? Isn't it pretty?...
                                                     </p>
                                                 </div>
-                                                <button 
-                                                    onClick={() => generatePdfAndSendMail(myImage, selectedImage,modifiedImages, setShowLoader, setMessage, setError, email, "userflow")}
+                                                <button
+                                                    onClick={() => generatePdfAndSendMail(myImage, selectedImage, modifiedImages, setShowLoader, setMessage, setError, email, "userflow")}
                                                     className="group flex items-center gap-2 bg-white text-[#062538] px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-[#062538] hover:text-white hover:border hover:border-white text-sm md:text-base cursor-pointer">
                                                     <MdEmail
                                                         size={16}
@@ -521,12 +584,12 @@ const UserEngraving = () => {
                                                                     return (
                                                                         <div className="flex items-center gap-2">
                                                                             {/* {selectedCountry && ( */}
-                                                                                <img
-                                                                                    src="https://flagsapi.com/AF/flat/64.png"
-                                                                                    alt="flag"
-                                                                                    className="h-4 w-6 object-cover"
-                                                                                />
-                                                                             {/* )} */}
+                                                                            <img
+                                                                                src="https://flagsapi.com/AF/flat/64.png"
+                                                                                alt="flag"
+                                                                                className="h-4 w-6 object-cover"
+                                                                            />
+                                                                            {/* )} */}
                                                                             <span>{value}</span>
                                                                         </div>
                                                                     );
@@ -708,7 +771,7 @@ const UserEngraving = () => {
                             ))} */}
                         </div>
                         <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md p-4 gap-4">
-                            <div className="flex flex-col xl:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
+                            <div className="flex flex-col lg:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
                                 <div className="w-full h-full md:w-full lg:w-[35%] flex flex-col items-start justify-start relative">
                                     <p className="text-2xl text-gray-300 ml-10 py-4">
                                         Available Views of the Jewellery
@@ -716,7 +779,7 @@ const UserEngraving = () => {
 
                                     <div className="relative flex flex-col items-start justify-start">
                                         {/* Image Grid */}
-                                        <div className="w-[30vw] h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-2 grid-rows-2   gap-2 mx-2 ml-10 mr-10">
+                                        <div className="w-full lg:w-[30vw] lg:h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-4 lg:grid-cols-2 lg:grid-rows-2   gap-2 mx-2 lg:ml-10 lg:mr-10" style={{ margin: "0 auto" }}>
                                             {images.slice(0, 4).map((image, index) => (
                                                 <div
                                                     key={index}
