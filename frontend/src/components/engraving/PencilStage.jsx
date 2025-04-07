@@ -108,7 +108,7 @@ const PencilStage = forwardRef(({
                 )}
 
                 {engravingLines.map(line => (
-                    <React.Fragment key={line}>
+                    <div key={line}>
                         {konvaState.paths[line] && (
                             <Path
                                 data={konvaState.paths[line]}
@@ -127,7 +127,7 @@ const PencilStage = forwardRef(({
                                 onDragMove={(e) => onTextDrag(line, e)}
                             />
                         )}
-                    </React.Fragment>
+                    </div>
                 ))}
             </Layer>
         </Stage>
