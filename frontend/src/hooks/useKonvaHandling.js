@@ -10,6 +10,8 @@ export const useKonvaHandling = (initialState = {}) => {
     // showPath: initialState.showPath !== undefined ? initialState.showPath : true,
     scale: 1,
     imageDimensions: { width: 0, height: 0 },
+    tempPath: "",
+    tempStartPoint: { x: 0, y: 0 },
   });
 
   const handleTextDrag = (line, e) => {
@@ -24,7 +26,7 @@ export const useKonvaHandling = (initialState = {}) => {
     // console.log("positions",positions)
     // console.log(`Text Position for Line ${line}:`, { x: e.target.x(), y: e.target.y() });
   };
-  const addNewLine = (line, path, position) => {
+  const addNewLine = (line, path, position)  => {
     setKonvaState(prev => ({
       ...prev,
       paths: { ...prev.paths, [line]: path },
@@ -74,9 +76,12 @@ export const useKonvaHandling = (initialState = {}) => {
       handlePathDrag,
       addNewLine,
       setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
+      setPositions: (positions) => setKonvaState(prev => ({ ...prev, positions })),
       setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),
       togglePathVisibility,
       setPathVisibility,
+      setTempPath: (path) => setKonvaState(prev => ({ ...prev, tempPath: path })),
+      setTempStartPoint: (point) => setKonvaState(prev => ({ ...prev, tempStartPoint: point })),
       // setShowPath: (showPath) => setKonvaState(prev => ({ ...prev, showPath }))
     }
   };

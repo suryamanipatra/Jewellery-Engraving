@@ -27,6 +27,7 @@ const Sidebar = ({
   isRefreshClicked,
   setIsRefreshClicked,
   setIsLoading,
+  activeTab,
 }) => {
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
 
@@ -210,7 +211,14 @@ const Sidebar = ({
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
-        <FiPlusCircle className="cursor-pointer text-xl" onClick={handleAddEngravingLine} />
+        <FiPlusCircle 
+    className="cursor-pointer text-xl" 
+    onClick={handleAddEngravingLine} 
+    // style={{ 
+    //   visibility: activeTab === "Pencil" && engravingLines.length > 0 ? "hidden" : "visible" 
+    // }}
+  />
+        {/* <FiPlusCircle className="cursor-pointer text-xl" onClick={handleAddEngravingLine} /> */}
       </div>
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
@@ -220,7 +228,30 @@ const Sidebar = ({
               No engraving lines added yet
             </div>
           )}
-          {engravingLines.map((line) => (
+          {activeTab === "Pencil" ? (
+            engravingLines.length > 0 ? (
+              <div className="text-white">Active Drawing Line</div>
+            ) : (
+              <div className="text-gray-500 text-sm">
+                Click + to start drawing
+              </div>
+            )
+          ) : (
+            engravingLines.map((line) => (
+              <div
+                key={line}
+                className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
+                  ? "bg-[#15405B] text-white"
+                  : "border-gray-400"
+                  }`}
+                onClick={() => handleLineClick(line)}
+              >
+                {line}
+              </div>
+            ))
+          )}
+
+          {/* {engravingLines.map((line) => (
             <div
               key={line}
               className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
@@ -231,7 +262,7 @@ const Sidebar = ({
             >
               {line}
             </div>
-          ))}
+          ))} */}
         </div>
         {selectedLine && (
           <>
@@ -246,7 +277,6 @@ const Sidebar = ({
                 onChange={(e) => {
                   let value = e.target.value;
 
-                  // Remove leading zeros (except for "0" itself)
                   if (value.length > 1 && value.startsWith("0")) {
                     value = value.replace(/^0+/, "");
                   }

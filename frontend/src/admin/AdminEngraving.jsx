@@ -16,6 +16,7 @@ import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
 import Loader from "../common/Loader";
 import { Snackbar, Alert } from "@mui/material";
+import PencilStage from "../components/engraving/PencilStage";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -57,8 +58,22 @@ const AdminEngraving = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [drawingPhase, setDrawingPhase] = useState('idle');
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
 
   // const [noOfChar, setNoOfChar] = useState([]);
+
+  useEffect(() => {
+    if (activeTab === "Pencil") {
+      if (!engravingState.engravingLines.includes(1)) {
+        resetEngraving();
+        addEngravingLine();
+      }
+      setDrawingPhase('awaitingFirstPoint');
+    } else {
+      setDrawingPhase('idle');
+    }
+  }, [activeTab, engravingState.engravingLines]);
 
   const handleSave = async () => {
     try {
@@ -69,7 +84,7 @@ const AdminEngraving = () => {
         return;
       }
 
-      isSaveConfigurationClickedRef.current = true; 
+      isSaveConfigurationClickedRef.current = true;
 
       setIsLoading(true);
       handleProductTypeSelect()
@@ -134,7 +149,7 @@ const AdminEngraving = () => {
       setTimeout(() => {
         setIsLoading(false);
       }
-      , 3000);
+        , 3000);
     }
   };
 
@@ -197,7 +212,7 @@ const AdminEngraving = () => {
         setTimeout(() => {
           setIsLoading(false);
         }
-        , 3000);
+          , 3000);
       }
     };
 
@@ -217,33 +232,43 @@ const AdminEngraving = () => {
         return;
       }
 
+      if (activeTab === "Pencil") {
+        if (engravingState.engravingLines.length >= 1) {
+          alert("Pencil mode only supports one line");
+          return;
+        }
+        setIsDrawingMode(true);
+        setDrawingPhase('awaitingFirstPoint');
+        return;
+      }
+
       setIsLoading(true);
 
       const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
       const details = detailsRes?.data;
-      if (isSaveConfigurationClickedRef.current){
+      if (isSaveConfigurationClickedRef.current) {
         return;
-      } else{
-      let engravingDetail = details[details.length - 1];
-      const currentLines = engravingState.engravingLines.length;
-      const neededLines = currentLines + 1;
+      } else {
+        let engravingDetail = details[details.length - 1];
+        const currentLines = engravingState.engravingLines.length;
+        const neededLines = currentLines + 1;
 
-      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-        const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
-          jewelry_image_id: selectedImageId,
-          total_lines: neededLines
-        });
-        engravingDetail = newDetailRes.data;
-        console.log("New engraving detail created:", engravingDetail);
+        if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+          const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+            jewelry_image_id: selectedImageId,
+            total_lines: neededLines
+          });
+          engravingDetail = newDetailRes.data;
+          console.log("New engraving detail created:", engravingDetail);
+        }
+
+        const newLine = addEngravingLine();
+        konvaActions.addNewLine(
+          newLine,
+          "M50,150 Q250,50 350,150",
+          { x: 50, y: 150 }
+        );
       }
-
-      const newLine = addEngravingLine();
-      konvaActions.addNewLine(
-        newLine,
-        "M50,150 Q250,50 350,150", 
-        { x: 50, y: 150 } 
-      );
-    }
 
     } catch (error) {
       console.error("Error adding line:", error);
@@ -253,9 +278,22 @@ const AdminEngraving = () => {
       setTimeout(() => {
         setIsLoading(false);
       }
-      , 3000);
+        , 3000);
     }
   };
+
+  useEffect(() => {
+    if (drawingPhase === 'idle' && isDrawingMode) {
+      const newLine = engravingState.engravingLines.length + 1;
+      addEngravingLine();
+      konvaActions.addNewLine(
+        newLine,
+        konvaState.tempPath,
+        konvaState.tempStartPoint
+      );
+      setIsDrawingMode(false);
+    }
+  }, [drawingPhase, isDrawingMode, engravingState.engravingLines.length, addEngravingLine, konvaActions, konvaState]);
 
 
   const handleProductTypeSelect = async () => {
@@ -272,16 +310,16 @@ const AdminEngraving = () => {
       setTimeout(() => {
         setIsLoading(false);
       }
-      , 3000);
+        , 3000);
     }
   };
 
 
   const downloadParticularEngravedImage = () => {
     if (!stageRef.current) return;
-  
+
     const dataURL = stageRef.current.toDataURL({ pixelRatio: 2 });
-  
+
     const link = document.createElement("a");
     link.href = dataURL;
     link.download = `engraved_image_${Date.now()}.png`;
@@ -289,11 +327,11 @@ const AdminEngraving = () => {
     link.click();
     document.body.removeChild(link);
   };
-  
+
 
   return (
     <div className="w-full min-h-screen flex flex-col">
-       {isLoading && (
+      {isLoading && (
         <div className="fixed inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
           <Loader />
         </div>
@@ -340,6 +378,7 @@ const AdminEngraving = () => {
             isRefreshClicked={isRefreshClicked}
             setIsRefreshClicked={setIsRefreshClicked}
             setIsLoading={setIsLoading}
+            activeTab={activeTab}
           />
         </div>
 
@@ -361,16 +400,29 @@ const AdminEngraving = () => {
               </div>
 
               <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center lg:ml-6 p-2 md:p-4 overflow-hidden relative">
-                <EngravingStage
-                  ref={stageRef}
-                  selectedImage={backendImageURLs[selectedImageIndex]}
-                  engravingLines={engravingState.engravingLines}
-                  engravingData={engravingState.engravingData}
-                  konvaState={konvaState}
-
-                  onTextDrag={konvaActions.handleTextDrag}
-                  onPathDrag={konvaActions.handlePathDrag}
-                />
+                {activeTab === "DigiWire" ? (
+                  <EngravingStage
+                    ref={stageRef}
+                    selectedImage={backendImageURLs[selectedImageIndex]}
+                    engravingLines={engravingState.engravingLines}
+                    engravingData={engravingState.engravingData}
+                    konvaState={konvaState}
+                    onTextDrag={konvaActions.handleTextDrag}
+                    onPathDrag={konvaActions.handlePathDrag}
+                  />
+                ) : (
+                  <PencilStage
+                    ref={stageRef}
+                    selectedImage={backendImageURLs[selectedImageIndex]}
+                    konvaState={konvaState}
+                    konvaActions={konvaActions}
+                    engravingData={engravingState.engravingData}
+                    scale={konvaState.scale}
+                    onTextDrag={konvaActions.handleTextDrag}
+                    drawingPhase={drawingPhase}
+                    setDrawingPhase={setDrawingPhase}
+                  />
+                )}
               </div>
             </div>
 
@@ -386,8 +438,8 @@ const AdminEngraving = () => {
               konvaState={konvaState}
               konvaActions={konvaActions}
               engravingLines={engravingState.engravingLines}
-              // showPath={konvaState.showPath}
-              // onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
+            // showPath={konvaState.showPath}
+            // onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
             />
           </div>
         </div>
