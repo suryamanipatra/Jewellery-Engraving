@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useMemo, useState } from "react";
 import { Stage, Layer, Line, Path, TextPath, Image } from "react-konva";
 import useImage from 'use-image';
 
@@ -10,7 +10,9 @@ const PencilStage = forwardRef(({
     scale,
     onTextDrag,
     drawingPhase,
-    setDrawingPhase
+    setDrawingPhase,
+    selectedLine,
+    engravingLines
 }, ref) => {
     const [points, setPoints] = useState([]);
     const [image] = useImage(selectedImage || '');
@@ -50,23 +52,16 @@ const PencilStage = forwardRef(({
     }, [drawingPhase, ref]);
 
     const handleMouseUp = useCallback(() => {
-        if (drawingPhase === 'drawing' && points.length >= 2) {
-            const isValidPath = points.every(p => !isNaN(p.x) && !isNaN(p.y));
-            if (!isValidPath) return;
+        if (drawingPhase === 'drawing' && points.length >= 2 && selectedLine) {
+            const pathData = points.reduce((acc, point) => {
+                return acc ? `${acc} L ${point.x} ${point.y}` : `M ${point.x} ${point.y}`;
+              }, '');
 
-           
-            const pathData = points.reduce((acc, point, i) => {
-                if (i === 0) return `M ${point.x} ${point.y}`;
-                return `${acc} L ${point.x} ${point.y}`;
-            }, '');
-            
-            console.log("Path Data:", pathData);
-            console.log("Start Point:", points[0].x, points[0].y);
-
-            konvaActions.addNewLine(1, pathData, points[0]);
+            konvaActions.addNewLine(selectedLine, pathData, points[0]);
             setDrawingPhase('idle');
+            setPoints([]);
         }
-    }, [drawingPhase, points, konvaActions]);
+    }, [drawingPhase, points, konvaActions, selectedLine]);
     // {drawingPhase === 'awaitingFirstPoint' && (
     //     <Text
     //       text="Click and drag to draw your path"
@@ -112,31 +107,28 @@ const PencilStage = forwardRef(({
                     />
                 )}
 
-                {showSavedPath && (
-                    <Path
-                        data={konvaState.paths[1]}
-                        stroke="blue"
-                        strokeWidth={1}
-                        dash={[5, 5]}
-                    />
-                )}
-
-
-                {showText && konvaState.paths[1] && (
-                    <TextPath
-                        key={`textpath-${engravingData[1]?.text}-${konvaState.paths[1]}`}
-                        x={0}
-                        y={0}
-                        fill={engravingData[1]?.color || "#000000"}
-                        fontSize={engravingData[1]?.fontSize || 24}
-                        text={engravingData[1]?.text || ""}
-                        data={konvaState.paths[1]}
-                        align="center"
-                        letterSpacing={1}
-                        draggable
-                        onDragMove={(e) => onTextDrag(1, e)}
-                    />
-                )}
+                {engravingLines.map(line => (
+                    <React.Fragment key={line}>
+                        {konvaState.paths[line] && (
+                            <Path
+                                data={konvaState.paths[line]}
+                                stroke="blue"
+                                strokeWidth={1}
+                                dash={[5, 5]}
+                            />
+                        )}
+                        {engravingData[line]?.text && konvaState.paths[line] && (
+                            <TextPath
+                                data={konvaState.paths[line]}
+                                text={engravingData[line].text}
+                                fill={engravingData[line]?.color || "#000000"}
+                                fontSize={engravingData[line]?.fontSize || 24}
+                                draggable
+                                onDragMove={(e) => onTextDrag(line, e)}
+                            />
+                        )}
+                    </React.Fragment>
+                ))}
             </Layer>
         </Stage>
     );

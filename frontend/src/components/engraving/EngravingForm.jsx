@@ -12,12 +12,12 @@ const EngravingForm = ({ engravingLines, engravingData, handleInputChange, activ
 
                 {activeTab === "Pencil" ? (
                     engravingLines.map((line) => (
-                        <div key={line.line_number} className="flex flex-col gap-2">
+                        <div key={line} className="flex flex-col gap-2">
                             <textarea
                                 className="w-full p-2 rounded bg-gray-800 text-white"
                                 placeholder="Enter engraving text"
-                                value={engravingData[line.line_number]?.text || ""}
-                                onChange={(e) => handleTextChange(line.line_number, e.target.value)}
+                                value={engravingData[line]?.text || ""}
+                                onChange={(e) => handleTextChange(line, e.target.value,"text")}
                                 rows={2}
                             />
                         </div>

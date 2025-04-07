@@ -211,45 +211,37 @@ const Sidebar = ({
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
-        <FiPlusCircle 
-    className="cursor-pointer text-xl" 
-    onClick={handleAddEngravingLine} 
-    // style={{ 
-    //   visibility: activeTab === "Pencil" && engravingLines.length > 0 ? "hidden" : "visible" 
-    // }}
-  />
+        {/* Always show + button in Pencil tab, allow multiple lines */}
+        <FiPlusCircle
+          className="cursor-pointer text-xl"
+          onClick={handleAddEngravingLine}
+          // style={{
+          //   visibility: activeTab === "Pencil" ? "visible" : "visible" // Always show
+          // }}
+        />
         {/* <FiPlusCircle className="cursor-pointer text-xl" onClick={handleAddEngravingLine} /> */}
       </div>
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
         <div className="flex flex-wrap gap-2 md:gap-3">
           {engravingLines.length === 0 && (
-            <div className="text-gray-500 text-sm">
-              No engraving lines added yet
-            </div>
+             <div className="text-gray-500 text-sm">
+             {activeTab === "Pencil" ? "Click + to start drawing" : "No engraving lines added yet"}
+           </div>
           )}
-          {activeTab === "Pencil" ? (
-            engravingLines.length > 0 ? (
-              <div className="text-white">Active Drawing Line</div>
-            ) : (
-              <div className="text-gray-500 text-sm">
-                Click + to start drawing
-              </div>
-            )
-          ) : (
-            engravingLines.map((line) => (
-              <div
-                key={line}
-                className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
-                  ? "bg-[#15405B] text-white"
-                  : "border-gray-400"
-                  }`}
-                onClick={() => handleLineClick(line)}
-              >
-                {line}
-              </div>
-            ))
-          )}
+          {engravingLines.map((line) => (
+      <div
+        key={line}
+        className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${
+          selectedLine === line
+            ? "bg-[#15405B] text-white"
+            : "border-gray-400"
+        }`}
+        onClick={() => handleLineClick(line)}
+      >
+        {line}
+      </div>
+    ))}
 
           {/* {engravingLines.map((line) => (
             <div

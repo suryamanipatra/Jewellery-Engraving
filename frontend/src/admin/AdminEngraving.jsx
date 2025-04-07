@@ -65,15 +65,15 @@ const AdminEngraving = () => {
 
   useEffect(() => {
     if (activeTab === "Pencil") {
-      if (!engravingState.engravingLines.includes(1)) {
-        resetEngraving();
-        addEngravingLine();
-      }
+      // if (!engravingState.engravingLines.includes(1)) {
+      //   resetEngraving();
+      //   addEngravingLine();
+      // }
       setDrawingPhase('awaitingFirstPoint');
     } else {
       setDrawingPhase('idle');
     }
-  }, [activeTab, engravingState.engravingLines]);
+  }, [activeTab]);
 
   const handleSave = async () => {
     try {
@@ -233,12 +233,15 @@ const AdminEngraving = () => {
       }
 
       if (activeTab === "Pencil") {
-        if (engravingState.engravingLines.length >= 1) {
-          alert("Pencil mode only supports one line");
-          return;
-        }
-        setIsDrawingMode(true);
+        // if (engravingState.engravingLines.length >= 1) {
+        //   alert("Pencil mode only supports one line");
+        //   return;
+        // }
+        const newLine = addEngravingLine();
+        setSelectedLine(newLine);
         setDrawingPhase('awaitingFirstPoint');
+        // setIsDrawingMode(true);
+        
         return;
       }
 
@@ -421,6 +424,8 @@ const AdminEngraving = () => {
                     onTextDrag={konvaActions.handleTextDrag}
                     drawingPhase={drawingPhase}
                     setDrawingPhase={setDrawingPhase}
+                    selectedLine={engravingState.selectedLine}
+                    engravingLines={engravingState.engravingLines}
                   />
                 )}
               </div>
