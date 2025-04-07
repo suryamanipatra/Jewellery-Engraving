@@ -211,7 +211,6 @@ const Sidebar = ({
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
         </span>
-        {/* Always show + button in Pencil tab, allow multiple lines */}
         <FiPlusCircle
           className="cursor-pointer text-xl"
           onClick={handleAddEngravingLine}

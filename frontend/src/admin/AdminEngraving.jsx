@@ -146,6 +146,7 @@ const AdminEngraving = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {
+      isSaveConfigurationClickedRef.current = false;
       setTimeout(() => {
         setIsLoading(false);
       }
@@ -227,44 +228,39 @@ const AdminEngraving = () => {
 
   const handleAddEngravingLine = async () => {
     try {
+      if (isSaveConfigurationClickedRef.current) return;
       if (!selectedImageId) {
         alert("No image selected");
         return;
       }
-
+  
       if (activeTab === "Pencil") {
-        // if (engravingState.engravingLines.length >= 1) {
-        //   alert("Pencil mode only supports one line");
-        //   return;
-        // }
         const newLine = addEngravingLine();
         setSelectedLine(newLine);
         setDrawingPhase('awaitingFirstPoint');
-        // setIsDrawingMode(true);
-        
-        return;
       }
-
       setIsLoading(true);
-
-      const detailsRes = await axios.get(`${API_BASE_URL}/engraving-details/image/${selectedImageId}`);
+      const detailsRes = await axios.get(
+        `${API_BASE_URL}/engraving-details/image/${selectedImageId}`
+      );
       const details = detailsRes?.data;
-      if (isSaveConfigurationClickedRef.current) {
-        return;
-      } else {
-        let engravingDetail = details[details.length - 1];
-        const currentLines = engravingState.engravingLines.length;
-        const neededLines = currentLines + 1;
-
-        if (!engravingDetail || neededLines > engravingDetail.total_lines) {
-          const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
-            jewelry_image_id: selectedImageId,
-            total_lines: neededLines
-          });
-          engravingDetail = newDetailRes.data;
-          console.log("New engraving detail created:", engravingDetail);
-        }
-
+      
+      if (isSaveConfigurationClickedRef.current) return;
+  
+      let engravingDetail = details[details.length - 1];
+      const currentLines = engravingState.engravingLines.length;
+      const neededLines = currentLines + 1;
+  
+      if (!engravingDetail || neededLines > engravingDetail.total_lines) {
+        const newDetailRes = await axios.post(`${API_BASE_URL}/engraving-details/`, {
+          jewelry_image_id: selectedImageId,
+          total_lines: neededLines
+        });
+        engravingDetail = newDetailRes.data;
+      }
+  
+      // DigiWire-specific line creation
+      if (activeTab !== "Pencil") {
         const newLine = addEngravingLine();
         konvaActions.addNewLine(
           newLine,
@@ -272,16 +268,13 @@ const AdminEngraving = () => {
           { x: 50, y: 150 }
         );
       }
-
+  
     } catch (error) {
       console.error("Error adding line:", error);
       alert("Failed to add engraving line");
     } finally {
       isSaveConfigurationClickedRef.current = false;
-      setTimeout(() => {
-        setIsLoading(false);
-      }
-        , 3000);
+      setTimeout(() => setIsLoading(false), 3000);
     }
   };
 

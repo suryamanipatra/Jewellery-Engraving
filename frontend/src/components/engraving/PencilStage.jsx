@@ -72,8 +72,8 @@ const PencilStage = forwardRef(({
     //     />
     //   )}
     const showDrawingLine = points.length > 1 && drawingPhase === 'drawing';
-    const showSavedPath = konvaState.paths[1] && drawingPhase === 'idle';
-    const showText = konvaState.paths[1] && engravingData[1]?.text;
+    // const showSavedPath = konvaState.paths[1] && drawingPhase === 'idle';
+    // const showText = konvaState.paths[1] && engravingData[1]?.text;
 
     return (
         <Stage
