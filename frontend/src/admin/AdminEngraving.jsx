@@ -329,7 +329,7 @@ const AdminEngraving = () => {
   return (
     <div className="w-full min-h-screen flex flex-col">
       {isLoading && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-54 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
           <Loader />
         </div>
       )}

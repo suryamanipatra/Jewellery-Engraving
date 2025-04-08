@@ -15,7 +15,7 @@ const PencilStage = forwardRef(({
     engravingLines
 }, ref) => {
     const [points, setPoints] = useState([]);
-    const [image] = useImage(selectedImage || '');
+    const [image] = useImage(selectedImage, 'Anonymous');
 
     const CANVAS_WIDTH = 450;
     const CANVAS_HEIGHT = 400;
