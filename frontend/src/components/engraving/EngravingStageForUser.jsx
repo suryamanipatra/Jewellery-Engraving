@@ -9,7 +9,8 @@ const EngravingStageForUser = forwardRef(({
   texts,
 //   onTextDrag,
 }, ref) => {
-  const [konvaImage, setKonvaImage] = useState(null);
+  const [konvaImage, setKonvaImage] = useState(null); 
+  console.log("engravingLines", engravingLines)
 
   useEffect(() => {
     if (selectedImage) {
@@ -33,6 +34,8 @@ const EngravingStageForUser = forwardRef(({
     }
   }, [selectedImage]);
 
+
+
   return (
     <Stage ref={ref} width={window.innerWidth < 768 ? 250 : 450} height={window.innerWidth < 768 ? 150 : 400}>
       <Layer scaleX={konvaState.scale} scaleY={konvaState.scale}>
@@ -41,13 +44,22 @@ const EngravingStageForUser = forwardRef(({
         )}
         {engravingLines.map(line => (
           <React.Fragment key={line.id}>
+            {console.log("engraved by", line?.engraved_by)} 
             <TextPath
               text={texts[line.id] || ""} 
               data={engravingData[line.id]?.path || ""}
-              fontSize={engravingData[line.id]?.fontSize || 24}
-              fill={engravingData[line.id]?.color || "#000"}
-              x={engravingData[line.id]?.positionX || 0}
-              y={engravingData[line.id]?.positionY || 0}
+              fontSize={engravingData[line.id]?.fontSize || 24} 
+              fill={engravingData[line.id]?.color || "#000"} 
+              {
+                ...(line?.engraved_by === "DigiWire"
+                  ? {
+                      x: engravingData[line.id]?.positionX || 0,
+                      y: engravingData[line.id]?.positionY || 0,
+                    }
+                  : {})
+              }           
+              // x={engravingData[line.id]?.positionX || 0}
+              // y={engravingData[line.id]?.positionY || 0}
             //   draggable
             //   onDragMove={(e) => onTextDrag(line.id, e)}
             />

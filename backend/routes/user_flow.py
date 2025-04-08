@@ -132,6 +132,7 @@ def get_details(jewelry_upload_id: int, db: Session = Depends(get_db)):
                             "position_x": line.position_x,
                             "position_y": line.position_y,
                             "path_coordinates": line.path_coordinates,
+                            "engraved_by": line.engraved_by,
                             "created_at": line.created_at,
                             "product_details":line.product_details,
                         } for line in engraving.lines

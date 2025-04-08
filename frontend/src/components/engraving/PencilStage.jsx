@@ -117,12 +117,15 @@ const PencilStage = forwardRef(({
                                 dash={[5, 5]}
                             />
                         )}
+                        {console.log("positions",konvaState.positions[line])}
                         {engravingData[line]?.text && konvaState.paths[line] && (
                             <TextPath
                                 data={konvaState.paths[line]}
                                 text={engravingData[line].text}
                                 fill={engravingData[line]?.color || "#000000"}
                                 fontSize={engravingData[line]?.fontSize || 24}
+                                // x={konvaState.positions[line]?.x || 0}  // Add X position
+                                // y={konvaState.positions[line]?.y || 0}  // Add Y position
                                 draggable
                                 onDragMove={(e) => onTextDrag(line, e)}
                             />

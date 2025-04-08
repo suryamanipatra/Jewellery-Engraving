@@ -18,6 +18,7 @@ class EngravingLine(Base):
     no_of_characters = Column(Integer, nullable=False)
     product_details = Column(Text, nullable=False)
     path_coordinates = Column(Text, nullable=False)
+    engraved_by = Column(String(100), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     
     engraving = relationship("EngravingDetail", back_populates="lines")

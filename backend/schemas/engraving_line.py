@@ -13,6 +13,7 @@ class EngravingLineBase(BaseModel):
     product_details: str
     no_of_characters: int
     path_coordinates: str
+    engraved_by: str
 
 class EngravingLineCreate(EngravingLineBase):
     pass

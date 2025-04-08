@@ -115,7 +115,8 @@ const AdminEngraving = () => {
           position_y: konvaState.positions[line]?.y / konvaState.scale || 0,
           product_details: productDetails,
           no_of_characters: Number(lineData.charCount) || 10,
-          path_coordinates: konvaState.paths[line]
+          path_coordinates: konvaState.paths[line],
+          engraved_by: activeTab,
         };
 
         const response = await axios.post(`${API_BASE_URL}/engraving-lines/`, payload);
