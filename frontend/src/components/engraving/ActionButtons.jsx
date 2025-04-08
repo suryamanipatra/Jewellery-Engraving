@@ -8,19 +8,22 @@ const ActionButtons = ({
   onDownload,
   konvaState,
   konvaActions,
-  engravingLines
+  engravingLines,
+  activeTab,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <div className="flex flex-col md:flex-row md:justify-center md:gap-4 mt-4 md:space-y-0 space-y-1">
       <div className="relative">
+        {activeTab === "DigiWire" && (
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex w-full md:w-auto items-center gap-2 px-5 py-2 bg-white text-[#062538] rounded-xl shadow-md hover:bg-gray-700 hover:text-white transition justify-center cursor-pointer hover:border-2 hover:border-white"
         >
           DigiWire Visibility
         </button>
+        )}
 
         {isDropdownOpen && (
           <div className="absolute z-10 mb-1 w-full bg-white rounded-md shadow-lg bottom-full">

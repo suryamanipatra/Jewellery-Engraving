@@ -437,6 +437,7 @@ const AdminEngraving = () => {
               konvaState={konvaState}
               konvaActions={konvaActions}
               engravingLines={engravingState.engravingLines}
+              activeTab={activeTab}
             // showPath={konvaState.showPath}
             // onTogglePath={() => konvaActions.setShowPath(!konvaState.showPath)}
             />

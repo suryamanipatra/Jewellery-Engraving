@@ -238,7 +238,7 @@ const UserCategories = () => {
             </Snackbar>
             <div className="w-full md:h-[6vh] lg:h-[5vh] xl:h-[7vh] 2xl:h-[9vh] bg-[#1C4E6D] px-2 md:px-8">
                 <nav className="flex flex-wrap items-center justify-between h-full">
-                    <div className="h-full flex justify-start gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
+                    <div className="h-full flex justify-start items-center  gap-1 md:gap-2 bg-[#062538] lg:py-4 lg:pr-19 xl:pr-22 md:py-3 px-3 md:pr-6 2xl:pr-41 2xl:pl-6 rounded-md sm:mb-0 cursor-pointer "
                         onClick={() => {
                             if (window.innerWidth < 1281) {
                                 setIsDrawerOpen(true);
