@@ -7,7 +7,7 @@ import { FaChildren } from "react-icons/fa6";
 import { IoIosArrowForward } from "react-icons/io";
 import Card from '../components/Card';
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
+import Stack from '@mui/material/Stack'; 
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { getCategoryIcon } from '../utils/IconMapping';

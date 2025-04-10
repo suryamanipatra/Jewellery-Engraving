@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { FaHome, FaUpload, FaCog } from "react-icons/fa";
 import { AiFillMessage } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
-import { Tabs, Tab } from "@mui/material";
+import { Tabs, Tab, Drawer } from "@mui/material";
 import TopHeader from "./TopHeader";
 
 const AdminLayout = () => {
@@ -41,63 +41,63 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-                <div className="flex px-4 pt-2 gap-4 h-[80%] mr-3">
+        <div className="flex px-4 pt-2 gap-4 h-[80%] mr-3">
 
-                    <div className="bg-white md:w-46 lg:w-70 md:ml-4 h-[98%] border border-gray-300 rounded-md shadow-md flex-shrink-0">
-                        <Tabs
-                            value={getTabIndex()}
-                            // onChange={handleTabChange}
-                            orientation="vertical"
-                            variant="fullWidth"
-                            className="w-full p-3"
-                            sx={{
-                                "& .MuiTabs-indicator": {
-                                    backgroundColor: "#062538",
-                                },
-                            }}
-                        >
-                            <Tab
-                                component={Link}
-                                to="/admin/home"
-                                icon={<FaHome className="text-lg" style={{ marginRight: '30px' }} />}
-                                label="Home"
-                                iconPosition="start"
-                                className="text-[#062538] font-semibold"
-                                sx={tabStyle}
-                            />
-                            <Tab
+          <div className="bg-white md:w-46 lg:w-70 md:ml-4 h-[98%] border border-gray-300 rounded-md shadow-md flex-shrink-0">
+            <Tabs
+              value={getTabIndex()}
+              // onChange={handleTabChange}
+              orientation="vertical"
+              variant="fullWidth"
+              className="w-full p-3"
+              sx={{
+                "& .MuiTabs-indicator": {
+                  backgroundColor: "#062538",
+                },
+              }}
+            >
+              <Tab
+                component={Link}
+                to="/admin/home"
+                icon={<FaHome className="text-lg" style={{ marginRight: '30px' }} />}
+                label="Home"
+                iconPosition="start"
+                className="text-[#062538] font-semibold"
+                sx={tabStyle}
+              />
+              <Tab
 
-                                component={Link}
-                                to="/admin/upload"
-                                icon={<FaUpload className="text-lg" style={{ marginRight: '30px' }} />}
-                                label="Upload"
-                                iconPosition="start"
-                                className="text-[#062538] font-semibold"
-                                sx={tabStyle}
-                            />
-                            <Tab
-                                component={Link}
-                                to="/admin/settings"
-                                icon={<FaCog className="text-lg" style={{ marginRight: '30px' }} />}
-                                label="Settings"
-                                iconPosition="start"
-                                className="text-[#062538] font-semibold"
-                                sx={tabStyle}
-                            />
-                            <Tab
-                                component={Link}
-                                to="/admin/manage-messages"
-                                icon={<AiFillMessage className="text-lg" style={{ marginRight: '30px' }} />}
-                                label="Manage Messages"
-                                iconPosition="start"
-                                className="text-[#062538] font-semibold"
-                                sx={tabStyle}
-                            />
-                        </Tabs>
-                    </div>
+                component={Link}
+                to="/admin/upload"
+                icon={<FaUpload className="text-lg" style={{ marginRight: '30px' }} />}
+                label="Upload"
+                iconPosition="start"
+                className="text-[#062538] font-semibold"
+                sx={tabStyle}
+              />
+              <Tab
+                component={Link}
+                to="/admin/settings"
+                icon={<FaCog className="text-lg" style={{ marginRight: '30px' }} />}
+                label="Settings"
+                iconPosition="start"
+                className="text-[#062538] font-semibold"
+                sx={tabStyle}
+              />
+              <Tab
+                component={Link}
+                to="/admin/manage-messages"
+                icon={<AiFillMessage className="text-lg" style={{ marginRight: '30px' }} />}
+                label="Manage Messages"
+                iconPosition="start"
+                className="text-[#062538] font-semibold"
+                sx={tabStyle}
+              />
+            </Tabs>
+          </div>
 
 
-          <div className="flex-1 h-[98%] bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] border border-gray-300 rounded-md shadow-md flex flex-col">
+          <div className="flex-1 h-[98%] bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] border border-gray-300 rounded-md shadow-md flex flex-col overflow-y-auto">
             <Outlet />
           </div>
         </div>

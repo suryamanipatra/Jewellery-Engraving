@@ -771,15 +771,15 @@ const UserEngraving = () => {
                             ))} */}
                         </div>
                         <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md p-4 gap-4">
-                            <div className="flex flex-col lg:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
-                                <div className="w-full h-full md:w-full lg:w-[35%] flex flex-col items-start justify-start relative">
-                                    <p className="text-2xl text-gray-300 ml-10 py-4">
+                            <div className="flex flex-col xl:flex-row gap-4 h-auto 2xl:h-[70%]  ">
+                                <div className="w-full h-auto md:w-full xl:w-[70%] flex flex-col items-start justify-start relative">
+                                    <p className="text-white text-4xl mt-2 mb-6">
                                         Available Views of the Jewellery
                                     </p>
 
                                     <div className="relative flex flex-col items-start justify-start">
                                         {/* Image Grid */}
-                                        <div className="w-full lg:w-[30vw] lg:h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-4 lg:grid-cols-2 lg:grid-rows-2   gap-2 mx-2 lg:ml-10 lg:mr-10" style={{ margin: "0 auto" }}>
+                                        <div className="w-full lg:h-[20vh] xl:h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-4 lg:grid-cols-4 lg:grid-rows-1 xl:grid-cols-2 xl:grid-rows-2  gap-2 mx-2 lg:ml-10 lg:mr-10" style={{ margin: "0 auto" }}>
                                             {images.slice(0, 4).map((image, index) => (
                                                 <div
                                                     key={index}
@@ -804,7 +804,7 @@ const UserEngraving = () => {
                                     </div>
                                 </div>
 
-                                <div className="w-full lg:w-[60%] h-[300px] md:h-[400px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
+                                <div className="sm:mt-5 lg:mt-0 w-full lg:w-full xl:w-full xl:h-[450px] md:h-[400px] lg:h-[460px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
                                     {selectedImage && (
                                         <EngravingStageForUser
                                             ref={stageRef}
@@ -832,9 +832,9 @@ const UserEngraving = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="w-full p-2 rounded-2xl flex flex-col justify-between">
+                            <div className="w-full p-2 sm:mt-5 lg:mt-0 xl:mt-0 2xl:mt-15 rounded-2xl flex flex-col justify-between">
                                 <h2 className="text-lg font-semibold text-white mb-2">
-                                    Engraving Id: {id}
+                                    Engraving Id: {id} 
                                 </h2>
                                 <div className="w-full flex flex-col gap-3">
                                     <div className="w-full flex flex-col gap-3">
