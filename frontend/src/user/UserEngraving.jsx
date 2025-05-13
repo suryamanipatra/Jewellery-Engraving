@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { debounce } from "lodash";
 import { generatePdfAndSendMail } from "../utils/pdfHelper.jsx";
 import axios from "axios";
@@ -59,8 +59,8 @@ const UserEngraving = () => {
 
     const { email } = useSelector((state) => state.auth);
 
-    useEffect(() => {
-        const fetchData = async () => {
+    
+        const fetchData = useCallback (async () => {
             try {
                 setShowLoader(true);
                 const detailsResponse = await axios.get(
@@ -86,35 +86,54 @@ const UserEngraving = () => {
                 setImages(imagesWithUrls);
                 if (imagesWithUrls.length > 0) {
                     console.log("imagesWithUrls", imagesWithUrls);
+                    // const initialTexts = {};
+                    const initialEngravingData = {};
+
+                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach((line) => {
+                        // initialTexts[line.id] = line.text;
+                        initialEngravingData[line.id] = {
+                            text: "",
+                            path: line.path_coordinates || "",
+                            fontSize: line.font_size || 24,
+                            color: line.font_color || "#000",
+                            positionX: line.position_x || 0,
+                            positionY: line.position_y || 0,
+                            productDetails: line.product_details,
+                        };
+                    });
                     setSelectedImage(imagesWithUrls[0]);
-                    setEngravingLines(
-                        imagesWithUrls[0].engraving_details?.engraving_lines || []
-                    );
-                    const engravingMap = {};
-                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach(
-                        (line) => {
-                            engravingMap[line.id] = {
-                                text: line.text,
-                                path: line.path_coordinates || "",
-                                fontSize: line.font_size || 24,
-                                color: line.font_color || "#000",
-                                positionX: line.position_x || 0,
-                                positionY: line.position_y || 0,
-                                productDetails: line.product_details,
-                            };
-                        }
-                    );
-                    setEngravingData(engravingMap);
+                    setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
+                    setTexts({});
+                    setEngravingData(initialEngravingData);
+                    setModifiedImages(imagesWithUrls.map((img) => img.imageUrl));
+                    // const engravingMap = {};
+                    // imagesWithUrls[0].engraving_details?.engraving_lines.forEach(
+                    //     (line) => {
+                    //         engravingMap[line.id] = {
+                    //             text: line.text,
+                    //             path: line.path_coordinates || "",
+                    //             fontSize: line.font_size || 24,
+                    //             color: line.font_color || "#000",
+                    //             positionX: line.position_x || 0,
+                    //             positionY: line.position_y || 0,
+                    //             productDetails: line.product_details,
+                    //         };
+                    //     }
+                    // );
+                    // setEngravingData(engravingMap);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
                 setTimeout(() => setShowLoader(false), 3000);
             }
-        };
+        },[id]);
 
-        fetchData();
-    }, [id]);
+        // fetchData();
+        useEffect(() => {
+            fetchData();
+        }, [fetchData]);
+   
 
 
     useEffect(() => {
@@ -153,15 +172,31 @@ const UserEngraving = () => {
         setTimeout(() => setShowLoader(false), 3000);
     }, []);
 
-    const handleImageSelect = (image) => {
+    const handleImageSelect = useCallback((image) => {
         setSelectedImage(image);
         setEngravingLines(image.engraving_details?.engraving_lines || []);
-        const initialValues = {};
+        // const initialValues = {};
+        // const initialTexts = {};
+        const initialEngravingData = {};
         (image.engraving_details?.engraving_lines || []).forEach((line) => {
-            initialValues[line.line_number] = line.text;
+            // initialValues[line.line_number] = line.text;
+            // initialTexts[line.id] = line.text;
+            initialEngravingData[line.id] = {
+                text: "",
+                path: line.path_coordinates || "",
+                fontSize: line.font_size || 24,
+                color: line.font_color || "#000",
+                positionX: line.position_x || 0,
+                positionY: line.position_y || 0,
+                productDetails: line.product_details,
+            };
         });
         setInputValues(initialValues);
-    };
+        setTexts({});
+        setEngravingData(initialEngravingData);
+        const index = images.findIndex((img) => img.id === image.id);
+        setSelectedPreviewIndex(index);
+    },[images]);
     const handleCloseSnackbar = () => {
         setMessage(null);
         setError(null);
@@ -259,7 +294,7 @@ const UserEngraving = () => {
         }
     }, [selectedImage]);
 
-    const capturePreview = () => {
+    const capturePreview = useCallback( () => {
         if (stageRef.current) {
             const dataUrl = stageRef.current.toDataURL();
             const updatedImages = [...modifiedImages];
@@ -267,7 +302,13 @@ const UserEngraving = () => {
             setModifiedImages(updatedImages);
             setPreviewImage(dataUrl);
         }
-    };
+    },[modifiedImages,selectedPreviewIndex]);
+
+    const handleRefresh = useCallback(() => {
+        setShowLoader(true);
+        fetchData();
+    }, [fetchData]);
+
 
 
     const handleContactChange = (e) => {
@@ -503,18 +544,19 @@ const UserEngraving = () => {
                             )}
 
                             <div
-                                onClick={() => {
-                                    setSelectedImage(images[0]);
-                                    setEngravingLines(images[0].engraving_details?.engraving_lines || []);
-                                    setPreviewImage(images[0].imageUrl);
-                                    setSelectedPreviewIndex(0);
-                                    setInputValues({});
-                                    setTexts({});
-                                    setEngravingData({});
-                                    setModifiedImages(images.map((img) => img.imageUrl));
-                                    setShowLoader(true);
-                                    setTimeout(() => setShowLoader(false), 3000);
-                                }}
+                            onClick={handleRefresh}
+                                // onClick={() => {
+                                //     setSelectedImage(images[0]);
+                                //     setEngravingLines(images[0].engraving_details?.engraving_lines || []);
+                                //     setPreviewImage(images[0].imageUrl);
+                                //     setSelectedPreviewIndex(0);
+                                //     setInputValues({});
+                                //     setTexts({});
+                                //     setEngravingData({});
+                                //     setModifiedImages(images.map((img) => img.imageUrl));
+                                //     setShowLoader(true);
+                                //     setTimeout(() => setShowLoader(false), 3000);
+                                // }}
                                 className="h-full flex justify-center items-center gap-1 md:gap-2 bg-[#062538] lg:py-4 xl:pr-22 md:py-3 px-3  2xl:pl-6 rounded-md sm:mb-0 cursor-pointer ">
                                 <RiRefreshFill className="text-white text-xl md:text-3xl" />
                                 <span className="text-white text-sm md:text-xl font-semibold">
@@ -770,10 +812,10 @@ const UserEngraving = () => {
                                 </div>
                             ))} */}
                         </div>
-                        <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md p-4 gap-4">
+                        <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md px-8 py-4 gap-4">
                             <div className="flex flex-col lg:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
                                 <div className="w-full h-full md:w-full lg:w-[35%] flex flex-col items-start justify-start relative">
-                                    <p className="text-2xl text-gray-300 ml-10 py-4">
+                                    <p className="text-4xl text-white py-4">
                                         Available Views of the Jewellery
                                     </p>
 
@@ -804,9 +846,10 @@ const UserEngraving = () => {
                                     </div>
                                 </div>
 
-                                <div className="w-full lg:w-[60%] h-[300px] md:h-[400px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
+                                <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center lg:ml-6 p-2 md:p-4 overflow-hidden relative xl:mt-10">
                                     {selectedImage && (
                                         <EngravingStageForUser
+                                            key={`${selectedImage?.id || 'default'}-${Object.keys(texts).length}`}
                                             ref={stageRef}
                                             selectedImage={selectedImage.imageUrl}
                                             engravingLines={engravingLines}
@@ -832,7 +875,7 @@ const UserEngraving = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="w-full p-2 rounded-2xl flex flex-col justify-between">
+                            <div className="w-full p-2 rounded-2xl flex flex-col justify-between xl:mt-12">
                                 <h2 className="text-lg font-semibold text-white mb-2">
                                     Engraving Id: {id}
                                 </h2>

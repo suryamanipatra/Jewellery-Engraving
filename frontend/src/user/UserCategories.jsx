@@ -12,6 +12,8 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { getCategoryIcon } from '../utils/IconMapping';
 import kamaLogoWhite from '../assets/kama-logo-white.png';
+import noProductFoundImage from '../assets/no-prpduct-found.jpg'
+import NoProductFound from '../common/NoProductFound';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -70,7 +72,7 @@ const UserCategories = () => {
         });
     };
     const handleCloseSnackbar = () => {
-        (null);setMessage
+        (null); setMessage
         setError(null);
     };
     const handleSubmit = async (e) => {
@@ -285,7 +287,7 @@ const UserCategories = () => {
                                     onClick={() => {
                                         setSelectedProductType(item === "All Categories" ? "" : item);
                                         fetchCards(item === "All Categories" ? "" : item);
-                                        setIsDrawerOpen(false); 
+                                        setIsDrawerOpen(false);
                                         setCurrentPage(1);
                                     }}
                                 >
@@ -466,8 +468,12 @@ const UserCategories = () => {
                 </div>
 
                 <div className="border 2xl:w-[80vw] md:w-full overflow-y-auto rounded-md bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] shadow-md 2xl:mr-8 p-4 flex flex-col">
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4">
+                    <div className={currentCards.length > 0
+                        ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4"
+                        : "h-full w-full"
+                    }
+                    >
+                        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4"> */}
                         {currentCards.length > 0 ? (
                             currentCards.map((card) => (
                                 <>
@@ -479,9 +485,7 @@ const UserCategories = () => {
                                 </>
                             ))
                         ) : (
-                            <div className="text-white text-lg col-span-full text-center">
-                                No cards to show for this category.
-                            </div>
+                            <NoProductFound/>
                         )}
                     </div>
                     <div className="mt-4 flex justify-center">

@@ -1,4 +1,4 @@
-// src/api.js
+
 export const updateProductType = async (jewelryImageId, productType) => {
     const response = await fetch(
       `http://localhost:8000/api/products/${jewelryImageId}`,

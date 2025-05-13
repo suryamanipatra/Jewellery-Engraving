@@ -41,7 +41,7 @@ const ImageCarousel = ({
               <img
                 src={url}
                 alt={`Uploaded ${startIndex + index + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
           ))
