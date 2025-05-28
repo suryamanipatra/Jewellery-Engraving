@@ -10,7 +10,7 @@ class JewelryUpload(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     # user_id = Column(Integer, nullable=False)
     jewelry_name = Column(String(255), nullable=False)
-    upload_source = Column(Enum("local", "google_drive"), nullable=False)
+    upload_source = Column(Enum("local", "drive"), nullable=False)
     uploaded_at = Column(TIMESTAMP, server_default=func.now())
     
     images = relationship("JewelryImage", back_populates="upload") 
