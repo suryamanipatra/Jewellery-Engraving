@@ -11,7 +11,7 @@ import Alert from '@mui/material/Alert';
 import { BiCategoryAlt, BiSolidContact } from "react-icons/bi";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { RiRefreshFill } from "react-icons/ri";
-import { MdEmail, MdPreview } from "react-icons/md";
+import { MdEmail, MdPreview, MdFileDownload } from "react-icons/md";
 import {
     FaChevronLeft,
     FaChevronRight,
@@ -49,6 +49,8 @@ const UserEngraving = () => {
     const [modifiedImages, setModifiedImages] = useState([]);
     const [previewImage, setPreviewImage] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSendingMail, setIsSendingMail] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -59,81 +61,81 @@ const UserEngraving = () => {
 
     const { email } = useSelector((state) => state.auth);
 
-    
-        const fetchData = useCallback (async () => {
-            try {
-                setShowLoader(true);
-                const detailsResponse = await axios.get(
-                    `http://localhost:5000/api/get-details?jewelry_upload_id=${id}`
-                );
-                const detailsData = detailsResponse?.data;
 
-                const imagesWithUrls = await Promise.all(
-                    detailsData.map(async (item) => {
-                        const fileResponse = await axios.get(
-                            `http://localhost:5000/api/get-file/${item.file_path}`,
-                            { responseType: "blob" }
-                        );
-                        const blob = new Blob([fileResponse.data]);
-                        return {
-                            ...item,
-                            imageUrl: URL.createObjectURL(blob),
-                            engraving_details: item.engraving_details[0] || null,
-                        };
-                    })
-                );
+    const fetchData = useCallback(async () => {
+        try {
+            setShowLoader(true);
+            const detailsResponse = await axios.get(
+                `http://192.168.0.110:5000/api/get-details?jewelry_upload_id=${id}`
+            );
+            const detailsData = detailsResponse?.data;
 
-                setImages(imagesWithUrls);
-                if (imagesWithUrls.length > 0) {
-                    console.log("imagesWithUrls", imagesWithUrls);
-                    // const initialTexts = {};
-                    const initialEngravingData = {};
+            const imagesWithUrls = await Promise.all(
+                detailsData.map(async (item) => {
+                    const fileResponse = await axios.get(
+                        `http://192.168.0.110:5000/api/get-file/${item.file_path}`,
+                        { responseType: "blob" }
+                    );
+                    const blob = new Blob([fileResponse.data]);
+                    return {
+                        ...item,
+                        imageUrl: URL.createObjectURL(blob),
+                        engraving_details: item.engraving_details[0] || null,
+                    };
+                })
+            );
 
-                    imagesWithUrls[0].engraving_details?.engraving_lines.forEach((line) => {
-                        // initialTexts[line.id] = line.text;
-                        initialEngravingData[line.id] = {
-                            text: "",
-                            path: line.path_coordinates || "",
-                            fontSize: line.font_size || 24,
-                            color: line.font_color || "#000",
-                            positionX: line.position_x || 0,
-                            positionY: line.position_y || 0,
-                            productDetails: line.product_details,
-                        };
-                    });
-                    setSelectedImage(imagesWithUrls[0]);
-                    setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
-                    setTexts({});
-                    setEngravingData(initialEngravingData);
-                    setModifiedImages(imagesWithUrls.map((img) => img.imageUrl));
-                    // const engravingMap = {};
-                    // imagesWithUrls[0].engraving_details?.engraving_lines.forEach(
-                    //     (line) => {
-                    //         engravingMap[line.id] = {
-                    //             text: line.text,
-                    //             path: line.path_coordinates || "",
-                    //             fontSize: line.font_size || 24,
-                    //             color: line.font_color || "#000",
-                    //             positionX: line.position_x || 0,
-                    //             positionY: line.position_y || 0,
-                    //             productDetails: line.product_details,
-                    //         };
-                    //     }
-                    // );
-                    // setEngravingData(engravingMap);
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setTimeout(() => setShowLoader(false), 3000);
+            setImages(imagesWithUrls);
+            if (imagesWithUrls.length > 0) {
+                console.log("imagesWithUrls", imagesWithUrls);
+                // const initialTexts = {};
+                const initialEngravingData = {};
+
+                imagesWithUrls[0].engraving_details?.engraving_lines.forEach((line) => {
+                    // initialTexts[line.id] = line.text;
+                    initialEngravingData[line.id] = {
+                        text: "",
+                        path: line.path_coordinates || "",
+                        fontSize: line.font_size || 24,
+                        color: line.font_color || "#000",
+                        positionX: line.position_x || 0,
+                        positionY: line.position_y || 0,
+                        productDetails: line.product_details,
+                    };
+                });
+                setSelectedImage(imagesWithUrls[0]);
+                setEngravingLines(imagesWithUrls[0].engraving_details?.engraving_lines || []);
+                setTexts({});
+                setEngravingData(initialEngravingData);
+                setModifiedImages(imagesWithUrls.map((img) => img.imageUrl));
+                // const engravingMap = {};
+                // imagesWithUrls[0].engraving_details?.engraving_lines.forEach(
+                //     (line) => {
+                //         engravingMap[line.id] = {
+                //             text: line.text,
+                //             path: line.path_coordinates || "",
+                //             fontSize: line.font_size || 24,
+                //             color: line.font_color || "#000",
+                //             positionX: line.position_x || 0,
+                //             positionY: line.position_y || 0,
+                //             productDetails: line.product_details,
+                //         };
+                //     }
+                // );
+                // setEngravingData(engravingMap);
             }
-        },[id]);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setTimeout(() => setShowLoader(false), 3000);
+        }
+    }, [id]);
 
-        // fetchData();
-        useEffect(() => {
-            fetchData();
-        }, [fetchData]);
-   
+    // fetchData();
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
 
 
     useEffect(() => {
@@ -150,6 +152,7 @@ const UserEngraving = () => {
                     }))
                     .sort((a, b) => a.name.localeCompare(b.name));
 
+                console.log("formattedCountries", formattedCountries)
                 setCountries(formattedCountries);
                 setFormData(prev => ({
                     ...prev,
@@ -171,6 +174,21 @@ const UserEngraving = () => {
     useEffect(() => {
         setTimeout(() => setShowLoader(false), 3000);
     }, []);
+
+
+    const downloadParticularEngravedImage = () => {
+        if (!stageRef.current) return;
+
+        const dataURL = stageRef.current.toDataURL({ pixelRatio: 2 });
+
+        const link = document.createElement("a");
+        link.href = dataURL;
+        link.download = `engraved_image_${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
 
     const handleImageSelect = useCallback((image) => {
         setSelectedImage(image);
@@ -196,7 +214,7 @@ const UserEngraving = () => {
         setEngravingData(initialEngravingData);
         const index = images.findIndex((img) => img.id === image.id);
         setSelectedPreviewIndex(index);
-    },[images]);
+    }, [images]);
     const handleCloseSnackbar = () => {
         setMessage(null);
         setError(null);
@@ -206,7 +224,7 @@ const UserEngraving = () => {
         e.preventDefault();
         setMessage(null);
         setError(null);
-
+        setIsSubmitting(true);
         try {
             const payload = {
                 name: formData.name,
@@ -239,7 +257,7 @@ const UserEngraving = () => {
 
             // enqueueSnackbar(errorMessage, { variant: 'error' });
         } finally {
-            // setLoading(false);
+            setIsSubmitting(false);  
         }
     };
 
@@ -294,7 +312,7 @@ const UserEngraving = () => {
         }
     }, [selectedImage]);
 
-    const capturePreview = useCallback( () => {
+    const capturePreview = useCallback(() => {
         if (stageRef.current) {
             const dataUrl = stageRef.current.toDataURL();
             const updatedImages = [...modifiedImages];
@@ -302,7 +320,7 @@ const UserEngraving = () => {
             setModifiedImages(updatedImages);
             setPreviewImage(dataUrl);
         }
-    },[modifiedImages,selectedPreviewIndex]);
+    }, [modifiedImages, selectedPreviewIndex]);
 
     const handleRefresh = useCallback(() => {
         setShowLoader(true);
@@ -449,17 +467,34 @@ const UserEngraving = () => {
                                                         How does it look? Isn't it pretty?...
                                                     </p>
                                                 </div>
-                                                <button
-                                                    onClick={() => generatePdfAndSendMail(myImage, selectedImage, modifiedImages, setShowLoader, setMessage, setError, email, "userflow")}
-                                                    className="group flex items-center gap-2 bg-white text-[#062538] px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-[#062538] hover:text-white hover:border hover:border-white text-sm md:text-base cursor-pointer">
-                                                    <MdEmail
-                                                        size={16}
-                                                        className="md:size-[20px] text-[#062538] group-hover:text-white"
-                                                    />
-                                                    <span className="group-hover:text-white">
-                                                        Send Via Email
-                                                    </span>
-                                                </button>
+                                                <div className="flex items-center justify-between gap-6">
+
+                                                    <button
+                                                        onClick={() => downloadParticularEngravedImage()}
+                                                        className="group flex items-center gap-2 bg-white text-[#062538] px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-[#062538] hover:text-white hover:border hover:border-white text-sm md:text-base cursor-pointer">
+                                                        <MdFileDownload
+                                                            size={16}
+                                                            className="md:size-[20px] text-[#062538] group-hover:text-white"
+                                                        />
+                                                        <span className="group-hover:text-white">
+                                                            Download
+                                                        </span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsSendingMail(true);
+                                                            generatePdfAndSendMail(myImage, selectedImage, modifiedImages, setShowLoader, setMessage, setError, email, "userflow").finally(() => setIsSendingMail(false));
+                                                        }}
+                                                        className="group flex items-center gap-2 bg-white text-[#062538] px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-md hover:bg-[#062538] hover:text-white hover:border hover:border-white text-sm md:text-base cursor-pointer">
+                                                        <MdEmail
+                                                            size={16}
+                                                            className="md:size-[20px] text-[#062538] group-hover:text-white"
+                                                        />
+                                                        <span className="group-hover:text-white">
+                                                           {isSendingMail ? "Sending..." : "Send mail"}
+                                                        </span>
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             <div className="flex flex-col 2xl:h-[30%] md:flex-row flex-1 w-full gap-4 md:gap-6">
@@ -544,7 +579,7 @@ const UserEngraving = () => {
                             )}
 
                             <div
-                            onClick={handleRefresh}
+                                onClick={handleRefresh}
                                 // onClick={() => {
                                 //     setSelectedImage(images[0]);
                                 //     setEngravingLines(images[0].engraving_details?.engraving_lines || []);
@@ -619,20 +654,19 @@ const UserEngraving = () => {
                                                                 value={formData.countryCode}
                                                                 onChange={handleContactChange}
                                                                 name="countryCode"
-                                                                // input={<CustomInput />}
                                                                 className="w-full"
                                                                 renderValue={(value) => {
-                                                                    const selectedCountry = countries.find(c => c.dialCode === value);
+                                                                    const selectedCountry = countries.find(c => c.code === value);
                                                                     return (
-                                                                        <div className="flex items-center gap-2">
-                                                                            {/* {selectedCountry && ( */}
-                                                                            <img
-                                                                                src="https://flagsapi.com/AF/flat/64.png"
-                                                                                alt="flag"
-                                                                                className="h-4 w-6 object-cover"
-                                                                            />
-                                                                            {/* )} */}
-                                                                            <span>{value}</span>
+                                                                        <div className="flex items-center gap-2 text-black">
+                                                                            {selectedCountry && (
+                                                                                <img
+                                                                                    src={`https://flagsapi.com/${selectedCountry.iso2}/flat/64.png`}
+                                                                                    alt="flag"
+                                                                                    className="h-4 w-6 object-cover"
+                                                                                />
+                                                                            )}
+                                                                            <span className="text-black">{value}</span>
                                                                         </div>
                                                                     );
                                                                 }}
@@ -677,8 +711,8 @@ const UserEngraving = () => {
                                                             >
                                                                 {countries.map((country) => (
                                                                     <MenuItem
-                                                                        key={country.dialCode}
-                                                                        value={country.dialCode}
+                                                                        key={country.code}
+                                                                        value={country.code}
                                                                         sx={{
                                                                             backgroundColor: "#1C4E6D",
                                                                             color: "white",
@@ -694,11 +728,11 @@ const UserEngraving = () => {
                                                                     >
                                                                         <div className="flex items-center gap-2">
                                                                             <img
-                                                                                src="https://flagsapi.com/AF/flat/64.png"
+                                                                                src={`https://flagsapi.com/${country.iso2}/flat/64.png`}
                                                                                 alt="flag"
                                                                                 className="h-4 w-6 object-cover"
                                                                             />
-                                                                            <span>{country.name} ({country.dialCode})</span>
+                                                                            <span>{country.name} ({country.code})</span>
                                                                         </div>
                                                                     </MenuItem>
                                                                 ))}
@@ -742,14 +776,14 @@ const UserEngraving = () => {
                                                             }
                                                             className="w-1/4 bg-[#fff] text-[#062538] cursor-pointer hover:text-white py-2 rounded-lg hover:bg-[#15405B] transition"
                                                         >
-                                                            Cancel
+                                                            Clear
                                                         </button>
                                                         <button
                                                             type="submit"
                                                             className="w-1/4 bg-[#062538] cursor-pointer text-white py-2 rounded-lg hover:bg-[#15405B] transition"
                                                         // disabled={loading}
                                                         >
-                                                            Submit
+                                                            {isSubmitting ? "Submitting..." : "Submit"}
                                                         </button>
                                                     </div>
                                                 </form>
@@ -812,16 +846,16 @@ const UserEngraving = () => {
                                 </div>
                             ))} */}
                         </div>
-                        <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md px-8 py-4 gap-4">
-                            <div className="flex flex-col lg:flex-row gap-4 h-auto 2xl:h-[70%] lg:h-full items-center justify-self-start">
-                                <div className="w-full h-full md:w-full lg:w-[35%] flex flex-col items-start justify-start relative">
-                                    <p className="text-4xl text-white py-4">
+                        <div className="flex flex-col 2xl:w-[80vw] md:w-[100vw] h-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] overflow-y-auto rounded-2xl shadow-md p-4 gap-4">
+                            <div className="flex flex-col xl:flex-row gap-4 h-auto 2xl:h-[70%]  ">
+                                <div className="w-full h-auto md:w-full xl:w-[70%] flex flex-col items-start justify-start relative">
+                                    <p className="text-white text-4xl mt-2 mb-6">
                                         Available Views of the Jewellery
                                     </p>
 
                                     <div className="relative flex flex-col items-start justify-start">
                                         {/* Image Grid */}
-                                        <div className="w-full lg:w-[30vw] lg:h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-4 lg:grid-cols-2 lg:grid-rows-2   gap-2 mx-2 lg:ml-10 lg:mr-10" style={{ margin: "0 auto" }}>
+                                        <div className="w-full lg:h-[20vh] xl:h-[40vh] xl:w-[25vw] 2xl:w-[20vw] grid grid-cols-4 lg:grid-cols-4 lg:grid-rows-1 xl:grid-cols-2 xl:grid-rows-2  gap-2 mx-2 lg:ml-10 lg:mr-10" style={{ margin: "0 auto" }}>
                                             {images.slice(0, 4).map((image, index) => (
                                                 <div
                                                     key={index}
@@ -846,7 +880,7 @@ const UserEngraving = () => {
                                     </div>
                                 </div>
 
-                                <div className="w-full lg:w-[65%] h-[300px] md:h-[400px] bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center lg:ml-6 p-2 md:p-4 overflow-hidden relative xl:mt-10">
+                                <div className="sm:mt-5 lg:mt-0 w-full lg:w-full xl:w-full xl:h-[450px] md:h-[400px] lg:h-[460px] flex items-center justify-center bg-white rounded-2xl shadow-md relative">
                                     {selectedImage && (
                                         <EngravingStageForUser
                                             key={`${selectedImage?.id || 'default'}-${Object.keys(texts).length}`}
@@ -875,7 +909,7 @@ const UserEngraving = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="w-full p-2 rounded-2xl flex flex-col justify-between xl:mt-12">
+                            <div className="w-full p-2 sm:mt-5 lg:mt-0 xl:mt-0 2xl:mt-15 rounded-2xl flex flex-col justify-between">
                                 <h2 className="text-lg font-semibold text-white mb-2">
                                     Engraving Id: {id}
                                 </h2>

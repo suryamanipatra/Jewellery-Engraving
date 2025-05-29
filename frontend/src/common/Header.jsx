@@ -27,6 +27,8 @@ const Header = ({
   setIsRefreshClicked,
   setIsLoading,
   productDetails,
+  isDrawerOpen,
+  setIsDrawerOpen,
 }) => {
   // console.log("productDetails", productDetails);
   const handlePreviewClick = () => {
@@ -44,11 +46,17 @@ const Header = ({
       <div className="w-full bg-[#1C4E6D] px-2 md:px-8">
         <nav className="flex flex-wrap items-center justify-between">
           <div
+            // onClick={() => {
+            //   if (window.innerWidth < 1200) {
+            //     setSideBarOpen((prev) => !prev);
+            //   }
+            // }}
             onClick={() => {
-              if (window.innerWidth < 1200) {
-                setSideBarOpen((prev) => !prev);
+              if (window.innerWidth < 1280) {
+                setIsDrawerOpen(true);
               }
-            }}
+            }
+            }
             className="flex items-center gap-1 md:gap-2 bg-[#062538] py-2 md:py-4 px-3 md:px-6 rounded-md sm:mb-0 cursor-pointer"
           >
             <BiCategoryAlt className="text-white text-xl md:text-3xl" />

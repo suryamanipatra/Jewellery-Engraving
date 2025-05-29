@@ -1,136 +1,129 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from 'react-router-dom';
-import kamaLogo from "../assets/kama-logo.png";
-import { FaTimes } from "react-icons/fa";
-import Header from "../common/Header";
-import Card from "../components/Card";
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  Typography
-} from '@mui/material';
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FileUploadContext } from "../context/FileUploadContext";
+import Card from "../components/Card";
+import axios from "axios";
+import NoProductFound from "../common/NoProductFound";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminDashboard = () => {
-  const { engravings } = useContext(FileUploadContext);
   const navigate = useNavigate();
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const { engravings } = useContext(FileUploadContext);
+  const [currentCards, setCurrentCards] = useState([]);
+  const [images, setImages] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = [
-    "Childrens",
-    "Metal Earrings",
-    "Color Bracelet",
-    "Color Earring",
-    "Color Necklace",
-    "Color Ring",
-    "Couple",
-    "Diamond",
-    "Family",
-    "Love Belove",
-    "Metal Necklace",
-    "Metal Ring",
-    "Initials",
-    "Pearl",
-  ];
+  useEffect(() => {
+    const fetchImages = async () => {
+      const imageResponses = await Promise.all(
+        currentCards.map(async (card) => {
+          try {
+            const response = await axios.get(`${API_BASE_URL}/get-file/${card.file_path}`, {
+              responseType: "blob",
+            });
 
-  const products = [
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-    { name: "Pendant", type: "GenZ Silver Necklace" },
-  ];
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
+            return {
+              id: card.id,
+              url,
+              jewelry_upload_id: card.jewelry_upload_id
+            };
+          } catch (error) {
+            console.error("Error fetching image:", error);
+            return { id: card.id, url: null };
+          }
+        })
+      );
+
+      const imageMap = Object.fromEntries(imageResponses.map(img => [img.id, img]));
+      console.log("imageMap", imageMap);
+      setImages(imageMap);
+      setIsLoading(false);
+    };
+
+    if (currentCards.length > 0) {
+      fetchImages();
+    } else {
+      setIsLoading(false);
+    }
+  }, [currentCards]);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/get-image?jewelry_type=`);
+        if (response?.status === 200) {
+          setCurrentCards(response?.data);
+        }
+      } catch (error) {
+        if (error?.response?.data?.detail === "No matching images found") {
+          setCurrentCards([]);
+        }
+        console.error('Error fetching cards:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, []);
+
+  const handleEdit = (jewelryUploadId) => {
+    const cardData = currentCards.find(card => card.jewelry_upload_id === jewelryUploadId);
+    const imageData = images[cardData.id];
+    console.log("cardData", cardData);
+    navigate(`/edit/engraving/${jewelryUploadId}`, {
+    state: {
+      imageData 
+    }
+  });
   };
 
-  const gridColumns = isSidebarOpen ? "sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6";
+  const handleDelete = async (productId) => {
+    try {
+      console.log("Deleting product with ID:", productId);
+      setCurrentCards(currentCards.filter(card => card.id !== productId));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      Object.values(images).forEach(img => {
+        if (img.url) URL.revokeObjectURL(img.url);
+      });
+    };
+  }, [images]);
+
+  if (isLoading) {
+    return <div className="p-4 md:p-6">Loading products...</div>;
+  }
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
-      <Header
-        kamaLogo={kamaLogo}
-        userName="Arya"
-        setSideBarOpen={toggleSidebar}
-        setIsPopupOpen={() => { }}
-        isPopupOpen={false}
-        handleClose={() => { }}
-        imageURLs={[]}
-        capturePreview={() => { }}
-        previewImage={null}
-      />
-      <div className="flex flex-1"> 
-        {/* Sidebar */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: isSidebarOpen ? 280 : 0,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: isSidebarOpen ? 280 : 0,
-              boxSizing: 'border-box',
-              position: 'relative',
-              height: '100%',
-              backgroundColor: 'white',
-              transition: 'width 0.3s',
-              overflowX: 'hidden',
-            },
-          }}
-          open={isSidebarOpen}
-        >
-          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px' }}>
-            <FaTimes onClick={toggleSidebar} style={{ cursor: 'pointer' }} />
-          </div>
-
-          <List>
-            {categories.map((category, index) => (
-              <ListItem key={index} disablePadding>
-                <ListItemButton sx={{
-                  '&:hover': {
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '4px',
-                    mx: 1,
-                  }
-                }}>
-                  <ListItemText
-                    primary={category}
-                    sx={{
-                      '& .MuiListItemText-primary': {
-                        color: '#374151',
-                        fontSize: '0.875rem',
-                      }
-                    }}
-                  />
-                  <Typography color="text.secondary">›</Typography>
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6 bg-gray-200">
-          <div className={`grid grid-cols-1 ${gridColumns} gap-4 p-4`}>
-            {engravings.map((engraving) => (
-              <Card
-                key={engraving.id}
-                imageUrl={engraving.imageUrl}
-                name={engraving.name}
-                onEngrave={() => navigate('/admin/engraving', {
-                  state: { engraving }
-                })}
-              />
-            ))}
-          </div>
-        </main>
-      </div>
+    <div className="p-4 md:p-6 overflow-y-auto">
+      {currentCards.length === 0 ? (
+        <NoProductFound/>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4 md:gap-6">
+          {console.log("currentCards", currentCards)}
+          {console.log("images", images)}
+          {currentCards.map((card) => (
+            <Card
+              key={card.id}
+              id={card.id}
+              upload_id={card.jewelry_upload_id}
+              imageUrl={images[card.id]?.url || ''}
+              isAdmin={true}
+              onEdit={() => handleEdit(card.jewelry_upload_id)}
+              onDelete={() => handleDelete(card.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

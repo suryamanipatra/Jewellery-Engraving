@@ -13,9 +13,12 @@ import UserCategories from './user/UserCategories';
 import UserEngraving from './user/UserEngraving';
 import UserPreview from './user/UserPreview';
 import AdminMenageMessages from './pages/AdminMenageMessages';
+import AdminDashboard from './admin/AdminDashboard';
+import AdminEditEngraving from './admin/AdminEditEngraving';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { role } = useSelector((state) => state.auth);
+  // console.log()
 
   if (!role) {
     return <Navigate to="/login" replace />;
@@ -59,15 +62,19 @@ const App = () => {
           <Route path="upload" element={<AdminUpload />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="manage-messages" element={<AdminMenageMessages />} />
+          <Route path="admin-dashboard" element={<AdminDashboard/>} />
         </Route>
-        <Route
-          path="/admin/engraving"
-          element={
+        <Route path="/admin/engraving" element={
             <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
               <AdminEngraving />
             </ProtectedRoute>
           }
         />
+        <Route path="/edit/engraving/:id" element={
+          <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+            <AdminEditEngraving />
+          </ProtectedRoute>
+        } />
 
 
         <Route path="/login" element={

@@ -15,8 +15,9 @@ import { useEngravingHandling } from "../hooks/useEngravingHandling";
 import { useKonvaHandling } from "../hooks/useKonvaHandling";
 import { defaultDesign } from "../constant/engravingConstants";
 import Loader from "../common/Loader";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, Drawer } from "@mui/material";
 import PencilStage from "../components/engraving/PencilStage";
+import AdminDrawer from './AdminDrawer'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -61,6 +62,8 @@ const AdminEngraving = () => {
   const [drawingPhase, setDrawingPhase] = useState('idle');
   const [isDrawingMode, setIsDrawingMode] = useState(false);
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
   // const [noOfChar, setNoOfChar] = useState([]);
 
   useEffect(() => {
@@ -69,7 +72,10 @@ const AdminEngraving = () => {
       //   resetEngraving();
       //   addEngravingLine();
       // }
+      // resetEngraving();
       setDrawingPhase('awaitingFirstPoint');
+      // setDrawingPhase('idle');
+      // setIsDrawingMode(false);
     } else {
       setDrawingPhase('idle');
     }
@@ -265,7 +271,7 @@ const AdminEngraving = () => {
         const newLine = addEngravingLine();
         konvaActions.addNewLine(
           newLine,
-          "M50,150 Q250,50 350,150",
+          "M25,75 Q125,25 175,75",
           { x: 50, y: 150 }
         );
       }
@@ -353,10 +359,12 @@ const AdminEngraving = () => {
         setIsRefreshClicked={setIsRefreshClicked}
         setIsLoading={setIsLoading}
         productDetails={productDetails}
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
       />
 
       <div className="w-full flex-grow px-2 md:px-8 flex flex-col lg:flex-row">
-        <div className="lg:w-[20%] fixed">
+        <div className="xl:w-[20%] fixed sm:hidden xl:block ">
           <Sidebar
             engravingLines={engravingState.engravingLines}
             engravingData={engravingState.engravingData}
@@ -379,8 +387,29 @@ const AdminEngraving = () => {
           />
         </div>
 
-        <div className="lg:w-[78%] lg:ml-[20%]">
-          <div className="w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 lg:ml-6 rounded-3xl p-3 md:p-6 flex flex-col">
+        <AdminDrawer
+          isDrawerOpen={isDrawerOpen}
+          setIsDrawerOpen={setIsDrawerOpen}
+          engravingLines={engravingState.engravingLines}
+          engravingData={engravingState.engravingData}
+          selectedLine={engravingState.selectedLine}
+          handleInputChange={handleInputChange}
+          setSelectedLine={setSelectedLine}
+          isProductTypeOpen={isProductTypeOpen}
+          setIsProductTypeOpen={setIsProductTypeOpen}
+          setSelectedJewelleryType={setSelectedJewelleryType}
+          selectedJewelleryType={selectedJewelleryType}
+          setProductDetails={setProductDetails}
+          handleAddEngravingLine={handleAddEngravingLine}
+          isRefreshClicked={isRefreshClicked}
+          setIsRefreshClicked={setIsRefreshClicked}
+          setIsLoading={setIsLoading}
+          activeTab={activeTab}
+        />
+
+
+        <div className="xl:w-[78%] xl:ml-[20%]">
+          <div className="w-full bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] mt-3 mb-2 xl:ml-6 rounded-3xl p-3 md:p-6 flex flex-col">
             <div className="flex flex-col lg:flex-row ">
               <div className="w-full lg:w-[37%] flex flex-col mb-4 lg:mb-0">
                 <ViewTabs activeTab={activeTab} setActiveTab={setActiveTab} />

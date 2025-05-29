@@ -36,27 +36,27 @@ const PencilStage = forwardRef(({
         };
     }, [image]);
 
-    const handleMouseDown = useCallback(() => {
+    const handleMouseDown = useCallback((e) => {
+        console.log("DOWN:", e.evt.type); // 'mousedown' or 'touchstart'
         if (drawingPhase !== 'awaitingFirstPoint') return;
-
         const point = ref.current.getPointerPosition();
         setPoints([point]);
         setDrawingPhase('drawing');
     }, [drawingPhase, ref, setDrawingPhase]);
 
-    const handleMouseMove = useCallback(() => {
+    const handleMouseMove = useCallback((e) => {
         if (drawingPhase !== 'drawing') return;
-
+         console.log("MOVE:", e.evt.type);
         const point = ref.current.getPointerPosition();
         setPoints(prev => [...prev, point]);
     }, [drawingPhase, ref]);
 
-    const handleMouseUp = useCallback(() => {
+    const handleMouseUp = useCallback((e) => {
         if (drawingPhase === 'drawing' && points.length >= 2 && selectedLine) {
             const pathData = points.reduce((acc, point) => {
                 return acc ? `${acc} L ${point.x} ${point.y}` : `M ${point.x} ${point.y}`;
               }, '');
-
+            console.log("UP:", e.evt.type);
             konvaActions.addNewLine(selectedLine, pathData, points[0]);
             setDrawingPhase('idle');
             setPoints([]);
@@ -83,6 +83,9 @@ const PencilStage = forwardRef(({
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
+            onTouchStart={handleMouseDown}
+            onTouchMove={handleMouseMove}
+            onTouchEnd={handleMouseUp}
             scaleX={scale}
             scaleY={scale}
             style={{

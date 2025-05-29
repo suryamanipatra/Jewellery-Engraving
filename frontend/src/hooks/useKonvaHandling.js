@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 
 export const useKonvaHandling = (initialState = {}) => {
   const [konvaState, setKonvaState] = useState({
-    paths: initialState.paths || { 1: "M50,150 Q250,50 350,150" },
+    paths: initialState.paths || { 1: "M25,75 Q125,25 175,75" },
     positions: initialState.positions || { 1: { x: 50, y: 150 } },
     rotation: initialState.rotation || 0,
     visiblePaths: initialState.visiblePaths || { 1: true },
@@ -48,7 +48,7 @@ export const useKonvaHandling = (initialState = {}) => {
     
   };
 
-
+console.log("konvaState",konvaState)
   const togglePathVisibility = (line) => {
     setKonvaState(prev => ({
       ...prev,
@@ -68,6 +68,18 @@ export const useKonvaHandling = (initialState = {}) => {
       }
     }));
   };
+  // const resetKonva = useCallback(() => {
+  //   setKonvaState({
+  //     positions: {},
+  //     paths: {},
+  //     rotation: {},
+  //     showPath: false,
+  //     imageDimensions: { width: 0, height: 0 },
+  //     scale: 1,
+  //     tempPath: "",
+  //     tempStartPoint: { x: 0, y: 0 }
+  //   });
+  // }, []);
 
   return {
     konvaState,
@@ -75,6 +87,7 @@ export const useKonvaHandling = (initialState = {}) => {
       handleTextDrag,
       handlePathDrag,
       addNewLine,
+      // resetKonva,
       setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
       setPositions: (positions) => setKonvaState(prev => ({ ...prev, positions })),
       setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),

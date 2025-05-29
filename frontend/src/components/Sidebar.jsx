@@ -7,6 +7,8 @@ import { FiPlusCircle, FiMinusCircle } from "react-icons/fi";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ImCross } from "react-icons/im";
 import { getCategoryIcon } from "../utils/IconMapping.jsx";
+import kamaLogoWhite from "../assets/kama-logo-white.png";
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,6 +30,7 @@ const Sidebar = ({
   setIsRefreshClicked,
   setIsLoading,
   activeTab,
+  onClose
 }) => {
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
 
@@ -89,14 +92,22 @@ const Sidebar = ({
       className={`${sidebarOpen
         ? "fixed inset-0 bg-white p-4 z-50 w-[100%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA] "
         : "hidden"
-        } lg:relative lg:block lg:z-0 lg:pt-0 transition-all overflow-y-auto duration-300 ease-in-out`}
+        } lg:relative lg:block lg:z-0 lg:pt-0 transition-all overflow-y-auto duration-300 ease-in-out sm:w-[60vw] lg:w-auto sm:bg-[#062538] lg:bg-white`}
     >
       {sidebarOpen && (
-        <div className="lg:hidden absolute top-2 right-2">
-          <ImCross
-            className="text-xl text-gray-500 cursor-pointer hover:text-gray-900"
-            onClick={() => setSideBarOpen(false)}
-          />
+        
+        <div className="lg:hidden">
+          <div
+          onClick={onClose}
+          className="flex justify-end text-4xl cursor-pointer"
+        >
+          x
+        </div>
+        <div className="flex items-center gap-4 mb-4 p-2 mt-4">
+          <img src={kamaLogoWhite} alt="Logo" className="object-cover" />
+        </div>
+
+        <h1 className="text-2xl font-bold text-white mb-4">Engraving Panel</h1>
         </div>
       )}
 
@@ -116,7 +127,8 @@ const Sidebar = ({
           <div className="space-y-2 md:space-y-3 ml-4 md:ml-8 h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
             {jewelleryTypes.map((item, index) => (
               <label
-                key={index}
+                // key={index}
+                key={`${item}-${selectedJewelleryType}`}
                 htmlFor={`productType-${item}`}
                 className="flex items-center gap-3 cursor-pointer p-1 hover:bg-gray-100 rounded"
               >
@@ -130,7 +142,7 @@ const Sidebar = ({
                   className="form-radio h-4 w-4  accent-[#062538]"
                 />
                 {getCategoryIcon(item)}
-                <span className="text-gray-700 color-[#062538]">{item}</span>
+                <span className="text-white color-[#062538] xl:text-gray-700 xl:color-[#062538]">{item}</span>
               </label>
             ))}
           </div>

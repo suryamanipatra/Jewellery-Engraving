@@ -1,7 +1,7 @@
 
 export const updateProductType = async (jewelryImageId, productType) => {
     const response = await fetch(
-      `http://localhost:8000/api/products/${jewelryImageId}`,
+      `http://192.168.0.110:8000/api/products/${jewelryImageId}`,
       {
         method: "PUT",
         headers: {

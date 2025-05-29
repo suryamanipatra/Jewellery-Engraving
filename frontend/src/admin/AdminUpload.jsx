@@ -45,6 +45,10 @@ const AdminUpload = () => {
             ...driveFiles.map(doc => ({ type: "drive", doc }))
           ]);
           setViewTypes(prev => [...prev, ...driveFiles.map(() => "front")]);
+        } else {
+          setSnackbarMessage("No files selected or an error occurred.");
+          setSnackbarSeverity("error");
+          setOpenSnackbar(true);
         }
       }
     });

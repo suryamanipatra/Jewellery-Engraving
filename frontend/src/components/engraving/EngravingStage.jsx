@@ -35,7 +35,7 @@ const EngravingStage = forwardRef(({
     >
       <Layer scaleX={konvaState.scale} scaleY={konvaState.scale}>
         {konvaImage && (
-          <Image 
+          <Image
             image={konvaImage}
             crossOrigin="anonymous"
             width={window.innerWidth < 768 ? 250 : 450}
@@ -64,10 +64,13 @@ const EngravingStage = forwardRef(({
                 x={konvaState.positions[line]?.x || 0}
                 y={konvaState.positions[line]?.y || 0}
                 draggable
-                onDragMove={(e) => onTextDrag(line, e)}
+                onDragMove={(e) => {
+                  console.log('Touch or Mouse Drag', e.evt.type); 
+                  onTextDrag(line, e);
+                }}
                 rotation={konvaState.rotation}
               />
-              
+
               {/* Path visibility controlled by visiblePaths */}
               {konvaState.visiblePaths[line] && (
                 <>
@@ -76,7 +79,7 @@ const EngravingStage = forwardRef(({
                     stroke="gray"
                     strokeWidth={2}
                   />
-                  
+
                   {/* Control points visibility also controlled by visiblePaths */}
                   {konvaState.paths[line]?.match(/(-?\d+\.?\d*)/g)?.map((val, index, arr) =>
                     index % 2 === 0 ? (
@@ -87,7 +90,8 @@ const EngravingStage = forwardRef(({
                         radius={5}
                         fill="blue"
                         draggable
-                        onDragMove={(e) => 
+                        onDragMove={(e) =>{
+                          console.log('Touch or Mouse Drag (Path)', e.evt.type);
                           onPathDrag(
                             line,
                             arr[index],
@@ -95,6 +99,8 @@ const EngravingStage = forwardRef(({
                             e.target.x(),
                             e.target.y()
                           )
+                        }
+                          
                         }
                       />
                     ) : null

@@ -206,11 +206,14 @@ const Auth = () => {
       }
 
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="w-full bg-white md:px-12 lg:px-[16%] pb-4">
-          <TopHeader />
+        <div className="w-full relative">
+          <div className="absolute left-1/2 top-0 transform -translate-x-1/2 -translate-y-1/2 mt-[-6.5dvh]">
+            <TopHeader />
+          </div>
         </div>
 
-        <div className="flex items-center justify-center px-4 md:px-12 lg:px-[18%] relative -top-6">
+
+        <div className="flex items-center justify-center px-4 md:px-12 lg:px-[18%]">
           <div className="bg-gradient-to-br from-[#062538] via-[#15405B] to-[#326B8E] flex md:flex-row rounded-lg">
             <div className="w-full md:w-2/5 p-4 md:p-8 text-center md:text-left">
               <p className="text-white font-telex font-normal text-base sm:text-2xl md:text-2xl leading-[137%] tracking-wide">
