@@ -205,7 +205,7 @@ const AdminUpload = () => {
               <>
                 <MdCloudUpload className="text-4xl text-gray-500 mx-auto" />
                 <p className="font-medium">Drop file or Browse</p>
-                <p className="text-xs text-gray-400">Format: pdf, docx, doc & Max file size: 25 MB</p>
+                <p className="text-xs text-gray-400">Format: pdf, docx, doc</p>
               </>
             ) : (
               <div className="w-full max-h-[150px] overflow-y-auto flex flex-col gap-2">
@@ -281,9 +281,9 @@ const AdminUpload = () => {
           </Snackbar>
           <input type="file" multiple onChange={handleFileChange} className="hidden" id="fileUpload" />
           <div className="flex gap-4 justify-center mb-4">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md cursor-pointer" onClick={() => handleOpenPicker()}>
+            {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md cursor-pointer" onClick={() => handleOpenPicker()}>
               <FaGoogleDrive className="text-yellow-600" /> Upload from Drive
-            </button>
+            </button> */}
             <label htmlFor="fileUpload" className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-md cursor-pointer">
               <MdCloudUpload /> Browse
             </label>

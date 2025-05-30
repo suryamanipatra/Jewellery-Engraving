@@ -1,3 +1,30 @@
+# version: '3.9'
+
+# services:
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: backend/Dockerfile
+#     container_name: kama_backend
+#     ports:
+#       - "5000:5000"
+#     volumes:
+#       - D:/images:/app/uploads
+#     env_file:
+#       - backend/.env
+
+#   frontend:
+#     build:
+#       context: .
+#       dockerfile: frontend/Dockerfile
+#     container_name: kama_frontend
+#     ports:
+#       - "5173:5173"
+
+   
+
+
+
 version: '3.9'
 
 services:
@@ -12,6 +39,8 @@ services:
       - D:/images:/app/uploads
     env_file:
       - backend/.env
+    networks:
+      - kama_net
 
   frontend:
     build:
@@ -20,4 +49,9 @@ services:
     container_name: kama_frontend
     ports:
       - "5173:5173"
+    networks:
+      - kama_net
 
+networks:
+  kama_net:
+    driver: bridge

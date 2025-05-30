@@ -233,7 +233,7 @@ const Auth = () => {
                   {isForgotPassword ? "Forgot Password" : isLogin ? "Welcome Back!" : "Create Account"}
                 </h2>
 
-                {!isForgotPassword && (
+                {/* {!isForgotPassword && (
                   <>
                     <div className="w-fit mx-auto border border-gray-300 lg:px-4 lg:py-2 sm:px-2 sm:py-2 xs:px-4 xs:py-4 rounded-lg cursor-pointer"
                       onClick={googleLogin}
@@ -249,7 +249,7 @@ const Auth = () => {
 
                     <p className="text-gray-400 text-center my-4">- OR -</p>
                   </>
-                )}
+                )} */}
 
                 {isForgotPassword ? (
                   <form className="space-y-4 md:px-12" onSubmit={step === 1 ? handleSendOtp : handleResetPassword}>

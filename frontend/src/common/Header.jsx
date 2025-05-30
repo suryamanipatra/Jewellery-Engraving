@@ -4,7 +4,7 @@ import React from "react";
 import { BiCategoryAlt } from "react-icons/bi";
 import { AiOutlineEye } from "react-icons/ai";
 import { RiRefreshFill } from "react-icons/ri";
-import PreviewPopup from "../components/PreviewPopUp";
+import PreviewPopup from "../components/PreviewPopup.jsx";
 import { useSelector } from "react-redux";
 import TopHeader from "./TopHeader";
 import { set } from "lodash";
