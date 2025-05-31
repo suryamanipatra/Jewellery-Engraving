@@ -18,21 +18,29 @@ import AdminEditEngraving from './admin/AdminEditEngraving';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { role } = useSelector((state) => state.auth);
+  console.log(role)
   // console.log()
 
   if (!role) {
     return <Navigate to="/login" replace />;
   }
-
   if (!allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
+
+  // if (!allowedRoles.includes(role)) {
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
 
   return children;
 };
 
 const ReverseProtectedRoute = ({ children }) => {
   const { role } = useSelector((state) => state.auth);
+
+  if (role === undefined) {
+    return null;
+  }
 
   if (role) {
     const redirectPath = ['admin', 'super_admin'].includes(role)
@@ -43,6 +51,7 @@ const ReverseProtectedRoute = ({ children }) => {
 
   return children;
 };
+
 
 const App = () => {
   return (
@@ -62,13 +71,13 @@ const App = () => {
           <Route path="upload" element={<AdminUpload />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="manage-messages" element={<AdminMenageMessages />} />
-          <Route path="admin-dashboard" element={<AdminDashboard/>} />
+          <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
         <Route path="/admin/engraving" element={
-            <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
-              <AdminEngraving />
-            </ProtectedRoute>
-          }
+          <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+            <AdminEngraving />
+          </ProtectedRoute>
+        }
         />
         <Route path="/edit/engraving/:id" element={
           <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
@@ -93,7 +102,12 @@ const App = () => {
           </ReverseProtectedRoute>
         } />
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={
+          <ReverseProtectedRoute>
+            <Navigate to="/login" replace />
+          </ReverseProtectedRoute>
+        } />
+
 
 
         <Route path="/engraving-categories" element={
