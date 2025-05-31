@@ -66,14 +66,14 @@ const UserEngraving = () => {
         try {
             setShowLoader(true);
             const detailsResponse = await axios.get(
-                `http://192.168.0.110:5000/api/get-details?jewelry_upload_id=${id}`
+                `${API_BASE_URL}/get-details?jewelry_upload_id=${id}`
             );
             const detailsData = detailsResponse?.data;
 
             const imagesWithUrls = await Promise.all(
                 detailsData.map(async (item) => {
                     const fileResponse = await axios.get(
-                        `http://192.168.0.110:5000/api/get-file/${item.file_path}`,
+                        `${API_BASE_URL}/get-file/${item.file_path}`,
                         { responseType: "blob" }
                     );
                     const blob = new Blob([fileResponse.data]);
