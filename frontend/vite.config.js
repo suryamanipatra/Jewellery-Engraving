@@ -2,29 +2,21 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-
-
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss()],
+  plugins: [react(), tailwindcss()],
   server: {
     host: '0.0.0.0',
-    port: 5173,   
+    port: 5173,
+    allowedHosts: [
+      'pd.catalogue.kamajewelry.com',  
+      // 'all',
+    ],
     proxy: {
       '/api': {
-        target: 'http://backend:5000', 
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },
-    },   
+    },
   },
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://192.168.0.110:8000', 
-  //       changeOrigin: true,
-  //       secure: false,
-  //     },
-  //   },
-  // },
 })
