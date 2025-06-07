@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, forwardRef , useMemo} from "react";
 import { Stage, Layer, Path, TextPath, Circle, Image, Text } from "react-konva";
 import useImage from "use-image";
 
