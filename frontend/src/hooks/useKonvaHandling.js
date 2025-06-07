@@ -1,5 +1,4 @@
-import { useCallback, useState } from "react";
-
+import { useCallback, useState, useMemo } from "react";
 
 export const useKonvaHandling = (initialState = {}) => {
   const [konvaState, setKonvaState] = useState({
@@ -7,7 +6,6 @@ export const useKonvaHandling = (initialState = {}) => {
     positions: initialState.positions || { 1: { x: 50, y: 150 } },
     rotation: initialState.rotation || 0,
     visiblePaths: initialState.visiblePaths || { 1: true },
-    // showPath: initialState.showPath !== undefined ? initialState.showPath : true,
     scale: 1,
     imageDimensions: { width: 0, height: 0 },
     tempPath: "",
@@ -21,12 +19,10 @@ export const useKonvaHandling = (initialState = {}) => {
         ...prev.positions,
         [line]: { x: e.target.x(), y: e.target.y() }
       }
-      
     }));
-    // console.log("positions",positions)
-    // console.log(`Text Position for Line ${line}:`, { x: e.target.x(), y: e.target.y() });
   };
-  const addNewLine = (line, path, position)  => {
+
+  const addNewLine = (line, path, position) => {
     setKonvaState(prev => ({
       ...prev,
       paths: { ...prev.paths, [line]: path },
@@ -45,10 +41,8 @@ export const useKonvaHandling = (initialState = {}) => {
         )
       }
     }));
-    
   };
 
-console.log("konvaState",konvaState)
   const togglePathVisibility = (line) => {
     setKonvaState(prev => ({
       ...prev,
@@ -68,34 +62,23 @@ console.log("konvaState",konvaState)
       }
     }));
   };
-  // const resetKonva = useCallback(() => {
-  //   setKonvaState({
-  //     positions: {},
-  //     paths: {},
-  //     rotation: {},
-  //     showPath: false,
-  //     imageDimensions: { width: 0, height: 0 },
-  //     scale: 1,
-  //     tempPath: "",
-  //     tempStartPoint: { x: 0, y: 0 }
-  //   });
-  // }, []);
+
+  const konvaActions = useMemo(() => ({
+    handleTextDrag,
+    handlePathDrag,
+    addNewLine,
+    setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
+    setPositions: (positions) => setKonvaState(prev => ({ ...prev, positions })),
+    setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),
+    togglePathVisibility,
+    setPathVisibility,
+    setTempPath: (path) => setKonvaState(prev => ({ ...prev, tempPath: path })),
+    setTempStartPoint: (point) => setKonvaState(prev => ({ ...prev, tempStartPoint: point })),
+  }), []);
+  // console.log("useKonvaHandling updated - konvaState:", konvaState);
 
   return {
     konvaState,
-    konvaActions: {
-      handleTextDrag,
-      handlePathDrag,
-      addNewLine,
-      // resetKonva,
-      setPaths: (paths) => setKonvaState(prev => ({ ...prev, paths })),
-      setPositions: (positions) => setKonvaState(prev => ({ ...prev, positions })),
-      setRotation: (rotation) => setKonvaState(prev => ({ ...prev, rotation })),
-      togglePathVisibility,
-      setPathVisibility,
-      setTempPath: (path) => setKonvaState(prev => ({ ...prev, tempPath: path })),
-      setTempStartPoint: (point) => setKonvaState(prev => ({ ...prev, tempStartPoint: point })),
-      // setShowPath: (showPath) => setKonvaState(prev => ({ ...prev, showPath }))
-    }
+    konvaActions
   };
-}; 
+};

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, use } from "react";
-import axios from 'axios'
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import { AiOutlineSetting } from "react-icons/ai";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { BsSoundwave } from "react-icons/bs";
@@ -8,7 +8,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { ImCross } from "react-icons/im";
 import { getCategoryIcon } from "../utils/IconMapping.jsx";
 import kamaLogoWhite from "../assets/kama-logo-white.png";
-
+import { Radio, RadioGroup, FormControlLabel } from "@mui/material";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -23,28 +23,40 @@ const Sidebar = ({
   isProductTypeOpen,
   setIsProductTypeOpen,
   setSelectedJewelleryType,
-  selectedJewelleryType,
+  selectedJewelleryType: initialJewelleryType,
   setProductDetails,
   handleAddEngravingLine,
   isRefreshClicked,
   setIsRefreshClicked,
   setIsLoading,
   activeTab,
-  onClose
+  onClose,
+  isDrawerContext = false
 }) => {
   const [jewelleryTypes, setJewelleryTypes] = useState([]);
-
   const [showInputFields, setShowInputFields] = useState(false);
   const [property, setProperty] = useState("");
   const [value, setValue] = useState("");
   const [productInfo, setProductInfo] = useState([]);
+  const [localJewelleryType, setLocalJewelleryType] = useState(initialJewelleryType || "");
 
+  useEffect(() => {
+    setLocalJewelleryType(initialJewelleryType || "");
+  }, [initialJewelleryType]);
+
+  useEffect(() => {
+    console.log("Sidebar re-rendered");
+  });
+
+  useEffect(() => {
+    console.log("Sidebar - localJewelleryType:", localJewelleryType);
+  }, [localJewelleryType]);
 
   const handleAddProperty = () => {
     if (property.trim() && value.trim()) {
       const newProductInfo = [...productInfo, { property, value }];
       setProductInfo(newProductInfo);
-      setProductDetails(JSON.stringify(newProductInfo)); // Store as JSON string
+      setProductDetails(JSON.stringify(newProductInfo));
       setProperty("");
       setValue("");
       setShowInputFields(false);
@@ -63,6 +75,7 @@ const Sidebar = ({
       setProperty("");
       setValue("");
       setSelectedLine(null);
+      setLocalJewelleryType("");
       setIsRefreshClicked(false);
       setIsLoading(false);
     }
@@ -73,46 +86,44 @@ const Sidebar = ({
       try {
         const response = await axios.get(`${API_BASE_URL}/products/get_all_jewelry_types`);
         if (response?.status === 200) {
-          const temp = [];
-          response?.data?.map((item) => {
-            temp.push(item?.name);
-          });
-          console.log("Jewellery types:", temp);
+          const temp = response?.data?.map((item) => item?.name) || [];
           setJewelleryTypes(temp);
         }
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error('Error fetching jewellery types:', error);
       }
     };
     fetchJewelleryProductTypes();
   }, []);
 
+  const radioStyles = isDrawerContext
+    ? { color: "white", "&.Mui-checked": { color: "white" } }
+    : { color: "#062538", "&.Mui-checked": { color: "#062538" } };
+
   return (
     <div
-      className={`${sidebarOpen
-        ? "fixed inset-0 bg-white p-4 z-50 w-[100%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA] "
-        : "hidden"
-        } lg:relative lg:block lg:z-0 lg:pt-0 transition-all overflow-y-auto duration-300 ease-in-out sm:w-[60vw] lg:w-auto sm:bg-[#062538] lg:bg-white`}
+      className={`${
+        sidebarOpen
+          ? "fixed inset-0 bg-white p-4 z-50 w-[100%] xl:mt-[12px] h-[100vh] lg:h-[80vh] border-[2px] border-[#DADADA]"
+          : "hidden"
+      } lg:relative lg:block lg:z-0 lg:pt-0 transition-all overflow-y-auto duration-300 ease-in-out sm:w-[60vw] lg:w-auto sm:bg-[#062538] lg:bg-white`}
     >
       {sidebarOpen && (
-        
         <div className="lg:hidden">
           <div
-          onClick={onClose}
-          className="flex justify-end text-4xl cursor-pointer"
-        >
-          x
-        </div>
-        <div className="flex items-center gap-4 mb-4 p-2 mt-4">
-          <img src={kamaLogoWhite} alt="Logo" className="object-cover" />
-        </div>
-
-        <h1 className="text-2xl font-bold text-white mb-4">Engraving Panel</h1>
+            onClick={onClose}
+            className="flex justify-end text-4xl cursor-pointer"
+          >
+            <ImCross />
+          </div>
+          <div className="flex items-center gap-4 mb-4 p-2 mt-4">
+            <img src={kamaLogoWhite} alt="Logo" className="object-cover" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-4">Engraving Panel</h1>
         </div>
       )}
 
       <div>
-
         <div
           className="flex items-center justify-between cursor-pointer py-2 md:py-4"
           onClick={() => setIsProductTypeOpen(!isProductTypeOpen)}
@@ -125,40 +136,33 @@ const Sidebar = ({
 
         {jewelleryTypes.length !== 0 && isProductTypeOpen && (
           <div className="space-y-2 md:space-y-3 ml-4 md:ml-8 h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
-            {jewelleryTypes.map((item, index) => (
-              <label
-                // key={index}
-                key={`${item}-${selectedJewelleryType}`}
-                htmlFor={`productType-${item}`}
-                className="flex items-center gap-3 cursor-pointer p-1 hover:bg-gray-100 rounded"
-              >
-                <input
-                  type="radio"
-                  id={`productType-${item}`}
-                  name="productType"
+            <RadioGroup 
+              value={localJewelleryType}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                console.log("RadioGroup changed to:", newValue);
+                setLocalJewelleryType(newValue);
+                setSelectedJewelleryType(newValue);
+              }}
+              name="productType"
+            >
+              {jewelleryTypes.map((item) => (
+                <FormControlLabel
+                  key={item}
                   value={item}
-                  checked={selectedJewelleryType === item}
-                  onChange={(e) => setSelectedJewelleryType(e.target.value)}
-                  className="form-radio h-4 w-4  accent-[#062538]"
+                  control={<Radio sx={radioStyles} />}
+                  label={
+                    <div className="flex items-center gap-3">
+                      {getCategoryIcon(item)}
+                      <span className={isDrawerContext ? "text-white" : "text-white xl:text-gray-700"}>{item}</span>
+                    </div>
+                  }
                 />
-                {getCategoryIcon(item)}
-                <span className="text-white color-[#062538] xl:text-gray-700 xl:color-[#062538]">{item}</span>
-              </label>
-            ))}
+              ))}
+            </RadioGroup>
           </div>
         )}
       </div>
-
-      {/* <div className="flex items-center gap-2 md:gap-3 py-2">
-        <MdOutlineInventory2 /> <span>Product Details</span>
-      </div>
-      <textarea
-        placeholder=""
-        className="w-full h-9 border border-gray-300 rounded-md px-3 py-2 focus:outline-none resize-y"
-        onChange={(e) => setProductDetails(e.target.value)}
-        style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
-      /> */}
-
 
       <div className="flex items-center justify-between py-2 mt-2">
         <div className="flex items-center gap-2 md:gap-3">
@@ -196,7 +200,6 @@ const Sidebar = ({
         </div>
       )}
 
-
       {productInfo.length !== 0 && (
         <div className="mt-3 space-y-2 md:space-y-3 ml-4 md:ml-8 max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 shadow-md">
           {productInfo.map((item, index) => (
@@ -218,7 +221,6 @@ const Sidebar = ({
         </div>
       )}
 
-
       <div className="flex items-center justify-between cursor-pointer pb-2 pt-4">
         <span className="flex items-center gap-2 md:gap-3">
           <BsSoundwave /> Engraving Lines
@@ -226,46 +228,29 @@ const Sidebar = ({
         <FiPlusCircle
           className="cursor-pointer text-xl"
           onClick={handleAddEngravingLine}
-          // style={{
-          //   visibility: activeTab === "Pencil" ? "visible" : "visible" // Always show
-          // }}
         />
-        {/* <FiPlusCircle className="cursor-pointer text-xl" onClick={handleAddEngravingLine} /> */}
       </div>
 
       <div className="ml-4 md:ml-8 flex flex-col gap-2">
         <div className="flex flex-wrap gap-2 md:gap-3">
           {engravingLines.length === 0 && (
-             <div className="text-gray-500 text-sm">
-             {activeTab === "Pencil" ? "Click + to start drawing" : "No engraving lines added yet"}
-           </div>
+            <div className="text-gray-500 text-sm">
+              {activeTab === "Pencil" ? "Click + to start drawing" : "No engraving lines added yet"}
+            </div>
           )}
           {engravingLines.map((line) => (
-      <div
-        key={line}
-        className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${
-          selectedLine === line
-            ? "bg-[#15405B] text-white"
-            : "border-gray-400"
-        }`}
-        onClick={() => handleLineClick(line)}
-      >
-        {line}
-      </div>
-    ))}
-
-          {/* {engravingLines.map((line) => (
             <div
               key={line}
-              className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${selectedLine === line
-                ? "bg-[#15405B] text-white"
-                : "border-gray-400"
-                }`}
+              className={`w-8 h-8 md:w-10 md:h-10 flex justify-center items-center border rounded-md text-sm md:text-lg cursor-pointer ${
+                selectedLine === line
+                  ? "bg-[#15405B] text-white"
+                  : "border-gray-400"
+              }`}
               onClick={() => handleLineClick(line)}
             >
               {line}
             </div>
-          ))} */}
+          ))}
         </div>
         {selectedLine && (
           <>
@@ -279,15 +264,12 @@ const Sidebar = ({
                 value={engravingData[selectedLine]?.charCount ?? 10}
                 onChange={(e) => {
                   let value = e.target.value;
-
                   if (value.length > 1 && value.startsWith("0")) {
                     value = value.replace(/^0+/, "");
                   }
-
                   handleInputChange(selectedLine, value, "charCount");
                 }}
               />
-
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs md:text-sm w-20">Font size</span>
@@ -296,9 +278,7 @@ const Sidebar = ({
                 placeholder=""
                 className="w-20 md:w-24 h-9 border border-gray-400 rounded-md px-2 focus:outline-none"
                 style={{ boxShadow: "0px 7px 29px rgba(100, 100, 111, 0.25)" }}
-                value={
-                  selectedLine ? engravingData[selectedLine]?.fontSize || "" : ""
-                }
+                value={engravingData[selectedLine]?.fontSize || ""}
                 onChange={(e) =>
                   handleInputChange(selectedLine, e.target.value, "fontSize")
                 }
@@ -315,7 +295,6 @@ const Sidebar = ({
             </div>
           </>
         )}
-
       </div>
     </div>
   );

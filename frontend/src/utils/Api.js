@@ -1,7 +1,7 @@
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const updateProductType = async (jewelryImageId, productType) => {
     const response = await fetch(
-      `http://192.168.0.110:8000/api/products/${jewelryImageId}`,
+      `${API_BASE_URL}/products/${jewelryImageId}`,
       {
         method: "PUT",
         headers: {

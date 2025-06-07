@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export const useImageHandling = (files) => {
   const [imageURLs, setImageURLs] = useState([]);
@@ -10,7 +10,7 @@ export const useImageHandling = (files) => {
     if (files.length > 0) {
       const urls = files.map((file) => {
         console.log("hook file", file);
-        return URL.createObjectURL(file.file); // fixed with return
+        return URL.createObjectURL(file.file);
       });
       console.log('Generated URLs:', urls);
       setImageURLs(urls);
@@ -18,22 +18,6 @@ export const useImageHandling = (files) => {
       return () => urls.forEach((url) => URL.revokeObjectURL(url));
     }
   }, [files]);
-
-
-  // const handleImageClick = (url) => {
-  //   setSelectedImage(url);
-  // };
-  // const replaceImageAtIndex = (index, newUrl) => {
-  //   console.log("new url", newUrl);
-  //   setImageURLs(prev => {
-  //     const newUrls = [...prev];
-  //     if (index >= 0 && index < newUrls.length) {
-  //       URL.revokeObjectURL(newUrls[index]);
-  //       newUrls[index] = newUrl;
-  //     }
-  //     return newUrls;
-  //   });
-  // };
 
   const handleNext = () => {
     if (startIndex + itemsPerPage < imageURLs.length) {
@@ -47,14 +31,16 @@ export const useImageHandling = (files) => {
     }
   };
 
-  return {
+  const result = useMemo(() => ({
     imageURLs,
-    // replaceImageAtIndex,
     selectedImage,
-    // handleImageClick,
     handleNext,
     handlePrev,
     startIndex,
     itemsPerPage
-  };
+  }), [imageURLs, selectedImage, startIndex, itemsPerPage]);
+
+  // console.log("useImageHandling updated:", result);
+
+  return result;
 };
