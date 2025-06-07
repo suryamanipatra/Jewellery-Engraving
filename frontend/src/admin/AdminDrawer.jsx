@@ -1,12 +1,9 @@
 import Drawer from "@mui/material/Drawer";
-// import { ImCross } from "react-icons/im";
 import Sidebar from "../components/Sidebar";
-// import kamaLogoWhite from "../assets/kama-logo-white.png";
 
 const AdminDrawer = ({
   isDrawerOpen,
   setIsDrawerOpen,
-  // Props forwarded to Sidebar
   engravingLines,
   engravingData,
   selectedLine,
@@ -22,6 +19,7 @@ const AdminDrawer = ({
   setIsRefreshClicked,
   setIsLoading,
   activeTab,
+  isDrawerContext = true 
 }) => {
   return (
     <Drawer
@@ -29,9 +27,8 @@ const AdminDrawer = ({
       open={isDrawerOpen}
       onClose={() => setIsDrawerOpen(false)}
       ModalProps={{
-        keepMounted: true, 
+        keepMounted: true,
       }}
-      className="sm:block"
       sx={{
         "& .MuiDrawer-paper": {
           width: "60vw",
@@ -42,15 +39,13 @@ const AdminDrawer = ({
       }}
     >
       <div className="w-auto flex flex-col gap-4 overflow-y-auto max-h-screen">
-      
-
         <Sidebar
           engravingLines={engravingLines}
           engravingData={engravingData}
           selectedLine={selectedLine}
           handleInputChange={handleInputChange}
           setSelectedLine={setSelectedLine}
-          sidebarOpen={true} // Always open inside drawer
+          sidebarOpen={true}
           setSideBarOpen={setIsDrawerOpen}
           isProductTypeOpen={isProductTypeOpen}
           setIsProductTypeOpen={setIsProductTypeOpen}
@@ -63,6 +58,7 @@ const AdminDrawer = ({
           setIsLoading={setIsLoading}
           activeTab={activeTab}
           onClose={() => setIsDrawerOpen(false)}
+          isDrawerContext={isDrawerContext} 
         />
       </div>
     </Drawer>
