@@ -265,7 +265,7 @@ const AdminEngraving = () => {
     if (!value) return;
     try {
       setIsLoading(true);
-      await axios.post(`${API_BASE_URL}/products`, {
+      await axios.post(`${API_BASE_URL}/products/`, {
         jewelry_upload_id: jewelryUploadId,
         product_type: value.toLowerCase()
       });
